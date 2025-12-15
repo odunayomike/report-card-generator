@@ -1,40 +1,84 @@
-import { useState } from 'react';
-import StudentForm from './components/StudentForm';
-import ReportCard from './components/ReportCard';
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import LandingPage from './components/LandingPage';
+import Login from './components/Login';
+import Register from './components/Register';
+import Dashboard from './components/Dashboard';
 
 function App() {
-  const [reportData, setReportData] = useState(null);
-  const [showReport, setShowReport] = useState(false);
+  const [school, setSchool] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleFormSubmit = (data) => {
-    setReportData(data);
-    setShowReport(true);
+  // Check if user is already logged in
+  useEffect(() => {
+    checkSession();
+  }, []);
+
+  const checkSession = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/auth/check-session', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+
+      if (data.authenticated) {
+        setSchool(data.school);
+      }
+    } catch (error) {
+      console.error('Session check error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleBackToForm = () => {
-    setShowReport(false);
+  const handleLogin = (schoolData) => {
+    setSchool(schoolData);
   };
+
+  const handleRegister = (schoolData) => {
+    setSchool(schoolData);
+  };
+
+  const handleLogout = () => {
+    setSchool(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
-      <div className=" mx-auto px-4">
-        {!showReport ? (
-          <StudentForm onSubmit={handleFormSubmit} />
-        ) : (
-          <div>
-            <div className="mb-6 print:hidden text-center">
-              <button
-                onClick={handleBackToForm}
-                className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200 font-semibold shadow-md"
-              >
-                ← Back to Form
-              </button>
-            </div>
-            <ReportCard data={reportData} />
-          </div>
-        )}
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        <Route
+          path="/"
+          element={school ? <Navigate to="/dashboard" /> : <LandingPage />}
+        />
+        <Route
+          path="/login"
+          element={school ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />}
+        />
+        <Route
+          path="/register"
+          element={school ? <Navigate to="/dashboard" /> : <Register onRegister={handleRegister} />}
+        />
+        <Route
+          path="/dashboard"
+          element={school ? <Dashboard school={school} onLogout={handleLogout} /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="*"
+          element={<Navigate to="/" />}
+        />
+      </Routes>
+    </Router>
   );
 }
 

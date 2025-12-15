@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { subjects, affectiveDomains, psychomotorDomains } from '../data/subjects';
 
-export default function StudentForm({ onSubmit }) {
+export default function StudentForm({ onSubmit, saving = false, school, initialData = null }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [activeSubjects, setActiveSubjects] = useState([]);
   const [newSubjectName, setNewSubjectName] = useState('');
@@ -41,6 +41,17 @@ export default function StudentForm({ onSubmit }) {
     principalRemark: '',
     nextTermBegins: '',
   });
+
+  // Populate form with initial data when editing
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+      // Set active subjects if editing
+      if (initialData.subjects && initialData.subjects.length > 0) {
+        setActiveSubjects(initialData.subjects.map(s => s.name));
+      }
+    }
+  }, [initialData]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -166,7 +177,7 @@ export default function StudentForm({ onSubmit }) {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
       {/* Left Side - Form */}
       <div className="bg-white rounded-lg shadow-lg p-6 lg:col-span-2">
-        <h2 className="text-xl font-bold text-gray-800 mb-6">Student Report Card Form</h2>
+        <h2 className="text-lg font-bold text-gray-800 mb-4">Student Report Card Form</h2>
 
         {/* Progress Indicator */}
         <div className="mb-8">
@@ -188,7 +199,7 @@ export default function StudentForm({ onSubmit }) {
             </div>
           ))}
         </div>
-        <div className="flex justify-between text-xs text-gray-600 px-2">
+        <div className="flex justify-between text-[10px] text-gray-600 px-2">
           <span className={currentStep === 1 ? 'font-semibold text-indigo-600' : ''}>Info & Attendance</span>
           <span className={currentStep === 2 ? 'font-semibold text-indigo-600' : ''}>Subjects</span>
           <span className={currentStep === 3 ? 'font-semibold text-indigo-600' : ''}>Domains</span>
@@ -196,7 +207,7 @@ export default function StudentForm({ onSubmit }) {
         </div>
       </div>
 
-      <h3 className="text-2xl font-semibold text-indigo-600 mb-6">{getStepTitle()}</h3>
+      <h3 className="text-lg font-semibold text-indigo-600 mb-4">{getStepTitle()}</h3>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* STEP 1: Student Information & Attendance */}
@@ -204,60 +215,60 @@ export default function StudentForm({ onSubmit }) {
           <>
             {/* Student Information Section */}
             <section className="border-b pb-6">
-              <h3 className="text-xl font-semibold text-gray-700 mb-4">Student Information</h3>
+              <h3 className="text-base font-semibold text-gray-700 mb-3">Student Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Full Name</label>
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Class</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Class</label>
               <input
                 type="text"
                 name="class"
                 value={formData.class}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Session</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Session</label>
               <input
                 type="text"
                 name="session"
                 placeholder="e.g., 2024/2025"
                 value={formData.session}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Admission No.</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Admission No.</label>
               <input
                 type="text"
                 name="admissionNo"
                 value={formData.admissionNo}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Term</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Term</label>
               <select
                 name="term"
                 value={formData.term}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               >
                 <option value="">Select Term</option>
                 <option value="First Term">First Term</option>
@@ -267,12 +278,12 @@ export default function StudentForm({ onSubmit }) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Gender</label>
               <select
                 name="gender"
                 value={formData.gender}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               >
                 <option value="">Select Gender</option>
                 <option value="MALE">MALE</option>
@@ -281,56 +292,56 @@ export default function StudentForm({ onSubmit }) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Height (cm)</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Height (cm)</label>
               <input
                 type="text"
                 name="height"
                 value={formData.height}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Weight (kg)</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Weight (kg)</label>
               <input
                 type="text"
                 name="weight"
                 value={formData.weight}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Club/Society</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Club/Society</label>
               <input
                 type="text"
                 name="clubSociety"
                 value={formData.clubSociety}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Fav. Col</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Fav. Col</label>
               <input
                 type="text"
                 name="favCol"
                 value={formData.favCol}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Student Photo</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Student Photo</label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={handlePhotoUpload}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               />
             </div>
           </div>
@@ -338,38 +349,38 @@ export default function StudentForm({ onSubmit }) {
 
             {/* Attendance Section */}
             <section className="border-b pb-6">
-          <h3 className="text-xl font-semibold text-gray-700 mb-4">Attendance Summary</h3>
+          <h3 className="text-base font-semibold text-gray-700 mb-3">Attendance Summary</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">No of Times School Opened</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">No of Times School Opened</label>
               <input
                 type="number"
                 name="noOfTimesSchoolOpened"
                 value={formData.noOfTimesSchoolOpened}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">No of Times Present</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">No of Times Present</label>
               <input
                 type="number"
                 name="noOfTimesPresent"
                 value={formData.noOfTimesPresent}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">No of Times Absent</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">No of Times Absent</label>
               <input
                 type="number"
                 name="noOfTimesAbsent"
                 value={formData.noOfTimesAbsent}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               />
             </div>
           </div>
@@ -380,13 +391,13 @@ export default function StudentForm({ onSubmit }) {
         {/* STEP 2: Subjects and Grades Section */}
         {currentStep === 2 && (
           <section className="border-b pb-6">
-          <h3 className="text-xl font-semibold text-gray-700 mb-4">Subject Grades (Cognitive Domain)</h3>
-          <p className="text-sm text-gray-600 mb-4">Enter CA (Continuous Assessment - max 40) and Exam (max 60). Total will be calculated automatically.</p>
+          <h3 className="text-base font-semibold text-gray-700 mb-3">Subject Grades (Cognitive Domain)</h3>
+          <p className="text-xs text-gray-600 mb-3">Enter CA (Continuous Assessment - max 40) and Exam (max 60). Total will be calculated automatically.</p>
 
           {/* Add Subjects Interface */}
           <div className="mb-4 space-y-4">
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">Select Subjects</h4>
+              <h4 className="text-xs font-semibold text-gray-700 mb-2">Select Subjects</h4>
               <div className="flex flex-wrap gap-2">
                 {subjects.map((subject) => (
                   <button
@@ -408,7 +419,7 @@ export default function StudentForm({ onSubmit }) {
 
             {/* Add Custom Subject */}
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-2">Add Custom Subject</h4>
+              <h4 className="text-xs font-semibold text-gray-700 mb-2">Add Custom Subject</h4>
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -416,12 +427,12 @@ export default function StudentForm({ onSubmit }) {
                   onChange={(e) => setNewSubjectName(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomSubject())}
                   placeholder="Enter subject name"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
                 />
                 <button
                   type="button"
                   onClick={addCustomSubject}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-xs"
                 >
                   Add Subject
                 </button>
@@ -429,7 +440,7 @@ export default function StudentForm({ onSubmit }) {
             </div>
 
             {activeSubjects.length > 0 && (
-              <div className="text-sm text-gray-600">
+              <div className="text-xs text-gray-600">
                 <strong>{activeSubjects.length}</strong> subject(s) selected
               </div>
             )}
@@ -441,11 +452,11 @@ export default function StudentForm({ onSubmit }) {
               <table className="min-w-full border border-gray-300">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-r">Subject</th>
-                    <th className="px-4 py-2 text-center text-sm font-semibold text-gray-700 border-r">CA (40)</th>
-                    <th className="px-4 py-2 text-center text-sm font-semibold text-gray-700 border-r">Exam (60)</th>
-                    <th className="px-4 py-2 text-center text-sm font-semibold text-gray-700 border-r">Total (100)</th>
-                    <th className="px-4 py-2 text-center text-sm font-semibold text-gray-700">Action</th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 border-r">Subject</th>
+                    <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700 border-r">CA (40)</th>
+                    <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700 border-r">Exam (60)</th>
+                    <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700 border-r">Total (100)</th>
+                    <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -453,7 +464,7 @@ export default function StudentForm({ onSubmit }) {
                     const subjectData = formData.subjects.find(s => s.name === subjectName);
                     return (
                       <tr key={subjectName} className="border-b hover:bg-gray-50">
-                        <td className="px-4 py-2 text-sm text-gray-700 border-r font-medium">{subjectName}</td>
+                        <td className="px-4 py-2 text-xs text-gray-700 border-r font-medium">{subjectName}</td>
                         <td className="px-4 py-2 border-r">
                           <input
                             type="number"
@@ -462,7 +473,7 @@ export default function StudentForm({ onSubmit }) {
                             placeholder="CA"
                             value={subjectData?.ca || ''}
                             onChange={(e) => handleSubjectChange(subjectName, 'ca', e.target.value)}
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-full px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
                           />
                         </td>
                         <td className="px-4 py-2 border-r">
@@ -473,7 +484,7 @@ export default function StudentForm({ onSubmit }) {
                             placeholder="Exam"
                             value={subjectData?.exam || ''}
                             onChange={(e) => handleSubjectChange(subjectName, 'exam', e.target.value)}
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-full px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
                           />
                         </td>
                         <td className="px-4 py-2 border-r">
@@ -484,7 +495,7 @@ export default function StudentForm({ onSubmit }) {
                             placeholder="Total"
                             value={subjectData?.total || ''}
                             readOnly
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-center bg-gray-100 font-semibold text-indigo-600 cursor-not-allowed"
+                            className="w-full px-2 py-1 border border-gray-300 rounded text-center bg-gray-100 font-semibold text-indigo-600 cursor-not-allowed text-xs"
                           />
                         </td>
                         <td className="px-4 py-2 text-center">
@@ -515,16 +526,16 @@ export default function StudentForm({ onSubmit }) {
           <>
             {/* Affective Domain Section */}
             <section className="border-b pb-6">
-          <h3 className="text-xl font-semibold text-gray-700 mb-4">Affective Domain</h3>
-          <p className="text-sm text-gray-600 mb-4">Rate each trait on a scale of 1-5 (1 = Poor, 5 = Excellent). Leave blank if not applicable.</p>
+          <h3 className="text-base font-semibold text-gray-700 mb-3">Affective Domain</h3>
+          <p className="text-xs text-gray-600 mb-3">Rate each trait on a scale of 1-5 (1 = Poor, 5 = Excellent). Leave blank if not applicable.</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {affectiveDomains.map((domain) => (
               <div key={domain}>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{domain}</label>
+                <label className="block text-xs font-medium text-gray-700 mb-1">{domain}</label>
                 <select
                   onChange={(e) => handleAffectiveChange(domain, e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
                 >
                   <option value="">Select Rating</option>
                   <option value="1">1 - Poor</option>
@@ -540,16 +551,16 @@ export default function StudentForm({ onSubmit }) {
 
         {/* Psychomotor Domain Section */}
         <section className="border-b pb-6">
-          <h3 className="text-xl font-semibold text-gray-700 mb-4">Psychomotor Domain</h3>
-          <p className="text-sm text-gray-600 mb-4">Rate each skill on a scale of 1-5 (1 = Poor, 5 = Excellent). Leave blank if not applicable.</p>
+          <h3 className="text-base font-semibold text-gray-700 mb-3">Psychomotor Domain</h3>
+          <p className="text-xs text-gray-600 mb-3">Rate each skill on a scale of 1-5 (1 = Poor, 5 = Excellent). Leave blank if not applicable.</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {psychomotorDomains.map((domain) => (
               <div key={domain}>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{domain}</label>
+                <label className="block text-xs font-medium text-gray-700 mb-1">{domain}</label>
                 <select
                   onChange={(e) => handlePsychomotorChange(domain, e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
                 >
                   <option value="">Select Rating</option>
                   <option value="1">1 - Poor</option>
@@ -568,60 +579,60 @@ export default function StudentForm({ onSubmit }) {
         {/* STEP 4: Teacher and Principal Remarks */}
         {currentStep === 4 && (
           <section className="border-b pb-6">
-          <h3 className="text-xl font-semibold text-gray-700 mb-4">Remarks</h3>
+          <h3 className="text-base font-semibold text-gray-700 mb-3">Remarks</h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Teacher's Name</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Teacher's Name</label>
               <input
                 type="text"
                 name="teacherName"
                 value={formData.teacherName}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Teacher's Remark</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Teacher's Remark</label>
               <textarea
                 name="teacherRemark"
                 value={formData.teacherRemark}
                 onChange={handleInputChange}
                 rows="3"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Principal's Name</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Principal's Name</label>
               <input
                 type="text"
                 name="principalName"
                 value={formData.principalName}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Principal's Remark</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Principal's Remark</label>
               <textarea
                 name="principalRemark"
                 value={formData.principalRemark}
                 onChange={handleInputChange}
                 rows="3"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Next Term Begins</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Next Term Begins</label>
               <input
                 type="date"
                 name="nextTermBegins"
                 value={formData.nextTermBegins}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
               />
             </div>
           </div>
@@ -634,7 +645,7 @@ export default function StudentForm({ onSubmit }) {
             <button
               type="button"
               onClick={prevStep}
-              className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 font-semibold shadow-md"
+              className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200 font-semibold shadow-md text-sm"
             >
               ← Previous
             </button>
@@ -643,9 +654,10 @@ export default function StudentForm({ onSubmit }) {
           <div className={currentStep === 1 ? 'ml-auto' : ''}>
             <button
               type="submit"
-              className="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-semibold shadow-md hover:shadow-lg"
+              disabled={saving}
+              className="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-semibold shadow-md hover:shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
             >
-              {currentStep < 4 ? 'Next →' : 'Generate Report Card'}
+              {saving ? 'Saving...' : (currentStep < 4 ? 'Next →' : 'Generate Report Card')}
             </button>
           </div>
         </div>
@@ -656,7 +668,7 @@ export default function StudentForm({ onSubmit }) {
       <div className="bg-white rounded-lg shadow-lg p-6 sticky top-6 h-fit max-h-screen overflow-y-auto">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Live Preview</h2>
         <div className="transform scale-[0.6] origin-top-left w-[167%]">
-          <ReportCardPreview data={formData} activeSubjects={activeSubjects} />
+          <ReportCardPreview data={formData} activeSubjects={activeSubjects} school={school} />
         </div>
       </div>
     </div>
@@ -664,7 +676,7 @@ export default function StudentForm({ onSubmit }) {
 }
 
 // Mini Report Card Preview Component
-function ReportCardPreview({ data, activeSubjects }) {
+function ReportCardPreview({ data, activeSubjects, school }) {
   const getGradeAndRemark = (total) => {
     const score = parseFloat(total) || 0;
     if (score >= 70) return { grade: 'A', remark: 'EXCELLENT' };
@@ -698,13 +710,17 @@ function ReportCardPreview({ data, activeSubjects }) {
       {/* Header */}
       <div className="flex items-start justify-between mb-4 pb-4 border-b-2 border-black">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 border-2 border-black rounded-full flex items-center justify-center">
-            <span className="text-xs font-bold">LOGO</span>
+          <div className="w-16 h-16 border-2 border-black rounded-full flex items-center justify-center overflow-hidden">
+            {school?.logo ? (
+              <img src={school.logo} alt="School Logo" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-xs font-bold">LOGO</span>
+            )}
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-wide">BAILEY'S BOWEN COLLEGE</h1>
-            <p className="text-xs mt-1">No 14 Davis Cole Crescent, Pineville Estate, Sunrise, Lagos State.</p>
-            <p className="text-xs">TEL: 08115414915, 07034552256, Email: baileysbowencollege@gmail.com</p>
+            <h1 className="text-2xl font-bold tracking-wide">{school?.school_name?.toUpperCase() || 'SCHOOL NAME'}</h1>
+            <p className="text-xs mt-1">{school?.address || 'School Address'}</p>
+            <p className="text-xs">TEL: {school?.phone || 'N/A'}, Email: {school?.email || 'N/A'}</p>
           </div>
         </div>
 

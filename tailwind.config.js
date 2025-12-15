@@ -5,7 +5,11 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        // Override default colors with RGB values for PDF compatibility
+      }
+    },
   },
   plugins: [],
 }

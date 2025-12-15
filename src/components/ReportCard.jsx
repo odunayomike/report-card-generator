@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import html2pdf from 'html2pdf.js';
 
-export default function ReportCard({ data }) {
+export default function ReportCard({ data, school }) {
   const reportRef = useRef();
 
   // Calculate grade and remark based on total score
@@ -40,28 +40,55 @@ export default function ReportCard({ data }) {
     window.print();
   };
 
-  const handleDownloadPDF = () => {
-    const element = reportRef.current;
-    const opt = {
-      margin: [10, 10, 10, 10], // top, right, bottom, left in mm
-      filename: `Report_Card_${data.name || 'Student'}_${data.session || ''}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        letterRendering: true
-      },
-      jsPDF: {
-        unit: 'mm',
-        format: 'a4',
-        orientation: 'portrait',
-        compress: true
-      },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-    };
+  const handleDownloadPDF = async () => {
+    try {
+      const element = reportRef.current;
 
-    html2pdf().set(opt).from(element).save();
+      if (!element) {
+        console.error('Report element not found');
+        alert('Error: Report element not found');
+        return;
+      }
+
+      // Create filename with school name
+      const schoolName = school?.school_name ? school.school_name.replace(/[^a-zA-Z0-9]/g, '_') : 'School';
+      const studentName = data.name ? data.name.replace(/[^a-zA-Z0-9]/g, '_') : 'Student';
+      const session = data.session ? data.session.replace(/[^a-zA-Z0-9]/g, '_') : '';
+      const term = data.term ? data.term.replace(/[^a-zA-Z0-9]/g, '_') : '';
+
+      const filename = `${schoolName}_Report_Card_${studentName}_${term}_${session}.pdf`;
+
+      const opt = {
+        margin: [5, 5, 5, 5], // Reduced margins to fit more content
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 1.5, // Reduced scale to fit on one page
+          useCORS: true,
+          logging: false,
+          letterRendering: true,
+          windowWidth: 800, // Fixed width for consistent rendering
+          windowHeight: 1200
+        },
+        jsPDF: {
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait',
+          compress: true
+        },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      };
+
+      console.log('Starting PDF generation...');
+      await html2pdf().set(opt).from(element).save();
+      console.log('PDF generation completed');
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      alert('Error generating PDF: ' + error.message);
+      // Remove overlay if it exists
+      const overlay = document.querySelector('.html2pdf__overlay');
+      if (overlay) overlay.remove();
+    }
   };
 
   return (
@@ -81,17 +108,21 @@ export default function ReportCard({ data }) {
         </button>
       </div>
 
-      <div ref={reportRef} className="bg-white p-4 border-4 border-black report-card-pdf" style={{ fontFamily: 'Arial, sans-serif' }}>
+      <div ref={reportRef} className="bg-white p-2 report-card-pdf" style={{ fontFamily: 'Arial, sans-serif', maxWidth: '800px' }}>
         {/* Header */}
-        <div className="flex items-start justify-between mb-2 pb-2 border-b-2 border-black">
+        <div className="flex items-start justify-between mb-1 pb-1 border-b-2 border-black">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 border-2 border-black rounded-full flex items-center justify-center">
-              <span className="text-xs font-bold">LOGO</span>
+            <div className="w-16 h-16 border-2 border-black rounded-full flex items-center justify-center overflow-hidden">
+              {school?.logo ? (
+                <img src={school.logo} alt="School Logo" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-xs font-bold">LOGO</span>
+              )}
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-wide">BAILEY'S BOWEN COLLEGE</h1>
-              <p className="text-xs mt-1">No 14 Davis Cole Crescent, Pineville Estate, Sunrise, Lagos State.</p>
-              <p className="text-xs">TEL: 08115414915, 07034552256, Email: baileysbowencollege@gmail.com</p>
+              <h1 className="text-lg font-bold tracking-wide">{school?.school_name?.toUpperCase() || 'SCHOOL NAME'}</h1>
+              <p className="text-[10px] mt-1">{school?.address || 'School Address'}</p>
+              <p className="text-[10px]">TEL: {school?.phone || 'N/A'}, Email: {school?.email || 'N/A'}</p>
             </div>
           </div>
 
@@ -106,62 +137,70 @@ export default function ReportCard({ data }) {
         </div>
 
         {/* Report Title */}
-        <div className="text-center mb-2 pb-2 border-b-2 border-black">
-          <h2 className="text-sm font-bold">{data.term?.toUpperCase()} STUDENT'S PERFORMANCE REPORT</h2>
+        <div className="text-center mb-1 pb-1 border-b-2 border-black">
+          <h2 className="text-xs font-bold">{data.term?.toUpperCase()} STUDENT'S PERFORMANCE REPORT</h2>
         </div>
 
         {/* Student Information Grid */}
-        <div className="grid grid-cols-2 gap-x-8 text-xs mb-2 pb-2 border-b-2 border-black">
-          <div className="space-y-1">
+        <div className="text-[10px] mb-1 pb-1 border-b-2 border-black">
+          {/* Row 1 */}
+          <div className="grid grid-cols-4 gap-2 mb-1">
             <div className="flex">
-              <span className="font-bold w-32">NAME:</span>
-              <span className="flex-1 border-b border-black">{data.name?.toUpperCase()}</span>
+              <span className="font-bold w-16">NAME:</span>
+              <span className="flex-1 border-b border-black pb-1">{data.name?.toUpperCase()}</span>
             </div>
             <div className="flex">
-              <span className="font-bold w-32">CLASS:</span>
-              <span className="flex-1 border-b border-black">{data.class}</span>
+              <span className="font-bold w-16">CLASS:</span>
+              <span className="flex-1 border-b border-black pb-1">{data.class}</span>
             </div>
             <div className="flex">
-              <span className="font-bold w-32">AGE:</span>
-              <span className="flex-1 border-b border-black">{data.age || 'N/A'}</span>
+              <span className="font-bold w-16">GENDER:</span>
+              <span className="flex-1 border-b border-black pb-1">{data.gender}</span>
             </div>
             <div className="flex">
-              <span className="font-bold w-32">CLUB/SOCIETY:</span>
-              <span className="flex-1 border-b border-black">{data.clubSociety}</span>
+              <span className="font-bold w-16">AGE:</span>
+              <span className="flex-1 border-b border-black pb-1">{data.age || 'N/A'}</span>
             </div>
           </div>
 
-          <div className="space-y-1">
+          {/* Row 2 */}
+          <div className="grid grid-cols-3 gap-2 mb-1">
             <div className="flex">
-              <span className="font-bold w-32">GENDER:</span>
-              <span className="flex-1 border-b border-black">{data.gender}</span>
+              <span className="font-bold w-20">SESSION:</span>
+              <span className="flex-1 border-b border-black pb-1">{data.session}</span>
             </div>
             <div className="flex">
-              <span className="font-bold w-32">SESSION:</span>
-              <span className="flex-1 border-b border-black">{data.session}</span>
+              <span className="font-bold w-24">ADMISSION NO.:</span>
+              <span className="flex-1 border-b border-black pb-1">{data.admissionNo}</span>
             </div>
             <div className="flex">
-              <span className="font-bold w-32">ADMISSION NO.:</span>
-              <span className="flex-1 border-b border-black">{data.admissionNo}</span>
+              <span className="font-bold w-24">CLUB/SOCIETY:</span>
+              <span className="flex-1 border-b border-black pb-1">{data.clubSociety}</span>
+            </div>
+          </div>
+
+          {/* Row 3 */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="flex">
+              <span className="font-bold w-12">HT:</span>
+              <span className="flex-1 border-b border-black pb-1">{data.height}</span>
             </div>
             <div className="flex">
-              <span className="font-bold w-24">HT:</span>
-              <span className="w-20 border-b border-black">{data.height}</span>
-              <span className="font-bold w-24 ml-2">WT:</span>
-              <span className="w-20 border-b border-black">{data.weight}</span>
+              <span className="font-bold w-12">WT:</span>
+              <span className="flex-1 border-b border-black pb-1">{data.weight}</span>
             </div>
             <div className="flex">
-              <span className="font-bold w-32">FAV. COL:</span>
-              <span className="flex-1 border-b border-black">{data.favCol}</span>
+              <span className="font-bold w-20">FAV. COL:</span>
+              <span className="flex-1 border-b border-black pb-1">{data.favCol}</span>
             </div>
           </div>
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-2">
           {/* Left Column - Cognitive Domain */}
-          <div className="col-span-2">
-            <table className="w-full border-2 border-black text-xs">
+          <div className="col-span-3">
+            <table className="w-full border-2 border-black text-[9px]">
               <thead>
                 <tr className="bg-gray-200">
                   <th className="border border-black p-1 text-center font-bold" rowSpan="2">COGNITIVE DOMAIN</th>
@@ -170,9 +209,9 @@ export default function ReportCard({ data }) {
                   <th className="border border-black p-1 text-center font-bold" rowSpan="2">REMARKS</th>
                 </tr>
                 <tr className="bg-gray-200">
-                  <th className="border border-black p-1 text-center text-[10px]">CA<br/>40</th>
-                  <th className="border border-black p-1 text-center text-[10px]">EXAM<br/>60</th>
-                  <th className="border border-black p-1 text-center text-[10px]">TOTAL<br/>100</th>
+                  <th className="border border-black p-1 text-center text-[8px]">CA<br/>40</th>
+                  <th className="border border-black p-1 text-center text-[8px]">EXAM<br/>60</th>
+                  <th className="border border-black p-1 text-center text-[8px]">TOTAL<br/>100</th>
                 </tr>
               </thead>
               <tbody>
@@ -188,12 +227,12 @@ export default function ReportCard({ data }) {
                   const { grade, remark } = getGradeAndRemark(subject.total);
                   return (
                     <tr key={index}>
-                      <td className="border border-black p-1 text-[10px]">{subject.name}</td>
-                      <td className="border border-black p-1 text-center">{subject.ca}</td>
-                      <td className="border border-black p-1 text-center">{subject.exam}</td>
-                      <td className="border border-black p-1 text-center font-bold">{subject.total}</td>
-                      <td className="border border-black p-1 text-center font-bold">{grade}</td>
-                      <td className="border border-black p-1 text-center text-[10px]">{remark}</td>
+                      <td className="border border-black p-1 text-[8px]">{subject.name}</td>
+                      <td className="border border-black p-1 text-center text-[8px]">{subject.ca}</td>
+                      <td className="border border-black p-1 text-center text-[8px]">{subject.exam}</td>
+                      <td className="border border-black p-1 text-center font-bold text-[8px]">{subject.total}</td>
+                      <td className="border border-black p-1 text-center font-bold text-[8px]">{grade}</td>
+                      <td className="border border-black p-1 text-center text-[8px]">{remark}</td>
                     </tr>
                   );
                 })}
@@ -202,7 +241,7 @@ export default function ReportCard({ data }) {
 
             {/* Performance Summary */}
             <div className="mt-2 border-2 border-black">
-              <table className="w-full text-xs">
+              <table className="w-full text-[9px]">
                 <thead>
                   <tr className="bg-gray-200">
                     <th className="border border-black p-1 font-bold" colSpan="4">PERFORMANCE SUMMARY</th>
@@ -217,7 +256,7 @@ export default function ReportCard({ data }) {
                   </tr>
                   <tr>
                     <td className="border border-black p-1 font-bold" colSpan="2">GRADE:</td>
-                    <td className="border border-black p-1 text-center font-bold text-lg" colSpan="2">{performance.grade}</td>
+                    <td className="border border-black p-1 text-center font-bold" colSpan="2">{performance.grade}</td>
                   </tr>
                   <tr>
                     <td className="border border-black p-1 font-bold" colSpan="2">REMARK:</td>
@@ -228,32 +267,32 @@ export default function ReportCard({ data }) {
             </div>
 
             {/* Grading Scale */}
-            <div className="mt-4 text-[10px] leading-tight">
+            <div className="mt-2 text-[8px] leading-tight">
               <p><strong>70-100%=EXCELLENT; 60-69.9%=VERY GOOD; 50-59.9%=GOOD; 40-</strong></p>
               <p><strong>49.9%=AVERAGE; 30-39.9%=FAIR; 0-29.9%=POOR</strong></p>
             </div>
           </div>
 
           {/* Right Column - Attendance, Affective, and Psychomotor */}
-          <div className="space-y-4">
+          <div className="space-y-2">
             {/* Attendance Summary */}
             <div className="border-2 border-black">
-              <div className="bg-gray-200 border-b-2 border-black p-1 text-center font-bold text-xs">
+              <div className="bg-gray-200 border-b-2 border-black p-1 text-center font-bold text-[9px]">
                 ATTENDANCE SUMMARY
               </div>
-              <table className="w-full text-xs">
+              <table className="w-full text-[8px]">
                 <tbody>
                   <tr>
-                    <td className="border border-black p-1 text-[10px]">No of Times School Opened</td>
-                    <td className="border border-black p-1 text-center">{data.noOfTimesSchoolOpened}</td>
+                    <td className="border border-black p-1 text-[8px]">No of Times School Opened</td>
+                    <td className="border border-black p-1 text-center text-[8px]">{data.noOfTimesSchoolOpened}</td>
                   </tr>
                   <tr>
-                    <td className="border border-black p-1 text-[10px]">No of Times Present</td>
-                    <td className="border border-black p-1 text-center">{data.noOfTimesPresent}</td>
+                    <td className="border border-black p-1 text-[8px]">No of Times Present</td>
+                    <td className="border border-black p-1 text-center text-[8px]">{data.noOfTimesPresent}</td>
                   </tr>
                   <tr>
-                    <td className="border border-black p-1 text-[10px]">No of Times Absent</td>
-                    <td className="border border-black p-1 text-center">{data.noOfTimesAbsent}</td>
+                    <td className="border border-black p-1 text-[8px]">No of Times Absent</td>
+                    <td className="border border-black p-1 text-center text-[8px]">{data.noOfTimesAbsent}</td>
                   </tr>
                 </tbody>
               </table>
@@ -261,119 +300,122 @@ export default function ReportCard({ data }) {
 
             {/* Affective Domain */}
             <div className="border-2 border-black">
-              <div className="bg-gray-200 border-b-2 border-black p-1 text-center font-bold text-xs">
+              <div className="bg-gray-200 border-b-2 border-black p-1 text-center font-bold text-[9px]">
                 AFFECTIVE DOMAIN
               </div>
-              <table className="w-full text-xs">
+              <table className="w-full text-[8px]">
                 <thead>
                   <tr className="bg-gray-100">
-                    <th className="border border-black p-1 text-[10px]"></th>
-                    <th className="border border-black p-1 text-center text-[10px]">1</th>
-                    <th className="border border-black p-1 text-center text-[10px]">2</th>
-                    <th className="border border-black p-1 text-center text-[10px]">3</th>
-                    <th className="border border-black p-1 text-center text-[10px]">4</th>
-                    <th className="border border-black p-1 text-center text-[10px]">5</th>
+                    <th className="border border-black p-1 text-[8px]"></th>
+                    <th className="border border-black p-1 text-center text-[8px]">1</th>
+                    <th className="border border-black p-1 text-center text-[8px]">2</th>
+                    <th className="border border-black p-1 text-center text-[8px]">3</th>
+                    <th className="border border-black p-1 text-center text-[8px]">4</th>
+                    <th className="border border-black p-1 text-center text-[8px]">5</th>
                   </tr>
                 </thead>
                 <tbody>
                   {Object.entries(data.affectiveDomain || {}).map(([key, value]) => (
                     <tr key={key}>
-                      <td className="border border-black p-1 text-[9px]">{key}</td>
+                      <td className="border border-black p-1 text-[7px]">{key}</td>
                       {[1, 2, 3, 4, 5].map((rating) => (
-                        <td key={rating} className="border border-black p-1 text-center text-[10px]">
+                        <td key={rating} className="border border-black p-1 text-center text-[8px]">
                           {value == rating ? '✓' : ''}
                         </td>
                       ))}
                     </tr>
                   ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Psychomotor Domain */}
-            <div className="border-2 border-black">
-              <div className="bg-gray-200 border-b-2 border-black p-1 text-center font-bold text-xs">
-                PSYCHOMOTOR DOMAIN
-              </div>
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="border border-black p-1 text-[10px]"></th>
-                    <th className="border border-black p-1 text-center text-[10px]">1</th>
-                    <th className="border border-black p-1 text-center text-[10px]">2</th>
-                    <th className="border border-black p-1 text-center text-[10px]">3</th>
-                    <th className="border border-black p-1 text-center text-[10px]">4</th>
-                    <th className="border border-black p-1 text-center text-[10px]">5</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.entries(data.psychomotorDomain || {}).map(([key, value]) => (
-                    <tr key={key}>
-                      <td className="border border-black p-1 text-[9px]">{key}</td>
-                      {[1, 2, 3, 4, 5].map((rating) => (
-                        <td key={rating} className="border border-black p-1 text-center text-[10px]">
-                          {value == rating ? '✓' : ''}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Rating Indices */}
-            <div className="border-2 border-black">
-              <div className="bg-gray-200 border-b-2 border-black p-1 text-center font-bold text-xs">
-                Rating Indices
-              </div>
-              <div className="p-2 text-[9px] leading-tight">
-                <p>1 - Maintains a high level of Observable traits.</p>
-                <p>2 - Observable traits.</p>
-                <p>3 - Maintaining a high level of Observable traits.</p>
-                <p>4 - Shows Minimal regard for Observable traits.</p>
-                <p>5 - Has No regard for Observable traits.</p>
-              </div>
-            </div>
-
-            {/* Grade Summary */}
-            <div className="border-2 border-black">
-              <div className="bg-gray-200 border-b-2 border-black p-1 text-center font-bold text-xs">
-                GRADE SUMMARY
-              </div>
-              <table className="w-full text-xs">
-                <thead>
-                  <tr>
-                    <th className="border border-black p-1 text-[10px]">GRADE</th>
-                    <th className="border border-black p-1 text-center text-[10px]">A</th>
-                    <th className="border border-black p-1 text-center text-[10px]">B</th>
-                    <th className="border border-black p-1 text-center text-[10px]">C</th>
-                    <th className="border border-black p-1 text-center text-[10px]">D</th>
-                    <th className="border border-black p-1 text-center text-[10px]">E</th>
-                    <th className="border border-black p-1 text-center text-[10px]">F</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="border border-black p-1 text-[10px]">NO</td>
-                    <td className="border border-black p-1 text-center"></td>
-                    <td className="border border-black p-1 text-center"></td>
-                    <td className="border border-black p-1 text-center"></td>
-                    <td className="border border-black p-1 text-center"></td>
-                    <td className="border border-black p-1 text-center"></td>
-                    <td className="border border-black p-1 text-center"></td>
-                  </tr>
-                  <tr>
-                    <td className="border border-black p-1 text-[10px] font-bold" colSpan="3">TOTAL SUBJECTS OFFERED</td>
-                    <td className="border border-black p-1 text-center font-bold" colSpan="4">{subjectsWithGrades.length}</td>
-                  </tr>
                 </tbody>
               </table>
             </div>
           </div>
         </div>
 
+        {/* Horizontal Section: Psychomotor Domain, Rating Indices, Grade Summary */}
+        <div className="mt-2 grid grid-cols-3 gap-2">
+          {/* Psychomotor Domain */}
+          <div className="border-2 border-black">
+            <div className="bg-gray-200 border-b-2 border-black p-1 text-center font-bold text-[9px]">
+              PSYCHOMOTOR DOMAIN
+            </div>
+            <table className="w-full text-[8px]">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="border border-black p-1 text-[8px]"></th>
+                  <th className="border border-black p-1 text-center text-[8px]">1</th>
+                  <th className="border border-black p-1 text-center text-[8px]">2</th>
+                  <th className="border border-black p-1 text-center text-[8px]">3</th>
+                  <th className="border border-black p-1 text-center text-[8px]">4</th>
+                  <th className="border border-black p-1 text-center text-[8px]">5</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(data.psychomotorDomain || {}).map(([key, value]) => (
+                  <tr key={key}>
+                    <td className="border border-black p-1 text-[7px]">{key}</td>
+                    {[1, 2, 3, 4, 5].map((rating) => (
+                      <td key={rating} className="border border-black p-1 text-center text-[8px]">
+                        {value == rating ? '✓' : ''}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Rating Indices */}
+          <div className="border-2 border-black">
+            <div className="bg-gray-200 border-b-2 border-black p-1 text-center font-bold text-[9px]">
+              Rating Indices
+            </div>
+            <div className="p-2 text-[7px] leading-tight">
+              <p>1 - Maintains a high level of Observable traits.</p>
+              <p>2 - Observable traits.</p>
+              <p>3 - Maintaining a high level of Observable traits.</p>
+              <p>4 - Shows Minimal regard for Observable traits.</p>
+              <p>5 - Has No regard for Observable traits.</p>
+            </div>
+          </div>
+
+          {/* Grade Summary */}
+          <div className="border-2 border-black">
+            <div className="bg-gray-200 border-b-2 border-black p-1 text-center font-bold text-[9px]">
+              GRADE SUMMARY
+            </div>
+            <table className="w-full text-[8px]">
+              <thead>
+                <tr>
+                  <th className="border border-black p-1 text-[8px]">GRADE</th>
+                  <th className="border border-black p-1 text-center text-[8px]">A</th>
+                  <th className="border border-black p-1 text-center text-[8px]">B</th>
+                  <th className="border border-black p-1 text-center text-[8px]">C</th>
+                  <th className="border border-black p-1 text-center text-[8px]">D</th>
+                  <th className="border border-black p-1 text-center text-[8px]">E</th>
+                  <th className="border border-black p-1 text-center text-[8px]">F</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border border-black p-1 text-[8px]">NO</td>
+                  <td className="border border-black p-1 text-center text-[8px]"></td>
+                  <td className="border border-black p-1 text-center text-[8px]"></td>
+                  <td className="border border-black p-1 text-center text-[8px]"></td>
+                  <td className="border border-black p-1 text-center text-[8px]"></td>
+                  <td className="border border-black p-1 text-center text-[8px]"></td>
+                  <td className="border border-black p-1 text-center text-[8px]"></td>
+                </tr>
+                <tr>
+                  <td className="border border-black p-1 text-[8px] font-bold" colSpan="3">TOTAL SUBJECTS OFFERED</td>
+                  <td className="border border-black p-1 text-center font-bold text-[8px]" colSpan="4">{subjectsWithGrades.length}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         {/* Teacher and Principal Remarks */}
-        <div className="mt-4 space-y-2 text-xs">
+        <div className="mt-2 space-y-1 text-[9px]">
           <div className="border-2 border-black">
             <div className="flex">
               <span className="font-bold p-2 border-r-2 border-black w-32">Teacher's Remark:</span>
@@ -384,11 +426,11 @@ export default function ReportCard({ data }) {
           <div className="flex gap-4">
             <div className="flex-1">
               <span className="font-bold">Teacher's Name:</span>
-              <span className="ml-2 border-b-2 border-black">{data.teacherName?.toUpperCase()}</span>
+              <span className="ml-2 border-b-2 border-black pb-1 inline-block">{data.teacherName?.toUpperCase()}</span>
             </div>
             <div className="flex-1">
               <span className="font-bold">Sign:</span>
-              <span className="ml-2 border-b-2 border-black inline-block w-32"></span>
+              <span className="ml-2 border-b-2 border-black inline-block w-32 pb-1">&nbsp;</span>
             </div>
           </div>
 
@@ -402,29 +444,29 @@ export default function ReportCard({ data }) {
           <div className="flex gap-4">
             <div className="flex-1">
               <span className="font-bold">Principal's Name:</span>
-              <span className="ml-2 border-b-2 border-black">{data.principalName?.toUpperCase()}</span>
+              <span className="ml-2 border-b-2 border-black pb-1 inline-block">{data.principalName?.toUpperCase()}</span>
             </div>
             <div className="flex-1">
               <span className="font-bold">Sign:</span>
-              <span className="ml-2 border-b-2 border-black inline-block w-32"></span>
+              <span className="ml-2 border-b-2 border-black inline-block w-32 pb-1">&nbsp;</span>
             </div>
           </div>
 
-          <div className="flex gap-4 mt-4">
+          <div className="flex gap-4 mt-1">
             <div className="flex-1">
               <span className="font-bold">Next Term Begins:</span>
-              <span className="ml-2 border-b-2 border-black">{data.nextTermBegins}</span>
+              <span className="ml-2 border-b-2 border-black pb-1 inline-block">{data.nextTermBegins}</span>
             </div>
             <div className="flex-1">
               <span className="font-bold">Date:</span>
-              <span className="ml-2 border-b-2 border-black inline-block w-32"></span>
+              <span className="ml-2 border-b-2 border-black inline-block w-32 pb-1">&nbsp;</span>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="mt-4 text-right text-xs italic">
-          <p>BAILEY'S BOWEN BRDA. © 2019</p>
+        <div className="mt-1 text-right text-[8px] italic">
+          <p>{school?.school_name?.toUpperCase() || 'SCHOOL NAME'} © {new Date().getFullYear()}</p>
         </div>
       </div>
     </div>
