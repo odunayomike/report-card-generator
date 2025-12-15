@@ -1,3 +1,52 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Ensure report card fits on A4 page */
+.report-card-pdf {
+  max-width: 210mm;
+  min-height: auto;
+  page-break-inside: avoid;
+}
+
+/* Print Styles */
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+    background: white;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Ensure report card fits on one page */
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  /* Scale down if needed to fit */
+  .report-card-container {
+    width: 100%;
+    page-break-after: avoid;
+  }
+
+  /* Remove background gradients in print */
+  .bg-gradient-to-br {
+    background: white !important;
+  }
+
+  /* Ensure borders and text are visible */
+  table {
+    border-collapse: collapse;
+  }
+
+  td, th {
+    page-break-inside: avoid;
+  }
+
+  /* Prevent page breaks inside report card */
+  .report-card-pdf {
+    page-break-inside: avoid !important;
+  }
+}

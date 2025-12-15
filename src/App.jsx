@@ -1,33 +1,41 @@
-import { useState } from 'react'
+import { useState } from 'react';
+import StudentForm from './components/StudentForm';
+import ReportCard from './components/ReportCard';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [reportData, setReportData] = useState(null);
+  const [showReport, setShowReport] = useState(false);
+
+  const handleFormSubmit = (data) => {
+    setReportData(data);
+    setShowReport(true);
+  };
+
+  const handleBackToForm = () => {
+    setShowReport(false);
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4 text-center">
-          Report Card Generator
-        </h1>
-        <p className="text-gray-600 text-center mb-8">
-          Welcome to your React + Vite + Tailwind CSS app
-        </p>
-
-        <div className="flex flex-col items-center gap-4">
-          <button
-            onClick={() => setCount((count) => count + 1)}
-            className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-medium shadow-md hover:shadow-lg"
-          >
-            Count is {count}
-          </button>
-
-          <p className="text-sm text-gray-500">
-            Click the button to test interactivity
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+      <div className=" mx-auto px-4">
+        {!showReport ? (
+          <StudentForm onSubmit={handleFormSubmit} />
+        ) : (
+          <div>
+            <div className="mb-6 print:hidden text-center">
+              <button
+                onClick={handleBackToForm}
+                className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200 font-semibold shadow-md"
+              >
+                ← Back to Form
+              </button>
+            </div>
+            <ReportCard data={reportData} />
+          </div>
+        )}
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
