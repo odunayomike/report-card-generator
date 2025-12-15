@@ -1,10 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { subjects, affectiveDomains, psychomotorDomains } from '../data/subjects';
+import { checkStudent } from '../services/api';
 
 export default function StudentForm({ onSubmit, saving = false, school, initialData = null }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [activeSubjects, setActiveSubjects] = useState([]);
   const [newSubjectName, setNewSubjectName] = useState('');
+  const [studentExists, setStudentExists] = useState(false);
+  const [checkingStudent, setCheckingStudent] = useState(false);
+  const debounceTimer = useRef(null);
 
   const [formData, setFormData] = useState({
     // Student Info
@@ -53,9 +57,59 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
     }
   }, [initialData]);
 
+  // Debounced function to check if student exists
+  const checkExistingStudent = useCallback(async (admissionNo) => {
+    if (admissionNo.length < 3) {
+      setStudentExists(false);
+      return;
+    }
+
+    setCheckingStudent(true);
+    try {
+      const response = await checkStudent(admissionNo);
+      if (response.success && response.exists) {
+        setStudentExists(true);
+        // Auto-fill all student information if not editing
+        if (!initialData) {
+          setFormData(prev => ({
+            ...prev,
+            name: response.student.name || '',
+            class: response.student.class || '',
+            gender: response.student.gender || '',
+            height: response.student.height || '',
+            weight: response.student.weight || '',
+            clubSociety: response.student.clubSociety || '',
+            favCol: response.student.favCol || '',
+            photo: response.student.photo || null
+          }));
+        }
+      } else {
+        setStudentExists(false);
+      }
+    } catch (error) {
+      console.error('Error checking student:', error);
+      setStudentExists(false);
+    } finally {
+      setCheckingStudent(false);
+    }
+  }, [initialData]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+
+    // Debounced check for admission number
+    if (name === 'admissionNo') {
+      // Clear previous timer
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+
+      // Set new timer
+      debounceTimer.current = setTimeout(() => {
+        checkExistingStudent(value);
+      }, 500);
+    }
   };
 
   const handlePhotoUpload = (e) => {
@@ -174,16 +228,16 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 p-6">
       {/* Left Side - Form */}
-      <div className="bg-white rounded-lg shadow-lg p-6 lg:col-span-2">
+      <div className="bg-white rounded-lg shadow-lg p-6 lg:col-span-3">
         <h2 className="text-lg font-bold text-gray-800 mb-4">Student Report Card Form</h2>
 
         {/* Progress Indicator */}
         <div className="mb-8">
         <div className="flex items-center justify-between mb-2">
           {[1, 2, 3, 4].map((step) => (
-            <div key={step} className="flex items-center flex-1">
+            <div key={step} className="flex items-center flex-1 w-full">
               <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 font-semibold ${
                 currentStep >= step
                   ? 'bg-indigo-600 text-white border-indigo-600'
@@ -253,13 +307,25 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
 
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Admission No.</label>
-              <input
-                type="text"
-                name="admissionNo"
-                value={formData.admissionNo}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  name="admissionNo"
+                  value={formData.admissionNo}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                />
+                {checkingStudent && (
+                  <div className="absolute right-3 top-2.5 text-xs text-gray-500">
+                    Checking...
+                  </div>
+                )}
+                {!checkingStudent && studentExists && formData.admissionNo.length >= 3 && (
+                  <div className="absolute right-3 top-2.5 text-xs text-green-600 font-semibold">
+                    ✓ Existing student
+                  </div>
+                )}
+              </div>
             </div>
 
             <div>
@@ -665,7 +731,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
       </div>
 
       {/* Right Side - Live Preview */}
-      <div className="bg-white rounded-lg shadow-lg p-6 sticky top-6 h-fit max-h-screen overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-lg p-6 sticky top-6 h-fit max-h-screen overflow-y-auto overflow-x-hidden lg:col-span-2">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Live Preview</h2>
         <div className="transform scale-[0.6] origin-top-left w-[167%]">
           <ReportCardPreview data={formData} activeSubjects={activeSubjects} school={school} />

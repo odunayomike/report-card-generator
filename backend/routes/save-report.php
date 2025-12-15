@@ -20,27 +20,77 @@ try {
     // Start transaction
     $db->beginTransaction();
 
-    // Insert student data
-    $query = "INSERT INTO students (school_id, name, class, session, admission_no, term, gender, height, weight, club_society, fav_col, photo)
-              VALUES (:school_id, :name, :class, :session, :admission_no, :term, :gender, :height, :weight, :club_society, :fav_col, :photo)";
+    // Check if a report already exists for this student, session, and term
+    $checkQuery = "SELECT id FROM students
+                   WHERE school_id = :school_id
+                   AND admission_no = :admission_no
+                   AND session = :session
+                   AND term = :term";
 
-    $stmt = $db->prepare($query);
-    $stmt->execute([
+    $checkStmt = $db->prepare($checkQuery);
+    $checkStmt->execute([
         ':school_id' => $data['school_id'] ?? 1,
-        ':name' => $data['name'] ?? '',
-        ':class' => $data['class'] ?? '',
-        ':session' => $data['session'] ?? '',
         ':admission_no' => $data['admissionNo'] ?? '',
-        ':term' => $data['term'] ?? '',
-        ':gender' => $data['gender'] ?? '',
-        ':height' => $data['height'] ?? '',
-        ':weight' => $data['weight'] ?? '',
-        ':club_society' => $data['clubSociety'] ?? '',
-        ':fav_col' => $data['favCol'] ?? '',
-        ':photo' => $data['photo'] ?? null
+        ':session' => $data['session'] ?? '',
+        ':term' => $data['term'] ?? ''
     ]);
 
-    $student_id = $db->lastInsertId();
+    $existingReport = $checkStmt->fetch();
+
+    if ($existingReport) {
+        // UPDATE existing report
+        $student_id = $existingReport['id'];
+
+        $query = "UPDATE students
+                  SET name = :name, class = :class, gender = :gender,
+                      height = :height, weight = :weight,
+                      club_society = :club_society, fav_col = :fav_col,
+                      photo = :photo, updated_at = CURRENT_TIMESTAMP
+                  WHERE id = :id";
+
+        $stmt = $db->prepare($query);
+        $stmt->execute([
+            ':id' => $student_id,
+            ':name' => $data['name'] ?? '',
+            ':class' => $data['class'] ?? '',
+            ':gender' => $data['gender'] ?? '',
+            ':height' => $data['height'] ?? '',
+            ':weight' => $data['weight'] ?? '',
+            ':club_society' => $data['clubSociety'] ?? '',
+            ':fav_col' => $data['favCol'] ?? '',
+            ':photo' => $data['photo'] ?? null
+        ]);
+
+        // Delete existing related data before re-inserting
+        $db->prepare("DELETE FROM attendance WHERE student_id = ?")->execute([$student_id]);
+        $db->prepare("DELETE FROM subjects WHERE student_id = ?")->execute([$student_id]);
+        $db->prepare("DELETE FROM affective_domain WHERE student_id = ?")->execute([$student_id]);
+        $db->prepare("DELETE FROM psychomotor_domain WHERE student_id = ?")->execute([$student_id]);
+        $db->prepare("DELETE FROM remarks WHERE student_id = ?")->execute([$student_id]);
+
+    } else {
+        // INSERT new report
+        $query = "INSERT INTO students (school_id, name, class, session, admission_no, term, gender, height, weight, club_society, fav_col, photo)
+                  VALUES (:school_id, :name, :class, :session, :admission_no, :term, :gender, :height, :weight, :club_society, :fav_col, :photo)";
+
+        $stmt = $db->prepare($query);
+        $stmt->execute([
+            ':school_id' => $data['school_id'] ?? 1,
+            ':name' => $data['name'] ?? '',
+            ':class' => $data['class'] ?? '',
+            ':session' => $data['session'] ?? '',
+            ':admission_no' => $data['admissionNo'] ?? '',
+            ':term' => $data['term'] ?? '',
+            ':gender' => $data['gender'] ?? '',
+            ':height' => $data['height'] ?? '',
+            ':weight' => $data['weight'] ?? '',
+            ':club_society' => $data['clubSociety'] ?? '',
+            ':fav_col' => $data['favCol'] ?? '',
+            ':photo' => $data['photo'] ?? null
+        ]);
+
+        $student_id = $db->lastInsertId();
+    }
 
     // Insert attendance data
     if (isset($data['noOfTimesSchoolOpened'])) {

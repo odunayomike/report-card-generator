@@ -58,6 +58,39 @@ try {
             require __DIR__ . '/routes/delete-report.php';
             break;
 
+        case '/check-student':
+            require __DIR__ . '/routes/check-student.php';
+            break;
+
+        case '/get-student-profile':
+            require __DIR__ . '/routes/get-student-profile.php';
+            break;
+
+        case '/get-analytics':
+            require __DIR__ . '/routes/get-analytics.php';
+            break;
+
+        // School profile routes
+        case '/school/get-profile':
+            require __DIR__ . '/routes/school/get-profile.php';
+            break;
+
+        case '/school/update-profile':
+            require __DIR__ . '/routes/school/update-profile.php';
+            break;
+
+        case '/school/update-logo':
+            require __DIR__ . '/routes/school/update-logo.php';
+            break;
+
+        case '/school/update-settings':
+            require __DIR__ . '/routes/school/update-settings.php';
+            break;
+
+        case '/school/change-password':
+            require __DIR__ . '/routes/school/change-password.php';
+            break;
+
         // Default - 404
         default:
             http_response_code(404);

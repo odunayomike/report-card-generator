@@ -2,11 +2,221 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global font size reduction */
+@layer base {
+  html {
+    font-size: 14px;
+  }
+
+  body {
+    @apply text-sm;
+  }
+
+  h1 {
+    @apply text-xl;
+  }
+
+  h2 {
+    @apply text-lg;
+  }
+
+  h3 {
+    @apply text-base;
+  }
+
+  input, textarea, select, button {
+    @apply text-sm;
+  }
+}
+
 /* Ensure report card fits on A4 page */
 .report-card-pdf {
   max-width: 210mm;
-  min-height: auto;
+  width: 210mm !important;
+  min-height: 297mm;
   page-break-inside: avoid;
+  background: white;
+  margin: 0 auto !important;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* Improve text readability in PDF exports */
+.report-card-pdf * {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  color-adjust: exact;
+}
+
+/* Optimize spacing for A4 fit */
+.report-card-pdf > div {
+  margin-bottom: 2mm !important;
+}
+
+/* Make fonts appropriate size for A4 */
+.report-card-pdf table {
+  font-size: 10pt !important;
+  border-collapse: collapse !important;
+  width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.report-card-pdf th {
+  padding: 6px !important;
+  line-height: 1.3 !important;
+  font-weight: bold !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+}
+
+.report-card-pdf td {
+  padding: 6px !important;
+  line-height: 1.3 !important;
+  vertical-align: middle !important;
+  text-align: left !important;
+}
+
+/* Center numeric/grade columns */
+.report-card-pdf td[class*="text-center"] {
+  text-align: center !important;
+}
+
+.report-card-pdf h1 {
+  font-size: 18pt !important;
+  margin: 0 0 2pt 0 !important;
+  font-weight: bold !important;
+}
+
+.report-card-pdf h2 {
+  font-size: 13pt !important;
+  margin: 0 0 2pt 0 !important;
+  font-weight: bold !important;
+}
+
+.report-card-pdf h3 {
+  font-size: 11pt !important;
+  margin: 0 !important;
+  font-weight: bold !important;
+}
+
+/* Lighter borders for better readability - override Tailwind classes */
+.report-card-pdf table,
+.report-card-pdf table.border-2,
+.report-card-pdf table.border-black {
+  border-width: 1px !important;
+  border-color: #666 !important;
+  border-style: solid !important;
+}
+
+.report-card-pdf th,
+.report-card-pdf th.border,
+.report-card-pdf th.border-black {
+  border-width: 1px !important;
+  border-color: #666 !important;
+  border-style: solid !important;
+}
+
+.report-card-pdf td,
+.report-card-pdf td.border,
+.report-card-pdf td.border-black {
+  border-width: 1px !important;
+  border-color: #888 !important;
+  border-style: solid !important;
+}
+
+/* Override any section divider borders */
+.report-card-pdf .border-b-2,
+.report-card-pdf .border-b {
+  border-bottom-width: 1px !important;
+  border-bottom-color: #666 !important;
+}
+
+/* Fix table overflow and text wrapping issues */
+.report-card-pdf table {
+  table-layout: fixed !important;
+  word-wrap: break-word !important;
+}
+
+.report-card-pdf td,
+.report-card-pdf th {
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  white-space: normal !important;
+  max-width: 100% !important;
+}
+
+/* Reduce padding for small cells to prevent overflow */
+.report-card-pdf td.text-\[6px\],
+.report-card-pdf td.text-\[7px\],
+.report-card-pdf th.text-\[7px\],
+.report-card-pdf th.text-\[8px\] {
+  padding: 5px !important;
+}
+
+/* Ensure grid containers don't overflow */
+.report-card-pdf .grid {
+  width: 100% !important;
+  overflow: hidden !important;
+}
+
+.report-card-pdf .grid > div {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Specific fix for small tables in grid layouts */
+.report-card-pdf .border-2 {
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+/* Make subject column wider in cognitive domain table - target the specific table with 6 columns */
+.report-card-pdf .col-span-3 > table {
+  table-layout: fixed !important;
+}
+
+.report-card-pdf .col-span-3 > table tbody tr td:first-child {
+  width: 35% !important;
+  min-width: 35% !important;
+}
+
+/* Set widths for score columns in 6-column table */
+.report-card-pdf .col-span-3 > table tbody tr td:nth-child(2),
+.report-card-pdf .col-span-3 > table tbody tr td:nth-child(3),
+.report-card-pdf .col-span-3 > table tbody tr td:nth-child(4) {
+  width: 10% !important;
+}
+
+/* Grade column in 6-column table */
+.report-card-pdf .col-span-3 > table tbody tr td:nth-child(5) {
+  width: 10% !important;
+}
+
+/* Remarks column in 6-column table */
+.report-card-pdf .col-span-3 > table tbody tr td:nth-child(6) {
+  width: 25% !important;
+}
+
+/* Also set header widths to match */
+.report-card-pdf .col-span-3 > table thead tr th:first-child {
+  width: 35% !important;
+}
+
+/* Make text column wider in AFFECTIVE DOMAIN table */
+.report-card-pdf .col-span-2 table tbody tr td:first-child {
+  width: 50% !important;
+}
+
+/* Rating columns in AFFECTIVE DOMAIN - equal width for 1-5 columns */
+.report-card-pdf .col-span-2 table tbody tr td:nth-child(2),
+.report-card-pdf .col-span-2 table tbody tr td:nth-child(3),
+.report-card-pdf .col-span-2 table tbody tr td:nth-child(4),
+.report-card-pdf .col-span-2 table tbody tr td:nth-child(5),
+.report-card-pdf .col-span-2 table tbody tr td:nth-child(6) {
+  width: 10% !important;
 }
 
 /* Print Styles */
