@@ -91,8 +91,31 @@ try {
             require __DIR__ . '/routes/school/change-password.php';
             break;
 
+        // PDF generation route
+        case '/generate-pdf':
+            require __DIR__ . '/routes/generate-pdf.php';
+            break;
+
+        // PDF view route (for Puppeteer)
+        case '/pdf-view':
+            require __DIR__ . '/routes/pdf-view.php';
+            break;
+
         // Default - 404
         default:
+            // Check if it's a request for a temp PDF file
+            if (preg_match('#^/temp/(.+\.pdf)$#', $path, $matches)) {
+                $pdfFile = __DIR__ . '/temp/' . $matches[1];
+                if (file_exists($pdfFile)) {
+                    header('Content-Type: application/pdf');
+                    header('Content-Disposition: attachment; filename="' . basename($pdfFile) . '"');
+                    header('Content-Length: ' . filesize($pdfFile));
+                    readfile($pdfFile);
+                    exit;
+                }
+            }
+
+            // Regular 404
             http_response_code(404);
             echo json_encode([
                 'success' => false,

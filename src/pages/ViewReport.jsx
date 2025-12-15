@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import ReportCard from '../components/ReportCard';
-import { getReportCard } from '../services/api';
+import { getReportCard, generateReportPDF } from '../services/api';
 
 export default function ViewReport({ school }) {
   const { id } = useParams();
@@ -37,44 +35,23 @@ export default function ViewReport({ school }) {
   };
 
   const handleDownloadPDF = async () => {
-    if (!reportRef.current) return;
-
     try {
       setIsGeneratingPDF(true);
 
-      // Get actual dimensions - 210mm x 297mm at 96 DPI
-      const mmToPx = 3.7795275591; // 1mm = 3.78 pixels at 96 DPI
-      const a4Width = 210 * mmToPx; // ~794px
-      const a4Height = 297 * mmToPx; // ~1123px
+      // Call backend API to generate PDF using Puppeteer
+      const response = await generateReportPDF(id);
 
-      // Capture the report card as canvas
-      const canvas = await html2canvas(reportRef.current, {
-        scale: 2, // Good quality without being too large
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        width: a4Width,
-        height: a4Height,
-        windowWidth: a4Width,
-        windowHeight: a4Height
-      });
-
-      // Create PDF with exact A4 dimensions
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-        compress: true
-      });
-
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-
-      // Add image to fill entire A4 page
-      pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
-
-      // Save PDF with filename
-      const filename = `${reportData.studentName}_${reportData.term}_${reportData.session}_Report.pdf`;
-      pdf.save(filename);
+      if (response.success && response.url) {
+        // Create a temporary link and trigger download
+        const link = document.createElement('a');
+        link.href = response.url;
+        link.download = response.filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        throw new Error(response.message || 'Failed to generate PDF');
+      }
 
     } catch (error) {
       console.error('Error generating PDF:', error);

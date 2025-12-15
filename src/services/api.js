@@ -242,3 +242,23 @@ export const changeSchoolPassword = async (passwordData) => {
     throw error;
   }
 };
+
+/**
+ * Generate PDF for a report card using Puppeteer
+ * @param {number} reportId - The report ID
+ * @returns {Promise} - API response with PDF URL
+ */
+export const generateReportPDF = async (reportId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/generate-pdf?id=${reportId}`, {
+      method: 'GET',
+      credentials: 'include'
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    throw error;
+  }
+};
