@@ -1,15 +1,30 @@
 -- Report Card Generator Database Schema
 
-CREATE DATABASE IF NOT EXISTS report_card_db;
-USE report_card_db;
+CREATE DATABASE IF NOT EXISTS db_abcb24_school;
+USE db_abcb24_school;
+
+-- Schools table
+CREATE TABLE IF NOT EXISTS schools (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    school_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    phone VARCHAR(50),
+    address TEXT,
+    logo LONGTEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
 
 -- Students table
 CREATE TABLE IF NOT EXISTS students (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    school_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     class VARCHAR(100) NOT NULL,
     session VARCHAR(50) NOT NULL,
-    admission_no VARCHAR(100) NOT NULL UNIQUE,
+    admission_no VARCHAR(100) NOT NULL,
     term VARCHAR(50) NOT NULL,
     gender ENUM('MALE', 'FEMALE') NOT NULL,
     height VARCHAR(20),
@@ -18,7 +33,9 @@ CREATE TABLE IF NOT EXISTS students (
     fav_col VARCHAR(100),
     photo LONGTEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_admission_per_school (school_id, admission_no)
 );
 
 -- Attendance table
