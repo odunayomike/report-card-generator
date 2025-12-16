@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { API_BASE_URL } from './config/env';
 import LandingPage from './components/LandingPage';
 import Login from './components/Login';
@@ -23,6 +24,11 @@ import ViewAttendance from './pages/ViewAttendance';
 import ComingSoon from './pages/ComingSoon';
 import VerifyPayment from './pages/VerifyPayment';
 import AddStudent from './pages/AddStudent';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import Pricing from './pages/Pricing';
+import FAQ from './pages/FAQ';
+import Subscription from './pages/Subscription';
 
 function App() {
   const [school, setSchool] = useState(null);
@@ -109,7 +115,8 @@ function App() {
   }
 
   return (
-    <Router>
+    <HelmetProvider>
+      <Router>
       <Routes>
         <Route
           path="/"
@@ -123,6 +130,12 @@ function App() {
           path="/register"
           element={school ? <Navigate to="/dashboard" /> : <Register onRegister={handleRegister} />}
         />
+
+        {/* Public Pages */}
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/faq" element={<FAQ />} />
 
         {/* Dashboard Routes with Nested Layout */}
         <Route
@@ -143,6 +156,7 @@ function App() {
           <Route path="manage-teachers" element={<ManageTeachers />} />
           <Route path="accounting" element={<ComingSoon feature="School Accounting & Fee Management" />} />
           <Route path="cbt" element={<ComingSoon feature="Computer-Based Testing (CBT)" />} />
+          <Route path="subscription" element={<Subscription />} />
         </Route>
 
         {/* Subscription Routes (accessible by authenticated schools) */}
@@ -164,11 +178,15 @@ function App() {
           <Route path="mark-attendance" element={<AttendanceMarker />} />
           <Route path="add-student" element={<AddStudent />} />
           <Route path="students" element={<AllStudents />} />
+          <Route path="students/:admissionNo" element={<StudentProfile />} />
+          <Route path="create-report" element={<CreateReport school={teacher?.school_id ? { id: teacher.school_id } : school} />} />
+          <Route path="reports/:id" element={<ViewReport school={teacher?.school_id ? { id: teacher.school_id } : school} />} />
+          <Route path="reports/:id/edit" element={<EditReport school={teacher?.school_id ? { id: teacher.school_id } : school} />} />
           <Route path="cbt" element={<ComingSoon feature="Computer-Based Testing (CBT)" />} />
         </Route>
 
 
-        {/* StudentForm for both school and teacher */}
+        {/* StudentForm for school admin */}
         <Route
           path="/student-form"
           element={<CreateReport school={school} />}
@@ -180,6 +198,7 @@ function App() {
         />
       </Routes>
     </Router>
+    </HelmetProvider>
   );
 }
 

@@ -54,9 +54,12 @@ try {
     // Hash password
     $hashed_password = password_hash($data['password'], PASSWORD_DEFAULT);
 
-    // Insert school
-    $query = "INSERT INTO schools (school_name, email, password, phone, address, logo)
-              VALUES (:school_name, :email, :password, :phone, :address, :logo)";
+    // Calculate trial end date (7 days from now)
+    $trial_end_date = date('Y-m-d', strtotime('+7 days'));
+
+    // Insert school with trial period
+    $query = "INSERT INTO schools (school_name, email, password, phone, address, logo, subscription_status, trial_end_date)
+              VALUES (:school_name, :email, :password, :phone, :address, :logo, 'trial', :trial_end_date)";
 
     $stmt = $db->prepare($query);
     $stmt->execute([
@@ -65,13 +68,14 @@ try {
         ':password' => $hashed_password,
         ':phone' => $data['phone'] ?? null,
         ':address' => $data['address'] ?? null,
-        ':logo' => $data['logo'] ?? null
+        ':logo' => $data['logo'] ?? null,
+        ':trial_end_date' => $trial_end_date
     ]);
 
     $school_id = $db->lastInsertId();
 
     // Start session and set school data
-    session_start();
+    $_SESSION['user_type'] = 'school';
     $_SESSION['school_id'] = $school_id;
     $_SESSION['school_name'] = $data['school_name'];
     $_SESSION['email'] = $data['email'];
@@ -79,11 +83,13 @@ try {
     http_response_code(201);
     echo json_encode([
         'success' => true,
-        'message' => 'School registered successfully',
+        'message' => 'School registered successfully. You have 7 days free trial!',
         'school' => [
             'id' => $school_id,
             'school_name' => $data['school_name'],
-            'email' => $data['email']
+            'email' => $data['email'],
+            'subscription_status' => 'trial',
+            'trial_end_date' => $trial_end_date
         ]
     ]);
 

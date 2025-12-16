@@ -235,31 +235,43 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
 
         {/* Progress Indicator */}
         <div className="mb-8">
-        <div className="flex items-center justify-between mb-2">
-          {[1, 2, 3, 4].map((step) => (
-            <div key={step} className="flex items-center flex-1 w-full">
-              <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 font-semibold ${
-                currentStep >= step
-                  ? 'bg-primary-600 text-white border-primary-600'
-                  : 'bg-white text-gray-400 border-gray-300'
-              }`}>
-                {step}
+          {/* Step numbers and connecting lines */}
+          <div className="flex items-center mb-3">
+            {[1, 2, 3, 4].map((step) => (
+              <div key={step} className="flex items-center" style={{ flex: step < 4 ? '1 1 0%' : '0 0 40px' }}>
+                <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 font-semibold flex-shrink-0 ${
+                  currentStep >= step
+                    ? 'bg-primary-600 text-white border-primary-600'
+                    : 'bg-white text-gray-400 border-gray-300'
+                }`}>
+                  {step}
+                </div>
+                {step < 4 && (
+                  <div className={`flex-1 h-1 mx-4 ${
+                    currentStep > step ? 'bg-primary-600' : 'bg-gray-300'
+                  }`}></div>
+                )}
               </div>
-              {step < 4 && (
-                <div className={`flex-1 h-1 mx-2 ${
-                  currentStep > step ? 'bg-primary-600' : 'bg-gray-300'
-                }`}></div>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
+          {/* Step labels - aligned with numbers above */}
+          <div className="flex items-start">
+            {[
+              { step: 1, label: 'Info & Attendance' },
+              { step: 2, label: 'Subjects' },
+              { step: 3, label: 'Domains' },
+              { step: 4, label: 'Remarks' }
+            ].map((item) => (
+              <div key={item.step} className="flex justify-start" style={{ flex: item.step < 4 ? '1 1 0%' : '0 0 40px' }}>
+                <span className={`text-[10px] leading-tight whitespace-nowrap ${
+                  currentStep === item.step ? 'font-semibold text-primary-600' : 'text-gray-600'
+                }`}>
+                  {item.label}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="flex justify-between text-[10px] text-gray-600 px-2">
-          <span className={currentStep === 1 ? 'font-semibold text-primary-600' : ''}>Info & Attendance</span>
-          <span className={currentStep === 2 ? 'font-semibold text-primary-600' : ''}>Subjects</span>
-          <span className={currentStep === 3 ? 'font-semibold text-primary-600' : ''}>Domains</span>
-          <span className={currentStep === 4 ? 'font-semibold text-primary-600' : ''}>Remarks</span>
-        </div>
-      </div>
 
       <h3 className="text-lg font-semibold text-primary-600 mb-4">{getStepTitle()}</h3>
 

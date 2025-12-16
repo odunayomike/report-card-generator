@@ -21,6 +21,6 @@ ADD COLUMN footer_text TEXT AFTER header_text;
 -- Update existing schools to have default JSON values
 UPDATE schools
 SET
-  grading_scale = '{"A": [90, 100], "B": [80, 89], "C": [70, 79], "D": [60, 69], "F": [0, 59]}',
+  grading_scale = '{"A": [75, 100], "B": [65, 74], "C": [55, 64], "D": [45, 54], "F": [0, 44]}',
   available_subjects = '["Mathematics", "English Language", "Science", "Social Studies", "Religious Studies", "Computer Studies", "Physical Education"]'
 WHERE grading_scale IS NULL OR available_subjects IS NULL;

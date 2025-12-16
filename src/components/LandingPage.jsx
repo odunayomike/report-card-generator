@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   BookOpen,
@@ -12,13 +13,24 @@ import {
   Star,
   MessageCircle,
   ChevronRight,
-  GraduationCap
+  GraduationCap,
+  ChevronDown
 } from 'lucide-react';
 import schoolLogo from '../assets/schoolhub.png';
+import SEO from './SEO';
 
 export default function LandingPage() {
+  const [showLoginDropdown, setShowLoginDropdown] = useState(false);
+
   return (
-    <div className="min-h-screen bg-white">
+    <>
+      <SEO
+        title="SchoolHub - Complete School Management System | Report Cards, Attendance, Analytics & More"
+        description="All-in-one school management platform for Nigerian schools. Generate report cards, track attendance, manage teachers & students, view analytics, handle subscriptions, CBT exams, and school accounting. Trusted by 500+ schools."
+        keywords="school management system Nigeria, report card generator, student management system, school software Nigeria, attendance tracking system, teacher management, school analytics dashboard, school accounting software, fee management system, CBT exam software, grade management system, student report card generator, school administration software, education management system, school ERP software, student information system, school portal Nigeria, online report card, school fee payment, student attendance tracker"
+        url="/"
+      />
+      <div className="min-h-screen bg-white">
       {/* Navigation */}
       <nav className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -33,31 +45,70 @@ export default function LandingPage() {
                 SchoolHub
               </h1>
             </div>
-            <div className="flex gap-4">
+            <div className="flex items-center gap-6">
               <Link
-                to="/teacher/login"
-                className="px-6 py-2.5 text-gray-700 transition-colors font-medium"
-                style={{'&:hover': {color: '#1791C8'}}}
-                onMouseEnter={(e) => e.target.style.color = '#1791C8'}
-                onMouseLeave={(e) => e.target.style.color = '#374151'}
+                to="/about"
+                className="text-gray-700 hover:text-[#1791C8] transition-colors font-medium"
               >
-                Teacher Login
+                About
               </Link>
               <Link
-                to="/login"
-                className="px-6 py-2.5 text-gray-700 transition-colors font-medium"
-                style={{'&:hover': {color: '#1791C8'}}}
-                onMouseEnter={(e) => e.target.style.color = '#1791C8'}
-                onMouseLeave={(e) => e.target.style.color = '#374151'}
+                to="/pricing"
+                className="text-gray-700 hover:text-[#1791C8] transition-colors font-medium"
               >
-                School Login
+                Pricing
               </Link>
+              <Link
+                to="/contact"
+                className="text-gray-700 hover:text-[#1791C8] transition-colors font-medium"
+              >
+                Contact
+              </Link>
+              <Link
+                to="/faq"
+                className="text-gray-700 hover:text-[#1791C8] transition-colors font-medium"
+              >
+                FAQ
+              </Link>
+
+              {/* Login Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowLoginDropdown(!showLoginDropdown)}
+                  onMouseEnter={() => setShowLoginDropdown(true)}
+                  className="flex items-center gap-1 px-4 py-2.5 text-gray-700 hover:text-[#1791C8] transition-colors font-medium"
+                >
+                  Login
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+
+                {showLoginDropdown && (
+                  <div
+                    className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 py-2"
+                    onMouseLeave={() => setShowLoginDropdown(false)}
+                  >
+                    <Link
+                      to="/login"
+                      className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#1791C8] transition-colors font-medium"
+                      onClick={() => setShowLoginDropdown(false)}
+                    >
+                      School Login
+                    </Link>
+                    <Link
+                      to="/teacher/login"
+                      className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#1791C8] transition-colors font-medium"
+                      onClick={() => setShowLoginDropdown(false)}
+                    >
+                      Teacher Login
+                    </Link>
+                  </div>
+                )}
+              </div>
+
               <Link
                 to="/register"
                 className="px-6 py-2.5 text-white rounded-lg hover:shadow-lg transition-all font-semibold"
                 style={{backgroundColor: '#1791C8'}}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#1478A6'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#1791C8'}
               >
                 Get Started Free
               </Link>
@@ -444,17 +495,15 @@ export default function LandingPage() {
             <div>
               <h3 className="text-white font-bold mb-4">Product</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white">Features</a></li>
-                <li><a href="#" className="hover:text-white">Pricing</a></li>
-                <li><a href="#" className="hover:text-white">FAQ</a></li>
+                <li><Link to="/pricing" className="hover:text-white">Pricing</Link></li>
+                <li><Link to="/faq" className="hover:text-white">FAQ</Link></li>
               </ul>
             </div>
             <div>
               <h3 className="text-white font-bold mb-4">Company</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white">About Us</a></li>
-                <li><a href="#" className="hover:text-white">Contact</a></li>
-                <li><a href="#" className="hover:text-white">Support</a></li>
+                <li><Link to="/about" className="hover:text-white">About Us</Link></li>
+                <li><Link to="/contact" className="hover:text-white">Contact</Link></li>
               </ul>
             </div>
             <div>
@@ -471,5 +520,6 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
+    </>
   );
 }

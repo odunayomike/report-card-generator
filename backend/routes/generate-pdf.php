@@ -23,8 +23,12 @@ if (!$reportId) {
 $database = new Database();
 $db = $database->getConnection();
 
-// Use the same query as get-report.php to get all data
-$query = "SELECT s.*, sc.school_name, sc.address as school_address, sc.phone as school_phone, sc.email as school_email, sc.logo as school_logo
+// Use the same query as get-report.php to get all data including all school settings
+$query = "SELECT s.*,
+          sc.school_name, sc.address as school_address, sc.phone as school_phone,
+          sc.email as school_email, sc.logo as school_logo, sc.grading_scale,
+          sc.motto, sc.show_logo_on_report, sc.show_motto_on_report,
+          sc.header_text, sc.footer_text
           FROM students s
           LEFT JOIN schools sc ON s.school_id = sc.id
           WHERE s.id = ? AND s.school_id = ?";
@@ -64,6 +68,12 @@ $remarks_stmt = $db->prepare($remarks_query);
 $remarks_stmt->execute([$reportId]);
 $remarks = $remarks_stmt->fetch(PDO::FETCH_ASSOC);
 
+// Parse grading scale JSON if it exists
+$grading_scale = null;
+if (isset($report['grading_scale']) && $report['grading_scale']) {
+    $grading_scale = json_decode($report['grading_scale'], true);
+}
+
 // Compile all data into one object
 $fullReportData = [
     'student' => $report,
@@ -71,7 +81,15 @@ $fullReportData = [
     'subjects' => $subjects,
     'affective' => $affective,
     'psychomotor' => $psychomotor,
-    'remarks' => $remarks
+    'remarks' => $remarks,
+    'school' => [
+        'grading_scale' => $grading_scale,
+        'motto' => $report['motto'] ?? null,
+        'show_logo_on_report' => isset($report['show_logo_on_report']) ? (bool)$report['show_logo_on_report'] : true,
+        'show_motto_on_report' => isset($report['show_motto_on_report']) ? (bool)$report['show_motto_on_report'] : true,
+        'header_text' => $report['header_text'] ?? null,
+        'footer_text' => $report['footer_text'] ?? null
+    ]
 ];
 
 // Get session cookie

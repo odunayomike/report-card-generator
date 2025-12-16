@@ -4,6 +4,22 @@
  * Single entry point for all API requests
  */
 
+// Configure session cookie parameters before starting session
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+ini_set('session.cookie_lifetime', 86400); // 24 hours
+ini_set('session.gc_maxlifetime', 86400);
+
+// Set SameSite attribute for session cookie
+session_set_cookie_params([
+    'lifetime' => 86400,
+    'path' => '/',
+    'domain' => '',
+    'secure' => false, // Set to true if using HTTPS
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
+
 // Start session FIRST before any output
 session_start();
 
@@ -19,12 +35,21 @@ $request_method = $_SERVER['REQUEST_METHOD'];
 // Remove query string and get the path
 $path = parse_url($request_uri, PHP_URL_PATH);
 
+// Remove /backend prefix if present (for production)
+$path = preg_replace('#^/backend#', '', $path);
+
 // Remove /api prefix if present
 $path = preg_replace('#^/api#', '', $path);
 
 // Route the request
 try {
     switch ($path) {
+        // Root/Home - API Documentation
+        case '':
+        case '/':
+            require __DIR__ . '/routes/api-docs.php';
+            break;
+
         // Auth routes
         case '/auth/login':
             require __DIR__ . '/routes/auth/login.php';
@@ -164,6 +189,10 @@ try {
 
         case '/subscription/get-status':
             require __DIR__ . '/routes/subscription/get-status.php';
+            break;
+
+        case '/subscription/change-plan':
+            require __DIR__ . '/routes/subscription/change-plan.php';
             break;
 
         // Auto-debit routes

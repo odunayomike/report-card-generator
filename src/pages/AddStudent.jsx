@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { createStudent, generateAdmissionNumber } from '../services/api';
 
 const AddStudent = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [generatingAdmission, setGeneratingAdmission] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // Determine if user is a teacher based on the current route
+  const isTeacher = location.pathname.startsWith('/teacher');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -80,7 +84,7 @@ const AddStudent = () => {
       if (response.success) {
         setSuccess('Student profile created successfully!');
         setTimeout(() => {
-          navigate('/dashboard/students');
+          navigate(isTeacher ? '/teacher/students' : '/dashboard/students');
         }, 2000);
       } else {
         setError(response.message || 'Failed to create student profile');
@@ -328,7 +332,7 @@ const AddStudent = () => {
             </button>
             <button
               type="button"
-              onClick={() => navigate('/dashboard/students')}
+              onClick={() => navigate(isTeacher ? '/teacher/students' : '/dashboard/students')}
               className="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200"
             >
               Cancel

@@ -21,12 +21,7 @@ if (!isset($_SESSION['school_id'])) {
 try {
     $data = json_decode(file_get_contents('php://input'), true);
     $plan_id = $data['plan_id'] ?? null;
-
-    if (!$plan_id) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Plan ID is required']);
-        exit;
-    }
+    $plan_type = $data['plan_type'] ?? 'monthly'; // monthly or yearly
 
     $school_id = $_SESSION['school_id'];
 
@@ -45,10 +40,18 @@ try {
         exit;
     }
 
-    // Get plan details
-    $stmt = $db->prepare("SELECT * FROM subscription_plans WHERE id = ? AND is_active = TRUE");
-    $stmt->execute([$plan_id]);
-    $plan = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Get plan details - either by ID or by plan_type
+    if ($plan_id) {
+        $stmt = $db->prepare("SELECT * FROM subscription_plans WHERE id = ? AND is_active = TRUE");
+        $stmt->execute([$plan_id]);
+        $plan = $stmt->fetch(PDO::FETCH_ASSOC);
+    } else {
+        // Lookup plan by type
+        $plan_name = $plan_type === 'yearly' ? 'Yearly Plan' : 'Monthly Plan';
+        $stmt = $db->prepare("SELECT * FROM subscription_plans WHERE plan_name = ? AND is_active = TRUE");
+        $stmt->execute([$plan_name]);
+        $plan = $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
     if (!$plan) {
         http_response_code(404);

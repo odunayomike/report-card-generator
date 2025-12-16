@@ -1,0 +1,50 @@
+# SchoolHub - Complete School Management System
+# Robots.txt for optimal search engine crawling
+
+# Allow all search engines to crawl public pages
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /register
+Allow: /teacher/login
+
+# Disallow private/authenticated areas
+Disallow: /dashboard/
+Disallow: /teacher/dashboard
+Disallow: /subscription/verify
+
+# Disallow API endpoints (not meant for search engines)
+Disallow: /backend/api/
+Disallow: /backend/temp/
+
+# Allow sitemap discovery
+Sitemap: https://schoolhub.tech/sitemap.xml
+
+# Crawl delay for responsible crawling (in seconds)
+Crawl-delay: 1
+
+# Specific rules for major search engines
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1
+
+# Block bad bots
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: dotbot
+Disallow: /

@@ -2,11 +2,15 @@ import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { getAllStudents } from '../services/api';
 import { API_BASE_URL } from '../config/env';
+import SubscriptionRequired from './SubscriptionRequired';
 
 export default function DashboardLayout({ school, onLogout, refreshSchool }) {
   const [students, setStudents] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate();
+
+  // Check if school has access (active or trial subscription)
+  const hasAccess = school?.has_access !== false;
 
   useEffect(() => {
     fetchStudents();
@@ -34,6 +38,11 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
       console.error('Logout error:', error);
     }
   };
+
+  // If no access, show subscription required screen
+  if (!hasAccess) {
+    return <SubscriptionRequired school={school} />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -127,7 +136,7 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
 
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-gray-200 h-screen print:hidden fixed top-16 left-0 overflow-y-auto flex flex-col">
+        <aside className="w-64 pt-10 bg-white border-r border-gray-200 h-screen print:hidden fixed top-16 left-0 overflow-y-auto flex flex-col">
           <nav className="p-4 space-y-1 flex-1">
             <NavLink
               to="/dashboard"
@@ -160,6 +169,22 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
               Create Report
+            </NavLink>
+
+            <NavLink
+              to="/dashboard/add-student"
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                  isActive
+                    ? 'bg-primary-50 text-primary-600'
+                    : 'text-gray-700 hover:bg-gray-50'
+                }`
+              }
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+              Add Student
             </NavLink>
 
             <NavLink
@@ -246,6 +271,24 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
             </NavLink>
 
             <div className="mt-6 pt-6 border-t border-gray-200">
+              <NavLink
+                to="/dashboard/subscription"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                    isActive
+                      ? 'bg-primary-50 text-primary-600'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  }`
+                }
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+                Subscription
+              </NavLink>
+            </div>
+
+            <div className="mt-0 pt-6 border-t border-gray-200">
               <NavLink
                 to="/dashboard/profile"
                 className={({ isActive }) =>

@@ -8,14 +8,37 @@ function generateReportHTML(data) {
   const affective = data.affective || [];
   const psychomotor = data.psychomotor || [];
   const remarks = data.remarks || {};
+  const school = data.school || {};
 
-  // Helper function to calculate grade and remark
+  // Default grading scale
+  const defaultGradingScale = {
+    A: [75, 100],
+    B: [65, 74],
+    C: [55, 64],
+    D: [45, 54],
+    F: [0, 44]
+  };
+
+  // Use school's grading scale or fall back to default
+  const gradingScale = school.grading_scale || defaultGradingScale;
+
+  // Helper function to calculate grade and remark using dynamic grading scale
   const getGradeAndRemark = (total) => {
     const score = parseFloat(total) || 0;
-    if (score >= 70) return { grade: 'A', remark: 'EXCELLENT' };
-    if (score >= 60) return { grade: 'B', remark: 'VERY GOOD' };
-    if (score >= 50) return { grade: 'C', remark: 'GOOD' };
-    if (score >= 40) return { grade: 'D', remark: 'FAIR' };
+
+    // Check each grade range dynamically
+    if (score >= gradingScale.A[0] && score <= gradingScale.A[1]) {
+      return { grade: 'A', remark: 'EXCELLENT' };
+    }
+    if (score >= gradingScale.B[0] && score <= gradingScale.B[1]) {
+      return { grade: 'B', remark: 'VERY GOOD' };
+    }
+    if (score >= gradingScale.C[0] && score <= gradingScale.C[1]) {
+      return { grade: 'C', remark: 'GOOD' };
+    }
+    if (score >= gradingScale.D[0] && score <= gradingScale.D[1]) {
+      return { grade: 'D', remark: 'FAIR' };
+    }
     return { grade: 'F', remark: 'FAIL' };
   };
 
@@ -62,54 +85,75 @@ function generateReportHTML(data) {
       background: white;
     }
 
+    /* Custom Header Text */
+    .custom-header {
+      text-align: center;
+      margin-bottom: 6px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #d1d5db;
+    }
+    .custom-header p {
+      font-size: 9px;
+      font-style: italic;
+    }
+
     /* Header Styles */
     .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
       margin-bottom: 6px;
       padding-bottom: 6px;
       border-bottom: 2px solid black;
+      position: relative;
     }
-    .header-left {
+    .header-content {
       display: flex;
-      align-items: center;
-      gap: 10px;
+      align-items: flex-start;
     }
     .logo-container {
-      width: 64px;
-      height: 64px;
-      border: 2px solid black;
-      border-radius: 50%;
+      width: 80px;
+      height: 80px;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
       background: white;
       flex-shrink: 0;
+      position: absolute;
+      left: 0;
+      top: -32px;
     }
     .logo-container img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
     }
     .logo-placeholder {
       font-size: 10px;
       font-weight: bold;
     }
+    .school-info {
+      text-align: center;
+      flex: 1;
+      margin-top: -8px;
+    }
     .school-info h1 {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: bold;
       letter-spacing: 0.5px;
       text-transform: uppercase;
+      line-height: 1.2;
     }
     .school-info p {
-      font-size: 11px;
+      font-size: 10px;
+      margin-top: 2px;
+    }
+    .school-motto {
+      font-size: 10px;
+      font-style: italic;
       margin-top: 2px;
     }
     .student-photo {
       width: 96px;
-      height: 112px;
+      height: 96px;
       border: 2px solid black;
       display: flex;
       align-items: center;
@@ -149,17 +193,16 @@ function generateReportHTML(data) {
     .info-row {
       display: flex;
       gap: 12px;
-      margin-bottom: 4px;
+      margin-bottom: 12px;
     }
     .info-field {
       display: flex;
       flex: 1;
+      gap: 4px;
     }
     .info-field .label {
       font-weight: bold;
-      width: 70px;
       flex-shrink: 0;
-      margin-right: 3px;
       font-size: 8px;
     }
     .info-field .value {
@@ -243,23 +286,23 @@ function generateReportHTML(data) {
 
     /* Remarks Section */
     .remarks-section {
-      margin-top: 6px;
+      margin-top: 8px;
       font-size: 9px;
     }
     .remark-box {
       border: 2px solid #9ca3af;
       display: flex;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
     }
     .remark-box .label {
       font-weight: bold;
-      padding: 4px;
+      padding: 8px;
       border-right: 2px solid black;
       width: 128px;
       font-size: 8px;
     }
     .remark-box .content {
-      padding: 4px;
+      padding: 8px;
       flex: 1;
       font-style: italic;
       font-size: 8px;
@@ -268,7 +311,7 @@ function generateReportHTML(data) {
       display: flex;
       gap: 16px;
       font-size: 8px;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
     }
     .signature-field {
       flex: 1;
@@ -287,28 +330,45 @@ function generateReportHTML(data) {
     /* Footer */
     .footer {
       margin-top: 6px;
-      text-align: right;
       font-size: 8px;
+    }
+    .custom-footer {
+      text-align: center;
+      font-style: italic;
+      margin-bottom: 4px;
+      padding-bottom: 4px;
+      padding-top: 4px;
+      border-top: 1px solid #d1d5db;
+    }
+    .footer-copyright {
+      text-align: right;
       font-style: italic;
     }
   </style>
 </head>
 <body>
   <div class="report-card-pdf">
+    <!-- Custom Header Text -->
+    ${school.header_text ? `
+    <div class="custom-header">
+      <p>${school.header_text}</p>
+    </div>
+    ` : ''}
+
     <!-- Header -->
     <div class="header">
-      <div class="header-left">
+      <div class="header-content">
+        ${school.show_logo_on_report !== false ? `
         <div class="logo-container">
           ${student.school_logo ? `<img src="${student.school_logo}" alt="School Logo" />` : '<span class="logo-placeholder">LOGO</span>'}
         </div>
+        ` : ''}
         <div class="school-info">
           <h1>${(student.school_name || 'SCHOOL NAME').toUpperCase()}</h1>
+          ${school.show_motto_on_report !== false && school.motto ? `<p class="school-motto">"${school.motto}"</p>` : ''}
           <p>${student.school_address || 'School Address'}</p>
           <p>TEL: ${student.school_phone || 'N/A'}, Email: ${student.school_email || 'N/A'}</p>
         </div>
-      </div>
-      <div class="student-photo">
-        ${student.photo ? `<img src="${student.photo}" alt="Student Photo" />` : '<span class="photo-placeholder">PHOTO</span>'}
       </div>
     </div>
 
@@ -317,10 +377,12 @@ function generateReportHTML(data) {
       <h2>${(student.term || 'FIRST TERM').toUpperCase()} STUDENT'S PERFORMANCE REPORT</h2>
     </div>
 
-    <!-- Student Information Grid -->
-    <div class="student-info">
-      <div class="info-row">
-        <div class="info-field" style="flex: 2;">
+    <!-- Student Information Grid with Photo -->
+    <div style="display: flex; gap: 8px; font-size: 9px; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 2px solid black;">
+      <!-- Student Details - Left Side -->
+      <div style="flex: 1;" class="student-info">
+      <div class="info-row" style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px;">
+        <div class="info-field">
           <span class="label">NAME:</span>
           <span class="value">${(student.name || '').toUpperCase()}</span>
         </div>
@@ -332,13 +394,9 @@ function generateReportHTML(data) {
           <span class="label">GENDER:</span>
           <span class="value">${student.gender || ''}</span>
         </div>
-        <div class="info-field">
-          <span class="label">AGE:</span>
-          <span class="value">${student.age || 'N/A'}</span>
-        </div>
       </div>
 
-      <div class="info-row">
+      <div class="info-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
         <div class="info-field">
           <span class="label">SESSION:</span>
           <span class="value">${student.session || ''}</span>
@@ -353,7 +411,7 @@ function generateReportHTML(data) {
         </div>
       </div>
 
-      <div class="info-row">
+      <div class="info-row" style="display: grid; grid-template-columns: 0.5fr 0.5fr 1fr 1fr; gap: 12px; margin-bottom: 0;">
         <div class="info-field">
           <span class="label">HT:</span>
           <span class="value">${student.height || ''}</span>
@@ -363,9 +421,19 @@ function generateReportHTML(data) {
           <span class="value">${student.weight || ''}</span>
         </div>
         <div class="info-field">
+          <span class="label">AGE:</span>
+          <span class="value">${student.age || 'N/A'}</span>
+        </div>
+        <div class="info-field">
           <span class="label">FAV. COL:</span>
           <span class="value">${student.fav_col || ''}</span>
         </div>
+      </div>
+      </div>
+
+      <!-- Student Photo - Right Side -->
+      <div class="student-photo" style="flex-shrink: 0;">
+        ${student.photo ? `<img src="${student.photo}" alt="Student Photo" />` : '<span class="photo-placeholder">PHOTO</span>'}
       </div>
     </div>
 
@@ -445,8 +513,8 @@ function generateReportHTML(data) {
 
         <!-- Grading Scale -->
         <div class="grading-scale">
-          <p><strong>70-100%=EXCELLENT; 60-69.9%=VERY GOOD; 50-59.9%=GOOD; 40-</strong></p>
-          <p><strong>49.9%=AVERAGE; 30-39.9%=FAIR; 0-29.9%=POOR</strong></p>
+          <p><strong>${gradingScale.A[0]}-${gradingScale.A[1]}%=EXCELLENT (A); ${gradingScale.B[0]}-${gradingScale.B[1]}%=VERY GOOD (B); ${gradingScale.C[0]}-${gradingScale.C[1]}%=GOOD (C);</strong></p>
+          <p><strong>${gradingScale.D[0]}-${gradingScale.D[1]}%=FAIR (D); ${gradingScale.F[0]}-${gradingScale.F[1]}%=FAIL (F)</strong></p>
         </div>
       </div>
 
@@ -613,7 +681,14 @@ function generateReportHTML(data) {
 
     <!-- Footer -->
     <div class="footer">
-      <p>${(student.school_name || 'SCHOOL NAME').toUpperCase()} © ${new Date().getFullYear()}</p>
+      ${school.footer_text ? `
+      <div class="custom-footer">
+        <p>${school.footer_text}</p>
+      </div>
+      ` : ''}
+      <div class="footer-copyright">
+        <p>${(student.school_name || 'SCHOOL NAME').toUpperCase()} © ${new Date().getFullYear()}</p>
+      </div>
     </div>
   </div>
 </body>

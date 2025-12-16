@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { getAllStudents } from '../services/api';
 
 export default function AllStudents() {
@@ -7,6 +7,10 @@ export default function AllStudents() {
   const [loadingStudents, setLoadingStudents] = useState(true);
   const [filters, setFilters] = useState({ class: '', session: '', term: '', search: '' });
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Determine if user is a teacher based on the current route
+  const isTeacher = location.pathname.startsWith('/teacher');
 
   useEffect(() => {
     fetchStudents();
@@ -29,15 +33,18 @@ export default function AllStudents() {
   };
 
   const handleViewProfile = (admissionNo) => {
-    navigate(`/dashboard/students/${admissionNo}`);
+    const basePath = isTeacher ? '/teacher' : '/dashboard';
+    navigate(`${basePath}/students/${admissionNo}`);
   };
 
   const handleViewReport = (studentId) => {
-    navigate(`/dashboard/reports/${studentId}`);
+    const basePath = isTeacher ? '/teacher' : '/dashboard';
+    navigate(`${basePath}/reports/${studentId}`);
   };
 
   const handleEditReport = (studentId) => {
-    navigate(`/dashboard/reports/${studentId}/edit`);
+    const basePath = isTeacher ? '/teacher' : '/dashboard';
+    navigate(`${basePath}/reports/${studentId}/edit`);
   };
 
   const filteredStudents = students.filter(student => {
@@ -56,7 +63,7 @@ export default function AllStudents() {
         <h2 className="text-2xl font-bold text-gray-900">All Students</h2>
         <div className="flex gap-2">
           <button
-            onClick={() => navigate('/dashboard/add-student')}
+            onClick={() => navigate(isTeacher ? '/teacher/add-student' : '/dashboard/add-student')}
             className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 flex items-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,7 +72,7 @@ export default function AllStudents() {
             Add Student
           </button>
           <button
-            onClick={() => navigate('/dashboard/create')}
+            onClick={() => navigate(isTeacher ? '/teacher/create-report' : '/dashboard/create')}
             className="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 flex items-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

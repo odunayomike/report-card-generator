@@ -9,10 +9,10 @@ const isLocalhost = window.location.hostname === 'localhost' || window.location.
 // Base URLs
 export const BACKEND_URL = isLocalhost
     ? 'http://localhost:8000'
-    : `${window.location.protocol}//${window.location.host}`;
+    : `${window.location.protocol}//${window.location.host}/backend`;
 
 export const FRONTEND_URL = isLocalhost
     ? 'http://localhost:5173'
     : `${window.location.protocol}//${window.location.host}`;
 
-export const API_BASE_URL = `${BACKEND_URL}/backend/api`;
+export const API_BASE_URL = `${BACKEND_URL}/api`;

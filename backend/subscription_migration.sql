@@ -62,9 +62,11 @@ ALTER TABLE subscription_payments ADD INDEX idx_payments_reference (reference);
 ALTER TABLE subscription_history ADD INDEX idx_history_school (school_id);
 ALTER TABLE subscription_history ADD INDEX idx_history_dates (start_date, end_date);
 
--- 6. Insert the default subscription plan (5000 NGN per month)
+-- 6. Insert the subscription plans
 INSERT INTO subscription_plans (plan_name, amount, duration_days, currency, description)
-VALUES ('Monthly Plan', 5000.00, 30, 'NGN', 'Full access to all features for 30 days')
+VALUES
+    ('Monthly Plan', 5000.00, 30, 'NGN', 'Full access to all features for 30 days'),
+    ('Yearly Plan', 50000.00, 365, 'NGN', 'Full access to all features for 365 days - Save ₦10,000!')
 ON DUPLICATE KEY UPDATE plan_name = plan_name;
 
 -- Migration complete!

@@ -7,17 +7,25 @@
 $database = new Database();
 $db = $database->getConnection();
 
+// Load subscription check middleware
+require_once __DIR__ . '/../../middleware/subscription-check.php';
+
 if (isset($_SESSION['user_type'])) {
     $userType = $_SESSION['user_type'];
 
     if ($userType === 'school' && isset($_SESSION['school_id'])) {
         // Fetch complete school data from database
-        $query = "SELECT id, school_name, email, phone, address, logo, motto, primary_color, secondary_color FROM schools WHERE id = :id";
+        $query = "SELECT id, school_name, email, phone, address, logo, motto, primary_color, secondary_color,
+                         subscription_status, subscription_end_date, trial_end_date
+                  FROM schools WHERE id = :id";
         $stmt = $db->prepare($query);
         $stmt->execute([':id' => $_SESSION['school_id']]);
         $school = $stmt->fetch();
 
         if ($school) {
+            // Check subscription status
+            $subscriptionCheck = checkSubscription($school['id'], $db);
+
             http_response_code(200);
             echo json_encode([
                 'success' => true,
@@ -32,7 +40,12 @@ if (isset($_SESSION['user_type'])) {
                     'logo' => $school['logo'],
                     'motto' => $school['motto'],
                     'primary_color' => $school['primary_color'],
-                    'secondary_color' => $school['secondary_color']
+                    'secondary_color' => $school['secondary_color'],
+                    'subscription_status' => $subscriptionCheck['status'],
+                    'subscription_end_date' => $subscriptionCheck['end_date'] ?? null,
+                    'trial_end_date' => $school['trial_end_date'],
+                    'days_remaining' => $subscriptionCheck['days_remaining'] ?? null,
+                    'has_access' => $subscriptionCheck['has_access']
                 ]
             ]);
         } else {

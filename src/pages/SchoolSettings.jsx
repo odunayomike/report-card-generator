@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react';
 import { getSchoolProfile, updateSchoolSettings } from '../services/api';
+import { useToastContext } from '../context/ToastContext';
 
 export default function SchoolSettings() {
+  const { toast } = useToastContext();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeSection, setActiveSection] = useState('grading');
 
   const [gradingScale, setGradingScale] = useState({
-    A: [90, 100],
-    B: [80, 89],
-    C: [70, 79],
-    D: [60, 69],
-    F: [0, 59]
+    A: [75, 100],
+    B: [65, 74],
+    C: [55, 64],
+    D: [45, 54],
+    F: [0, 44]
   });
 
   const [subjects, setSubjects] = useState([]);
@@ -65,7 +67,7 @@ export default function SchoolSettings() {
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to load settings.');
+      toast.error('Failed to load settings.');
     } finally {
       setLoading(false);
     }
@@ -81,18 +83,64 @@ export default function SchoolSettings() {
     }));
   };
 
+  const validateGradingScale = () => {
+    const grades = ['A', 'B', 'C', 'D', 'F'];
+    const errors = [];
+
+    // Check each grade range
+    for (const grade of grades) {
+      const [min, max] = gradingScale[grade];
+
+      // Check if min is less than max
+      if (min >= max) {
+        errors.push(`Grade ${grade}: Minimum (${min}) must be less than maximum (${max})`);
+      }
+
+      // Check if values are within 0-100
+      if (min < 0 || max > 100) {
+        errors.push(`Grade ${grade}: Values must be between 0 and 100`);
+      }
+    }
+
+    // Check for gaps and overlaps
+    const sortedGrades = Object.entries(gradingScale).sort((a, b) => b[1][0] - a[1][0]);
+    for (let i = 0; i < sortedGrades.length - 1; i++) {
+      const [currentGrade, [currentMin, currentMax]] = sortedGrades[i];
+      const [nextGrade, [nextMin, nextMax]] = sortedGrades[i + 1];
+
+      // Check for overlap
+      if (currentMin <= nextMax) {
+        errors.push(`Overlap detected: Grade ${currentGrade} (${currentMin}-${currentMax}) overlaps with ${nextGrade} (${nextMin}-${nextMax})`);
+      }
+
+      // Check for gap
+      if (currentMin > nextMax + 1) {
+        errors.push(`Gap detected between Grade ${currentGrade} and ${nextGrade}: ${nextMax + 1} to ${currentMin - 1} is not covered`);
+      }
+    }
+
+    return errors;
+  };
+
   const handleSaveGrading = async () => {
+    // Validate grading scale before saving
+    const validationErrors = validateGradingScale();
+    if (validationErrors.length > 0) {
+      toast.error('Please fix the following errors:\n\n' + validationErrors.join('\n'), 8000);
+      return;
+    }
+
     setSaving(true);
     try {
       const response = await updateSchoolSettings({ grading_scale: gradingScale });
       if (response.success) {
-        alert('Grading scale updated successfully!');
+        toast.success('Grading scale updated successfully!');
       } else {
-        alert('Error: ' + response.message);
+        toast.error('Error: ' + response.message);
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to save grading scale.');
+      toast.error('Failed to save grading scale.');
     } finally {
       setSaving(false);
     }
@@ -114,13 +162,13 @@ export default function SchoolSettings() {
     try {
       const response = await updateSchoolSettings({ available_subjects: subjects });
       if (response.success) {
-        alert('Subjects updated successfully!');
+        toast.success('Subjects updated successfully!');
       } else {
-        alert('Error: ' + response.message);
+        toast.error('Error: ' + response.message);
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to save subjects.');
+      toast.error('Failed to save subjects.');
     } finally {
       setSaving(false);
     }
@@ -128,7 +176,7 @@ export default function SchoolSettings() {
 
   const handleSaveAcademicYear = async () => {
     if (!academicYear.start || !academicYear.end) {
-      alert('Please select both start and end dates');
+      toast.warning('Please select both start and end dates');
       return;
     }
 
@@ -139,13 +187,13 @@ export default function SchoolSettings() {
         academic_year_end: academicYear.end
       });
       if (response.success) {
-        alert('Academic year updated successfully!');
+        toast.success('Academic year updated successfully!');
       } else {
-        alert('Error: ' + response.message);
+        toast.error('Error: ' + response.message);
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to save academic year.');
+      toast.error('Failed to save academic year.');
     } finally {
       setSaving(false);
     }
@@ -156,13 +204,13 @@ export default function SchoolSettings() {
     try {
       const response = await updateSchoolSettings(reportSettings);
       if (response.success) {
-        alert('Report settings updated successfully!');
+        toast.success('Report settings updated successfully!');
       } else {
-        alert('Error: ' + response.message);
+        toast.error('Error: ' + response.message);
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to save report settings.');
+      toast.error('Failed to save report settings.');
     } finally {
       setSaving(false);
     }

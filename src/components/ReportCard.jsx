@@ -1,16 +1,40 @@
 import { useRef } from 'react';
 import html2pdf from 'html2pdf.js';
+import { useToastContext } from '../context/ToastContext';
 
 export default function ReportCard({ data, school, hideButtons = false }) {
   const reportRef = useRef();
+  const { toast } = useToastContext();
 
-  // Calculate grade and remark based on total score
+  // Default grading scale
+  const defaultGradingScale = {
+    A: [75, 100],
+    B: [65, 74],
+    C: [55, 64],
+    D: [45, 54],
+    F: [0, 44]
+  };
+
+  // Use school's grading scale or fall back to default
+  const gradingScale = school?.grading_scale || defaultGradingScale;
+
+  // Calculate grade and remark based on total score using dynamic grading scale
   const getGradeAndRemark = (total) => {
     const score = parseFloat(total) || 0;
-    if (score >= 70) return { grade: 'A', remark: 'EXCELLENT' };
-    if (score >= 60) return { grade: 'B', remark: 'VERY GOOD' };
-    if (score >= 50) return { grade: 'C', remark: 'GOOD' };
-    if (score >= 40) return { grade: 'D', remark: 'FAIR' };
+
+    // Check each grade range dynamically
+    if (score >= gradingScale.A[0] && score <= gradingScale.A[1]) {
+      return { grade: 'A', remark: 'EXCELLENT' };
+    }
+    if (score >= gradingScale.B[0] && score <= gradingScale.B[1]) {
+      return { grade: 'B', remark: 'VERY GOOD' };
+    }
+    if (score >= gradingScale.C[0] && score <= gradingScale.C[1]) {
+      return { grade: 'C', remark: 'GOOD' };
+    }
+    if (score >= gradingScale.D[0] && score <= gradingScale.D[1]) {
+      return { grade: 'D', remark: 'FAIR' };
+    }
     return { grade: 'F', remark: 'FAIL' };
   };
 
@@ -46,7 +70,7 @@ export default function ReportCard({ data, school, hideButtons = false }) {
 
       if (!element) {
         console.error('Report element not found');
-        alert('Error: Report element not found');
+        toast.error('Error: Report element not found');
         return;
       }
 
@@ -84,7 +108,7 @@ export default function ReportCard({ data, school, hideButtons = false }) {
       console.log('PDF generation completed');
     } catch (error) {
       console.error('PDF generation error:', error);
-      alert('Error generating PDF: ' + error.message);
+      toast.error('Error generating PDF: ' + error.message);
       // Remove overlay if it exists
       const overlay = document.querySelector('.html2pdf__overlay');
       if (overlay) overlay.remove();
@@ -111,40 +135,43 @@ export default function ReportCard({ data, school, hideButtons = false }) {
       )}
 
       <div ref={reportRef} className="bg-white report-card-pdf" style={{ fontFamily: 'Arial, sans-serif', width: '210mm', minHeight: '297mm', padding: '8mm', boxSizing: 'border-box' }}>
+        {/* Custom Header Text */}
+        {school?.header_text && (
+          <div className="text-center mb-2 pb-1 border-b border-gray-300">
+            <p className="text-[10px] italic">{school.header_text}</p>
+          </div>
+        )}
+
         {/* Header */}
-        <div className="flex items-start justify-between mb-2 pb-2 border-b-2 border-black">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 border-2 border-black rounded-full flex items-center justify-center overflow-hidden bg-white">
-              {school?.logo ? (
-                <img
-                  src={school.logo}
-                  alt="School Logo"
-                  className="w-full h-full object-cover"
-                  crossOrigin="anonymous"
-                  onError={(e) => {
-                    console.error('Logo failed to load');
-                    e.target.style.display = 'none';
-                    e.target.parentElement.innerHTML = '<span class="text-xs font-bold">LOGO</span>';
-                  }}
-                />
-              ) : (
-                <span className="text-xs font-bold">LOGO</span>
+        <div className="mb-2 pb-2 border-b-2 border-black relative">
+          <div className="flex items-start">
+            {school?.show_logo_on_report !== false && (
+              <div className="w-20 h-20 flex items-center justify-center overflow-hidden bg-white absolute left-0 -top-8">
+                {school?.logo ? (
+                  <img
+                    src={school.logo}
+                    alt="School Logo"
+                    className="w-full h-full object-contain"
+                    crossOrigin="anonymous"
+                    onError={(e) => {
+                      console.error('Logo failed to load');
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = '<span class="text-xs font-bold">LOGO</span>';
+                    }}
+                  />
+                ) : (
+                  <span className="text-xs font-bold">LOGO</span>
+                )}
+              </div>
+            )}
+            <div className="text-center flex-1 -mt-2">
+              <h1 className="text-lg font-bold tracking-wide leading-tight">{school?.school_name?.toUpperCase() || 'SCHOOL NAME'}</h1>
+              {school?.show_motto_on_report !== false && school?.motto && (
+                <p className="text-[10px] italic mt-0.5">"{school.motto}"</p>
               )}
-            </div>
-            <div>
-              <h1 className="text-lg font-bold tracking-wide">{school?.school_name?.toUpperCase() || 'SCHOOL NAME'}</h1>
-              <p className="text-[10px] mt-1">{school?.address || 'School Address'}</p>
+              <p className="text-[10px] mt-0.5">{school?.address || 'School Address'}</p>
               <p className="text-[10px]">TEL: {school?.phone || 'N/A'}, Email: {school?.email || 'N/A'}</p>
             </div>
-          </div>
-
-          {/* Student Photo */}
-          <div className="w-24 h-28 border-2 border-black flex items-center justify-center bg-gray-100">
-            {data.photo ? (
-              <img src={data.photo} alt="Student" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-xs text-gray-500">PHOTO</span>
-            )}
           </div>
         </div>
 
@@ -153,58 +180,70 @@ export default function ReportCard({ data, school, hideButtons = false }) {
           <h2 className="text-xs font-bold">{data.term?.toUpperCase()} STUDENT'S PERFORMANCE REPORT</h2>
         </div>
 
-        {/* Student Information Grid */}
-        <div className="text-[10px] mb-1 pb-1 border-b-2 border-black">
-          {/* Row 1 */}
-          <div className="grid grid-cols-4 gap-2 mb-1">
-            <div className="flex">
-              <span className="font-bold w-16">NAME:</span>
-              <span className="flex-1 border-b border-black pb-1">{data.name?.toUpperCase()}</span>
+        {/* Student Information Grid with Photo */}
+        <div className="flex gap-2 text-[10px] mb-1 pb-1 border-b-2 border-black">
+          {/* Student Details - Left Side */}
+          <div className="flex-1">
+            {/* Row 1 */}
+            <div className="grid gap-2 mb-3" style={{gridTemplateColumns: '2fr 1fr 1fr'}}>
+              <div className="flex gap-1">
+                <span className="font-bold">NAME:</span>
+                <span className="flex-1 border-b border-black pb-1">{data.name?.toUpperCase()}</span>
+              </div>
+              <div className="flex gap-1">
+                <span className="font-bold">CLASS:</span>
+                <span className="flex-1 border-b border-black pb-1">{data.class}</span>
+              </div>
+              <div className="flex gap-1">
+                <span className="font-bold">GENDER:</span>
+                <span className="flex-1 border-b border-black pb-1">{data.gender}</span>
+              </div>
             </div>
-            <div className="flex">
-              <span className="font-bold w-16">CLASS:</span>
-              <span className="flex-1 border-b border-black pb-1">{data.class}</span>
+
+            {/* Row 2 */}
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              <div className="flex gap-1">
+                <span className="font-bold">SESSION:</span>
+                <span className="flex-1 border-b border-black pb-1">{data.session}</span>
+              </div>
+              <div className="flex gap-1">
+                <span className="font-bold">ADMISSION NO.:</span>
+                <span className="flex-1 border-b border-black pb-1">{data.admissionNo}</span>
+              </div>
+              <div className="flex gap-1">
+                <span className="font-bold">CLUB/SOCIETY:</span>
+                <span className="flex-1 border-b border-black pb-1">{data.clubSociety}</span>
+              </div>
             </div>
-            <div className="flex">
-              <span className="font-bold w-16">GENDER:</span>
-              <span className="flex-1 border-b border-black pb-1">{data.gender}</span>
-            </div>
-            <div className="flex">
-              <span className="font-bold w-16">AGE:</span>
-              <span className="flex-1 border-b border-black pb-1">{data.age || 'N/A'}</span>
+
+            {/* Row 3 */}
+            <div className="grid gap-2" style={{gridTemplateColumns: '0.5fr 0.5fr 1fr 1fr'}}>
+              <div className="flex gap-1">
+                <span className="font-bold">HT:</span>
+                <span className="flex-1 border-b border-black pb-1">{data.height}</span>
+              </div>
+              <div className="flex gap-1">
+                <span className="font-bold">WT:</span>
+                <span className="flex-1 border-b border-black pb-1">{data.weight}</span>
+              </div>
+              <div className="flex gap-1">
+                <span className="font-bold">AGE:</span>
+                <span className="flex-1 border-b border-black pb-1">{data.age || 'N/A'}</span>
+              </div>
+              <div className="flex gap-1">
+                <span className="font-bold">FAV. COL:</span>
+                <span className="flex-1 border-b border-black pb-1">{data.favCol}</span>
+              </div>
             </div>
           </div>
 
-          {/* Row 2 */}
-          <div className="grid grid-cols-3 gap-2 mb-1">
-            <div className="flex">
-              <span className="font-bold w-20">SESSION:</span>
-              <span className="flex-1 border-b border-black pb-1">{data.session}</span>
-            </div>
-            <div className="flex">
-              <span className="font-bold w-24">ADMISSION NO.:</span>
-              <span className="flex-1 border-b border-black pb-1">{data.admissionNo}</span>
-            </div>
-            <div className="flex">
-              <span className="font-bold w-24">CLUB/SOCIETY:</span>
-              <span className="flex-1 border-b border-black pb-1">{data.clubSociety}</span>
-            </div>
-          </div>
-
-          {/* Row 3 */}
-          <div className="grid grid-cols-3 gap-2">
-            <div className="flex">
-              <span className="font-bold w-12">HT:</span>
-              <span className="flex-1 border-b border-black pb-1">{data.height}</span>
-            </div>
-            <div className="flex">
-              <span className="font-bold w-12">WT:</span>
-              <span className="flex-1 border-b border-black pb-1">{data.weight}</span>
-            </div>
-            <div className="flex">
-              <span className="font-bold w-20">FAV. COL:</span>
-              <span className="flex-1 border-b border-black pb-1">{data.favCol}</span>
-            </div>
+          {/* Student Photo - Right Side */}
+          <div className="w-24 h-24 border-2 border-black flex items-center justify-center bg-gray-100 flex-shrink-0">
+            {data.photo ? (
+              <img src={data.photo} alt="Student" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-xs text-gray-500">PHOTO</span>
+            )}
           </div>
         </div>
 
@@ -280,8 +319,12 @@ export default function ReportCard({ data, school, hideButtons = false }) {
 
             {/* Grading Scale */}
             <div className="mt-2 text-[8px] leading-tight">
-              <p><strong>70-100%=EXCELLENT; 60-69.9%=VERY GOOD; 50-59.9%=GOOD; 40-</strong></p>
-              <p><strong>49.9%=AVERAGE; 30-39.9%=FAIR; 0-29.9%=POOR</strong></p>
+              <p><strong>
+                {gradingScale.A[0]}-{gradingScale.A[1]}%=EXCELLENT (A); {gradingScale.B[0]}-{gradingScale.B[1]}%=VERY GOOD (B); {gradingScale.C[0]}-{gradingScale.C[1]}%=GOOD (C);
+              </strong></p>
+              <p><strong>
+                {gradingScale.D[0]}-{gradingScale.D[1]}%=FAIR (D); {gradingScale.F[0]}-{gradingScale.F[1]}%=FAIL (F)
+              </strong></p>
             </div>
           </div>
 
@@ -438,11 +481,11 @@ export default function ReportCard({ data, school, hideButtons = false }) {
         </div>
 
         {/* Teacher and Principal Remarks */}
-        <div className="mt-1 space-y-1 text-[8px]">
+        <div className="mt-2 space-y-2 text-[8px]">
           <div className="border-2 border-gray-400">
             <div className="flex">
-              <span className="font-bold px-1 py-1 border-r-2 border-black w-32 text-[7px]">Teacher's Remark:</span>
-              <span className="px-1 py-1 flex-1 italic text-[7px]">{data.teacherRemark}</span>
+              <span className="font-bold px-2 py-2 border-r-2 border-black w-32 text-[7px]">Teacher's Remark:</span>
+              <span className="px-2 py-2 flex-1 italic text-[7px]">{data.teacherRemark}</span>
             </div>
           </div>
 
@@ -457,10 +500,10 @@ export default function ReportCard({ data, school, hideButtons = false }) {
             </div>
           </div>
 
-          <div className="border-2 border-gray-400">
+          <div className="border-2 border-gray-400 mt-3">
             <div className="flex">
-              <span className="font-bold px-1 py-1 border-r-2 border-black w-32 text-[7px]">Principal's Remark:</span>
-              <span className="px-1 py-1 flex-1 italic text-[7px]">{data.principalRemark}</span>
+              <span className="font-bold px-2 py-2 border-r-2 border-black w-32 text-[7px]">Principal's Remark:</span>
+              <span className="px-2 py-2 flex-1 italic text-[7px]">{data.principalRemark}</span>
             </div>
           </div>
 
@@ -475,7 +518,7 @@ export default function ReportCard({ data, school, hideButtons = false }) {
             </div>
           </div>
 
-          <div className="flex gap-4 mt-1 text-[7px]">
+          <div className="flex gap-4 mt-2 text-[7px]">
             <div className="flex-1">
               <span className="font-bold">Next Term Begins:</span>
               <span className="ml-2 border-b-2 border-black pb-1 inline-block">{data.nextTermBegins}</span>
@@ -488,8 +531,15 @@ export default function ReportCard({ data, school, hideButtons = false }) {
         </div>
 
         {/* Footer */}
-        <div className="mt-1 text-right text-[7px] italic">
-          <p>{school?.school_name?.toUpperCase() || 'SCHOOL NAME'} © {new Date().getFullYear()}</p>
+        <div className="mt-1 text-[7px]">
+          {school?.footer_text && (
+            <div className="text-center italic mb-1 pb-1 border-t border-gray-300 pt-1">
+              <p>{school.footer_text}</p>
+            </div>
+          )}
+          <div className="text-right italic">
+            <p>{school?.school_name?.toUpperCase() || 'SCHOOL NAME'} © {new Date().getFullYear()}</p>
+          </div>
         </div>
       </div>
     </div>

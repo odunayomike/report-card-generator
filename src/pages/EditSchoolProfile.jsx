@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { getSchoolProfile, updateSchoolProfile, updateSchoolLogo, changeSchoolPassword } from '../services/api';
+import { useToastContext } from '../context/ToastContext';
 
 export default function EditSchoolProfile() {
   const navigate = useNavigate();
   const { refreshSchool } = useOutletContext();
+  const { toast } = useToastContext();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -47,12 +49,12 @@ export default function EditSchoolProfile() {
           secondary_color: response.data.secondary_color || '#9333EA',
         });
       } else {
-        alert('Error loading profile: ' + response.message);
+        toast.error('Error loading profile: ' + response.message);
         navigate('/dashboard/profile');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to load profile. Please try again.');
+      toast.error('Failed to load profile. Please try again.');
       navigate('/dashboard/profile');
     } finally {
       setLoading(false);
@@ -80,13 +82,13 @@ export default function EditSchoolProfile() {
     if (file) {
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
+        toast.error('Please select an image file');
         return;
       }
 
       // Validate file size (max 2MB)
       if (file.size > 2 * 1024 * 1024) {
-        alert('Image size must be less than 2MB');
+        toast.error('Image size must be less than 2MB');
         return;
       }
 
@@ -96,18 +98,18 @@ export default function EditSchoolProfile() {
           setSaving(true);
           const response = await updateSchoolLogo(reader.result);
           if (response.success) {
-            alert('Logo updated successfully!');
+            toast.success('Logo updated successfully!');
             setProfile(prev => ({ ...prev, logo: response.logo }));
             // Refresh school data in App.jsx so logo appears everywhere
             if (refreshSchool) {
               await refreshSchool();
             }
           } else {
-            alert('Error updating logo: ' + response.message);
+            toast.error('Error updating logo: ' + response.message);
           }
         } catch (error) {
           console.error('Error:', error);
-          alert('Failed to upload logo. Please try again.');
+          toast.error('Failed to upload logo. Please try again.');
         } finally {
           setSaving(false);
         }
@@ -123,16 +125,16 @@ export default function EditSchoolProfile() {
     try {
       const response = await updateSchoolProfile(formData);
       if (response.success) {
-        alert('Profile updated successfully!');
+        toast.success('Profile updated successfully!');
         setProfile(response.data);
         // Optionally navigate back to view mode
         // navigate('/dashboard/profile');
       } else {
-        alert('Error updating profile: ' + response.message);
+        toast.error('Error updating profile: ' + response.message);
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to update profile. Please try again.');
+      toast.error('Failed to update profile. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -142,12 +144,12 @@ export default function EditSchoolProfile() {
     e.preventDefault();
 
     if (passwordData.new_password !== passwordData.confirm_password) {
-      alert('New password and confirm password do not match');
+      toast.error('New password and confirm password do not match');
       return;
     }
 
     if (passwordData.new_password.length < 6) {
-      alert('Password must be at least 6 characters long');
+      toast.error('Password must be at least 6 characters long');
       return;
     }
 
@@ -160,18 +162,18 @@ export default function EditSchoolProfile() {
       });
 
       if (response.success) {
-        alert('Password changed successfully!');
+        toast.success('Password changed successfully!');
         setPasswordData({
           current_password: '',
           new_password: '',
           confirm_password: ''
         });
       } else {
-        alert('Error changing password: ' + response.message);
+        toast.error('Error changing password: ' + response.message);
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to change password. Please try again.');
+      toast.error('Failed to change password. Please try again.');
     } finally {
       setSaving(false);
     }

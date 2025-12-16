@@ -4,8 +4,10 @@ import StudentForm from './StudentForm';
 import ReportCard from './ReportCard';
 import { saveReportCard, getAllStudents, getReportCard, getStudentProfile, getAnalytics } from '../services/api';
 import { API_BASE_URL } from '../config/env';
+import { useToastContext } from '../context/ToastContext';
 
 export default function Dashboard({ school, onLogout }) {
+  const { toast } = useToastContext();
   const [currentView, setCurrentView] = useState('dashboard'); // dashboard, create, students, view-report, edit-report, view-profile
   const [reportData, setReportData] = useState(null);
   const [editingStudent, setEditingStudent] = useState(null);
@@ -68,18 +70,18 @@ export default function Dashboard({ school, onLogout }) {
       const response = await saveReportCard(dataWithSchool);
 
       if (response.success) {
-        alert('Report card saved successfully!');
+        toast.success('Report card saved successfully!');
         const dataWithId = { ...data, id: response.student_id };
         setReportData(dataWithId);
         setCurrentView('view-report');
         // Refresh the students list
         fetchStudents();
       } else {
-        alert('Error saving report card: ' + response.message);
+        toast.error('Error saving report card: ' + response.message);
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to save report card. Please try again.');
+      toast.error('Failed to save report card. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -92,11 +94,11 @@ export default function Dashboard({ school, onLogout }) {
         setReportData(response.data);
         setCurrentView('view-report');
       } else {
-        alert('Error loading report: ' + response.message);
+        toast.error('Error loading report: ' + response.message);
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to load report. Please try again.');
+      toast.error('Failed to load report. Please try again.');
     }
   };
 
@@ -107,11 +109,11 @@ export default function Dashboard({ school, onLogout }) {
         setEditingStudent(response.data);
         setCurrentView('edit-report');
       } else {
-        alert('Error loading report: ' + response.message);
+        toast.error('Error loading report: ' + response.message);
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to load report for editing. Please try again.');
+      toast.error('Failed to load report for editing. Please try again.');
     }
   };
 
@@ -122,11 +124,11 @@ export default function Dashboard({ school, onLogout }) {
         setViewingProfile(response);
         setCurrentView('view-profile');
       } else {
-        alert('Error loading profile: ' + response.message);
+        toast.error('Error loading profile: ' + response.message);
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to load profile. Please try again.');
+      toast.error('Failed to load profile. Please try again.');
     }
   };
 

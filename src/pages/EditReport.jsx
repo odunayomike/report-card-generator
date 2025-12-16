@@ -1,14 +1,20 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import StudentForm from '../components/StudentForm';
 import { getReportCard, saveReportCard } from '../services/api';
+import { useToastContext } from '../context/ToastContext';
 
 export default function EditReport({ school }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { toast } = useToastContext();
   const [editingStudent, setEditingStudent] = useState(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // Determine if user is a teacher based on the current route
+  const isTeacher = location.pathname.startsWith('/teacher');
 
   useEffect(() => {
     loadReport();
@@ -21,13 +27,13 @@ export default function EditReport({ school }) {
       if (response.success) {
         setEditingStudent(response.data);
       } else {
-        alert('Error loading report: ' + response.message);
-        navigate('/dashboard/students');
+        toast.error('Error loading report: ' + response.message);
+        navigate(isTeacher ? '/teacher/students' : '/dashboard/students');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to load report for editing. Please try again.');
-      navigate('/dashboard/students');
+      toast.error('Failed to load report for editing. Please try again.');
+      navigate(isTeacher ? '/teacher/students' : '/dashboard/students');
     } finally {
       setLoading(false);
     }
@@ -43,15 +49,16 @@ export default function EditReport({ school }) {
       const response = await saveReportCard(dataWithSchool);
 
       if (response.success) {
-        alert('Report card updated successfully!');
+        toast.success('Report card updated successfully!');
         // Navigate to view the updated report
-        navigate(`/dashboard/reports/${response.student_id}`);
+        const basePath = isTeacher ? '/teacher' : '/dashboard';
+        navigate(`${basePath}/reports/${response.student_id}`);
       } else {
-        alert('Error updating report card: ' + response.message);
+        toast.error('Error updating report card: ' + response.message);
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to update report card. Please try again.');
+      toast.error('Failed to update report card. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -77,7 +84,7 @@ export default function EditReport({ school }) {
     <div>
       <div className="mb-4">
         <button
-          onClick={() => navigate('/dashboard/students')}
+          onClick={() => navigate(isTeacher ? '/teacher/students' : '/dashboard/students')}
           className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

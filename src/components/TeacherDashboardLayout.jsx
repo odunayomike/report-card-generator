@@ -105,7 +105,7 @@ export default function TeacherDashboardLayout({ teacher, onLogout }) {
 
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-gray-200 h-screen print:hidden fixed top-16 left-0 overflow-y-auto flex flex-col">
+        <aside className="w-64 pt-10 bg-white border-r border-gray-200 h-screen print:hidden fixed top-16 left-0 overflow-y-auto flex flex-col">
           <nav className="p-4 space-y-1 flex-1">
             <NavLink
               to="/teacher/dashboard"
@@ -157,7 +157,7 @@ export default function TeacherDashboardLayout({ teacher, onLogout }) {
             </NavLink>
 
             <NavLink
-              to="/student-form"
+              to="/teacher/create-report"
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
                   isActive
