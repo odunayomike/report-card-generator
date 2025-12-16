@@ -1,7 +1,18 @@
 <?php
 /**
  * Get Report Route Handler
+ * Supports both school and teacher access
  */
+
+// Check authentication (either school or teacher)
+if (!isset($_SESSION['user_type']) || !isset($_SESSION['school_id'])) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized. Please login.']);
+    exit;
+}
+
+$userType = $_SESSION['user_type'];
+$schoolId = $_SESSION['school_id'];
 
 $database = new Database();
 $db = $database->getConnection();
@@ -20,15 +31,37 @@ try {
     $query = "SELECT s.*, sc.school_name, sc.address as school_address, sc.phone as school_phone, sc.email as school_email, sc.logo as school_logo
               FROM students s
               LEFT JOIN schools sc ON s.school_id = sc.id
-              WHERE s.id = :id";
+              WHERE s.id = :id AND s.school_id = :school_id";
     $stmt = $db->prepare($query);
-    $stmt->execute([':id' => $student_id]);
+    $stmt->execute([
+        ':id' => $student_id,
+        ':school_id' => $schoolId
+    ]);
     $student = $stmt->fetch();
 
     if (!$student) {
         http_response_code(404);
         echo json_encode(['success' => false, 'message' => 'Student not found']);
         exit();
+    }
+
+    // If teacher, verify they are assigned to this student's class
+    if ($userType === 'teacher') {
+        $verifyQuery = "SELECT id FROM teacher_classes
+                        WHERE teacher_id = ? AND class_name = ? AND session = ? AND term = ?";
+        $verifyStmt = $db->prepare($verifyQuery);
+        $verifyStmt->execute([
+            $_SESSION['teacher_id'],
+            $student['class'],
+            $student['session'],
+            $student['term']
+        ]);
+
+        if (!$verifyStmt->fetch()) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'You are not assigned to this student\'s class']);
+            exit;
+        }
     }
 
     // Get attendance data

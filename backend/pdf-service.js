@@ -141,7 +141,7 @@ function generateReportHTML(data) {
 
     /* Student Info Grid */
     .student-info {
-      font-size: 11px;
+      font-size: 9px;
       margin-bottom: 6px;
       padding-bottom: 6px;
       border-bottom: 2px solid black;
@@ -149,7 +149,7 @@ function generateReportHTML(data) {
     .info-row {
       display: flex;
       gap: 12px;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
     }
     .info-field {
       display: flex;
@@ -157,17 +157,19 @@ function generateReportHTML(data) {
     }
     .info-field .label {
       font-weight: bold;
-      width: 85px;
+      width: 70px;
       flex-shrink: 0;
-      margin-right: 4px;
+      margin-right: 3px;
+      font-size: 8px;
     }
     .info-field .value {
       flex: 1;
       border-bottom: 1px solid black;
-      padding-bottom: 3px;
+      padding-bottom: 2px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      font-size: 8px;
     }
 
     /* Main Grid Layout */
@@ -318,7 +320,7 @@ function generateReportHTML(data) {
     <!-- Student Information Grid -->
     <div class="student-info">
       <div class="info-row">
-        <div class="info-field">
+        <div class="info-field" style="flex: 2;">
           <span class="label">NAME:</span>
           <span class="value">${(student.name || '').toUpperCase()}</span>
         </div>

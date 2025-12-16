@@ -240,28 +240,28 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
             <div key={step} className="flex items-center flex-1 w-full">
               <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 font-semibold ${
                 currentStep >= step
-                  ? 'bg-indigo-600 text-white border-indigo-600'
+                  ? 'bg-primary-600 text-white border-primary-600'
                   : 'bg-white text-gray-400 border-gray-300'
               }`}>
                 {step}
               </div>
               {step < 4 && (
                 <div className={`flex-1 h-1 mx-2 ${
-                  currentStep > step ? 'bg-indigo-600' : 'bg-gray-300'
+                  currentStep > step ? 'bg-primary-600' : 'bg-gray-300'
                 }`}></div>
               )}
             </div>
           ))}
         </div>
         <div className="flex justify-between text-[10px] text-gray-600 px-2">
-          <span className={currentStep === 1 ? 'font-semibold text-indigo-600' : ''}>Info & Attendance</span>
-          <span className={currentStep === 2 ? 'font-semibold text-indigo-600' : ''}>Subjects</span>
-          <span className={currentStep === 3 ? 'font-semibold text-indigo-600' : ''}>Domains</span>
-          <span className={currentStep === 4 ? 'font-semibold text-indigo-600' : ''}>Remarks</span>
+          <span className={currentStep === 1 ? 'font-semibold text-primary-600' : ''}>Info & Attendance</span>
+          <span className={currentStep === 2 ? 'font-semibold text-primary-600' : ''}>Subjects</span>
+          <span className={currentStep === 3 ? 'font-semibold text-primary-600' : ''}>Domains</span>
+          <span className={currentStep === 4 ? 'font-semibold text-primary-600' : ''}>Remarks</span>
         </div>
       </div>
 
-      <h3 className="text-lg font-semibold text-indigo-600 mb-4">{getStepTitle()}</h3>
+      <h3 className="text-lg font-semibold text-primary-600 mb-4">{getStepTitle()}</h3>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* STEP 1: Student Information & Attendance */}
@@ -278,7 +278,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               />
             </div>
 
@@ -289,7 +289,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 name="class"
                 value={formData.class}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               />
             </div>
 
@@ -301,7 +301,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 placeholder="e.g., 2024/2025"
                 value={formData.session}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               />
             </div>
 
@@ -313,7 +313,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                   name="admissionNo"
                   value={formData.admissionNo}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
                 />
                 {checkingStudent && (
                   <div className="absolute right-3 top-2.5 text-xs text-gray-500">
@@ -334,7 +334,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 name="term"
                 value={formData.term}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               >
                 <option value="">Select Term</option>
                 <option value="First Term">First Term</option>
@@ -349,7 +349,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 name="gender"
                 value={formData.gender}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               >
                 <option value="">Select Gender</option>
                 <option value="MALE">MALE</option>
@@ -364,7 +364,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 name="height"
                 value={formData.height}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               />
             </div>
 
@@ -375,7 +375,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 name="weight"
                 value={formData.weight}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               />
             </div>
 
@@ -386,7 +386,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 name="clubSociety"
                 value={formData.clubSociety}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               />
             </div>
 
@@ -397,7 +397,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 name="favCol"
                 value={formData.favCol}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               />
             </div>
 
@@ -407,7 +407,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 type="file"
                 accept="image/*"
                 onChange={handlePhotoUpload}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               />
             </div>
           </div>
@@ -424,7 +424,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 name="noOfTimesSchoolOpened"
                 value={formData.noOfTimesSchoolOpened}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               />
             </div>
 
@@ -435,7 +435,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 name="noOfTimesPresent"
                 value={formData.noOfTimesPresent}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               />
             </div>
 
@@ -446,7 +446,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 name="noOfTimesAbsent"
                 value={formData.noOfTimesAbsent}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               />
             </div>
           </div>
@@ -474,7 +474,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                     className={`px-3 py-1 text-xs rounded-md border transition-colors ${
                       activeSubjects.includes(subject.name)
                         ? 'bg-green-100 border-green-400 text-green-700 cursor-not-allowed'
-                        : 'bg-white border-gray-300 text-gray-700 hover:bg-indigo-50 hover:border-indigo-400'
+                        : 'bg-white border-gray-300 text-gray-700 hover:bg-primary-50 hover:border-primary-400'
                     }`}
                   >
                     {activeSubjects.includes(subject.name) ? '✓ ' : '+ '}{subject.name}
@@ -493,12 +493,12 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                   onChange={(e) => setNewSubjectName(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomSubject())}
                   placeholder="Enter subject name"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
                 />
                 <button
                   type="button"
                   onClick={addCustomSubject}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-xs"
+                  className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-xs"
                 >
                   Add Subject
                 </button>
@@ -539,7 +539,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                             placeholder="CA"
                             value={subjectData?.ca || ''}
                             onChange={(e) => handleSubjectChange(subjectName, 'ca', e.target.value)}
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                            className="w-full px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
                           />
                         </td>
                         <td className="px-4 py-2 border-r">
@@ -550,7 +550,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                             placeholder="Exam"
                             value={subjectData?.exam || ''}
                             onChange={(e) => handleSubjectChange(subjectName, 'exam', e.target.value)}
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                            className="w-full px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
                           />
                         </td>
                         <td className="px-4 py-2 border-r">
@@ -561,7 +561,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                             placeholder="Total"
                             value={subjectData?.total || ''}
                             readOnly
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-center bg-gray-100 font-semibold text-indigo-600 cursor-not-allowed text-xs"
+                            className="w-full px-2 py-1 border border-gray-300 rounded text-center bg-gray-100 font-semibold text-primary-600 cursor-not-allowed text-xs"
                           />
                         </td>
                         <td className="px-4 py-2 text-center">
@@ -601,7 +601,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 <label className="block text-xs font-medium text-gray-700 mb-1">{domain}</label>
                 <select
                   onChange={(e) => handleAffectiveChange(domain, e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
                 >
                   <option value="">Select Rating</option>
                   <option value="1">1 - Poor</option>
@@ -626,7 +626,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 <label className="block text-xs font-medium text-gray-700 mb-1">{domain}</label>
                 <select
                   onChange={(e) => handlePsychomotorChange(domain, e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
                 >
                   <option value="">Select Rating</option>
                   <option value="1">1 - Poor</option>
@@ -654,7 +654,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 name="teacherName"
                 value={formData.teacherName}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               />
             </div>
 
@@ -665,7 +665,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 value={formData.teacherRemark}
                 onChange={handleInputChange}
                 rows="3"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               />
             </div>
 
@@ -676,7 +676,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 name="principalName"
                 value={formData.principalName}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               />
             </div>
 
@@ -687,7 +687,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 value={formData.principalRemark}
                 onChange={handleInputChange}
                 rows="3"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               />
             </div>
 
@@ -698,7 +698,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 name="nextTermBegins"
                 value={formData.nextTermBegins}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               />
             </div>
           </div>
@@ -721,7 +721,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
             <button
               type="submit"
               disabled={saving}
-              className="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-semibold shadow-md hover:shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
+              className="px-8 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-200 font-semibold shadow-md hover:shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed text-sm"
             >
               {saving ? 'Saving...' : (currentStep < 4 ? 'Next →' : 'Generate Report Card')}
             </button>

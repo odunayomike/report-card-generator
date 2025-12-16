@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import schoolLogo from '../assets/schoolhub.png';
 
 export default function Register({ onRegister }) {
   const [formData, setFormData] = useState({
@@ -69,9 +70,16 @@ export default function Register({ onRegister }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-primary-900 via-primary-500 to-primary-300">
       <div className="max-w-2xl w-full">
         <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <img 
+              src={schoolLogo} 
+              alt="SchoolHub Logo" 
+              className="w-16 h-16 object-contain"
+            />
+          </div>
           <h1 className="text-4xl font-bold text-white mb-2">Create School Account</h1>
           <p className="text-gray-300">Get started with your free account today</p>
         </div>
@@ -92,7 +100,7 @@ export default function Register({ onRegister }) {
                   name="school_name"
                   value={formData.school_name}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent"
                   placeholder="Enter your school name"
                   required
                 />
@@ -105,7 +113,7 @@ export default function Register({ onRegister }) {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent"
                   placeholder="school@example.com"
                   required
                 />
@@ -118,7 +126,7 @@ export default function Register({ onRegister }) {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent"
                   placeholder="Min. 6 characters"
                   required
                 />
@@ -131,7 +139,7 @@ export default function Register({ onRegister }) {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent"
                   placeholder="Re-enter password"
                   required
                 />
@@ -144,7 +152,7 @@ export default function Register({ onRegister }) {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent"
                   placeholder="08012345678"
                 />
               </div>
@@ -156,7 +164,7 @@ export default function Register({ onRegister }) {
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent"
                   placeholder="School address"
                 />
               </div>
@@ -165,7 +173,7 @@ export default function Register({ onRegister }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full px-6 py-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors font-semibold shadow-lg disabled:bg-gray-500 disabled:cursor-not-allowed"
+              className="w-full bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating Account...' : 'Create Account'}
             </button>
@@ -174,7 +182,7 @@ export default function Register({ onRegister }) {
           <div className="mt-6 text-center">
             <p className="text-gray-300">
               Already have an account?{' '}
-              <Link to="/login" className="text-pink-300 hover:text-pink-200 font-semibold">
+              <Link to="/login" className="font-semibold" style={{color: '#87CEEB'}} onMouseEnter={(e) => e.target.style.color = '#B8E0FF'} onMouseLeave={(e) => e.target.style.color = '#87CEEB'}>
                 Sign in
               </Link>
             </p>

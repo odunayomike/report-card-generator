@@ -2,7 +2,18 @@
 /**
  * Save Report Card Route Handler
  * Session and database already loaded in index.php
+ * Supports both school and teacher access
  */
+
+// Check authentication (either school or teacher)
+if (!isset($_SESSION['user_type']) || !isset($_SESSION['school_id'])) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized - Please log in']);
+    exit;
+}
+
+$userType = $_SESSION['user_type'];
+$schoolId = $_SESSION['school_id'];
 
 $database = new Database();
 $db = $database->getConnection();
@@ -14,6 +25,30 @@ if (!$data) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Invalid data provided']);
     exit();
+}
+
+// If teacher, verify they are assigned to this class
+if ($userType === 'teacher') {
+    $className = $data['class'] ?? '';
+    $session = $data['session'] ?? '';
+    $term = $data['term'] ?? '';
+
+    if (empty($className) || empty($session) || empty($term)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Class, session, and term are required']);
+        exit;
+    }
+
+    $verifyQuery = "SELECT id FROM teacher_classes
+                    WHERE teacher_id = ? AND class_name = ? AND session = ? AND term = ?";
+    $verifyStmt = $db->prepare($verifyQuery);
+    $verifyStmt->execute([$_SESSION['teacher_id'], $className, $session, $term]);
+
+    if (!$verifyStmt->fetch()) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'You are not assigned to this class']);
+        exit;
+    }
 }
 
 try {
@@ -29,7 +64,7 @@ try {
 
     $checkStmt = $db->prepare($checkQuery);
     $checkStmt->execute([
-        ':school_id' => $data['school_id'] ?? 1,
+        ':school_id' => $schoolId,
         ':admission_no' => $data['admissionNo'] ?? '',
         ':session' => $data['session'] ?? '',
         ':term' => $data['term'] ?? ''
@@ -75,7 +110,7 @@ try {
 
         $stmt = $db->prepare($query);
         $stmt->execute([
-            ':school_id' => $data['school_id'] ?? 1,
+            ':school_id' => $schoolId,
             ':name' => $data['name'] ?? '',
             ':class' => $data['class'] ?? '',
             ':session' => $data['session'] ?? '',

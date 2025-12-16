@@ -4,6 +4,7 @@ import LandingPage from './components/LandingPage';
 import Login from './components/Login';
 import Register from './components/Register';
 import DashboardLayout from './components/DashboardLayout';
+import TeacherDashboardLayout from './components/TeacherDashboardLayout';
 import DashboardHome from './pages/DashboardHome';
 import CreateReport from './pages/CreateReport';
 import AllStudents from './pages/AllStudents';
@@ -13,9 +14,16 @@ import StudentProfile from './pages/StudentProfile';
 import SchoolProfile from './pages/SchoolProfile';
 import EditSchoolProfile from './pages/EditSchoolProfile';
 import SchoolSettings from './pages/SchoolSettings';
+import TeacherLogin from './pages/TeacherLogin';
+import TeacherDashboard from './pages/TeacherDashboard';
+import AttendanceMarker from './pages/AttendanceMarker';
+import ManageTeachers from './pages/ManageTeachers';
+import ViewAttendance from './pages/ViewAttendance';
+import ComingSoon from './pages/ComingSoon';
 
 function App() {
   const [school, setSchool] = useState(null);
+  const [teacher, setTeacher] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Check if user is already logged in
@@ -25,13 +33,24 @@ function App() {
 
   const checkSession = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/auth/check-session', {
+      // Check school session
+      const schoolResponse = await fetch('http://localhost:8000/api/auth/check-session', {
         credentials: 'include'
       });
-      const data = await response.json();
+      const schoolData = await schoolResponse.json();
 
-      if (data.authenticated) {
-        setSchool(data.school);
+      if (schoolData.authenticated) {
+        setSchool(schoolData.school);
+      } else {
+        // Check teacher session if school is not authenticated
+        const teacherResponse = await fetch('http://localhost:8000/api/auth/teacher-check-session', {
+          credentials: 'include'
+        });
+        const teacherData = await teacherResponse.json();
+
+        if (teacherData.authenticated) {
+          setTeacher(teacherData.user);
+        }
       }
     } catch (error) {
       console.error('Session check error:', error);
@@ -50,6 +69,14 @@ function App() {
 
   const handleLogout = () => {
     setSchool(null);
+  };
+
+  const handleTeacherLogin = (teacherData) => {
+    setTeacher(teacherData);
+  };
+
+  const handleTeacherLogout = () => {
+    setTeacher(null);
   };
 
   const refreshSchool = async () => {
@@ -108,7 +135,32 @@ function App() {
           <Route path="profile" element={<SchoolProfile />} />
           <Route path="profile/edit" element={<EditSchoolProfile />} />
           <Route path="settings" element={<SchoolSettings />} />
+          <Route path="attendance" element={<ViewAttendance />} />
+          <Route path="manage-teachers" element={<ManageTeachers />} />
+          <Route path="cbt" element={<ComingSoon feature="Computer-Based Testing (CBT)" />} />
         </Route>
+
+        {/* Teacher Routes with Nested Layout */}
+        <Route
+          path="/teacher/login"
+          element={teacher ? <Navigate to="/teacher/dashboard" /> : <TeacherLogin onLogin={handleTeacherLogin} />}
+        />
+        <Route
+          path="/teacher"
+          element={teacher ? <TeacherDashboardLayout teacher={teacher} onLogout={handleTeacherLogout} /> : <Navigate to="/teacher/login" />}
+        >
+          <Route path="dashboard" element={<TeacherDashboard />} />
+          <Route path="mark-attendance" element={<AttendanceMarker />} />
+          <Route path="students" element={<AllStudents />} />
+          <Route path="cbt" element={<ComingSoon feature="Computer-Based Testing (CBT)" />} />
+        </Route>
+
+
+        {/* StudentForm for both school and teacher */}
+        <Route
+          path="/student-form"
+          element={<CreateReport school={school} />}
+        />
 
         <Route
           path="*"

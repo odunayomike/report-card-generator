@@ -56,7 +56,7 @@ export default function AllStudents() {
         <h2 className="text-2xl font-bold text-gray-900">All Students</h2>
         <button
           onClick={() => navigate('/dashboard/create')}
-          className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 flex items-center gap-2"
+          className="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 flex items-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -75,7 +75,7 @@ export default function AllStudents() {
               placeholder="Name or Admission No..."
               value={filters.search}
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
             />
           </div>
           <div>
@@ -83,7 +83,7 @@ export default function AllStudents() {
             <select
               value={filters.class}
               onChange={(e) => setFilters(prev => ({ ...prev, class: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
             >
               <option value="">All Classes</option>
               {[...new Set(students.map(s => s.class))].sort().map(cls => (
@@ -96,7 +96,7 @@ export default function AllStudents() {
             <select
               value={filters.session}
               onChange={(e) => setFilters(prev => ({ ...prev, session: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
             >
               <option value="">All Sessions</option>
               {[...new Set(students.map(s => s.session))].sort().reverse().map(session => (
@@ -109,7 +109,7 @@ export default function AllStudents() {
             <select
               value={filters.term}
               onChange={(e) => setFilters(prev => ({ ...prev, term: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
             >
               <option value="">All Terms</option>
               <option value="First Term">First Term</option>
@@ -125,7 +125,7 @@ export default function AllStudents() {
             </p>
             <button
               onClick={() => setFilters({ class: '', session: '', term: '', search: '' })}
-              className="text-sm text-indigo-600 hover:text-indigo-900 font-medium"
+              className="text-sm text-primary-600 hover:text-primary-900 font-medium"
             >
               Clear Filters
             </button>
@@ -135,7 +135,7 @@ export default function AllStudents() {
 
       {loadingStudents ? (
         <div className="bg-white rounded-lg shadow p-12 text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
         </div>
       ) : students.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-12 text-center">
@@ -146,7 +146,7 @@ export default function AllStudents() {
           <p className="text-sm text-gray-500 mb-4">Get started by creating your first report card</p>
           <button
             onClick={() => navigate('/dashboard/create')}
-            className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700"
+            className="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700"
           >
             Create Report Card
           </button>
@@ -169,8 +169,8 @@ export default function AllStudents() {
                 <tr key={student.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
-                        <span className="text-indigo-600 font-semibold text-sm">
+                      <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                        <span className="text-primary-600 font-semibold text-sm">
                           {student.name.charAt(0)}
                         </span>
                       </div>
@@ -199,7 +199,7 @@ export default function AllStudents() {
                     </button>
                     <button
                       onClick={() => handleViewReport(student.id)}
-                      className="text-indigo-600 hover:text-indigo-900 mr-4"
+                      className="text-primary-600 hover:text-primary-900 mr-4"
                     >
                       View
                     </button>

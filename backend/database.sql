@@ -91,6 +91,49 @@ CREATE TABLE IF NOT EXISTS remarks (
     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 );
 
+-- Teachers table
+CREATE TABLE IF NOT EXISTS teachers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    school_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    phone VARCHAR(50),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_teacher_email_per_school (school_id, email)
+);
+
+-- Teacher Classes (Junction table for teacher-class assignment)
+CREATE TABLE IF NOT EXISTS teacher_classes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    teacher_id INT NOT NULL,
+    class_name VARCHAR(100) NOT NULL,
+    school_id INT NOT NULL,
+    session VARCHAR(50) NOT NULL,
+    term VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE,
+    FOREIGN KEY (school_id) REFERENCES schools(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_teacher_class_assignment (teacher_id, class_name, session, term)
+);
+
+-- Daily Attendance table (for teacher-marked daily student attendance)
+CREATE TABLE IF NOT EXISTS daily_attendance (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    date DATE NOT NULL,
+    status ENUM('present', 'absent') NOT NULL,
+    marked_by_teacher_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (marked_by_teacher_id) REFERENCES teachers(id) ON DELETE SET NULL,
+    UNIQUE KEY unique_student_date_attendance (student_id, date)
+);
+
 -- Create indexes for better performance
 CREATE INDEX idx_student_admission ON students(admission_no);
 CREATE INDEX idx_student_id_subjects ON subjects(student_id);
@@ -98,3 +141,10 @@ CREATE INDEX idx_student_id_attendance ON attendance(student_id);
 CREATE INDEX idx_student_id_affective ON affective_domain(student_id);
 CREATE INDEX idx_student_id_psychomotor ON psychomotor_domain(student_id);
 CREATE INDEX idx_student_id_remarks ON remarks(student_id);
+CREATE INDEX idx_teacher_email ON teachers(email);
+CREATE INDEX idx_teacher_school ON teachers(school_id);
+CREATE INDEX idx_teacher_class_teacher ON teacher_classes(teacher_id);
+CREATE INDEX idx_teacher_class_school ON teacher_classes(school_id);
+CREATE INDEX idx_daily_attendance_student ON daily_attendance(student_id);
+CREATE INDEX idx_daily_attendance_date ON daily_attendance(date);
+CREATE INDEX idx_daily_attendance_teacher ON daily_attendance(marked_by_teacher_id);

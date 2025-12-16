@@ -262,3 +262,194 @@ export const generateReportPDF = async (reportId) => {
     throw error;
   }
 };
+
+// ========== TEACHER AUTHENTICATION ==========
+
+/**
+ * Teacher login
+ * @param {Object} credentials - Email and password
+ * @returns {Promise} - API response with teacher data
+ */
+export const teacherLogin = async (credentials) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/teacher-login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(credentials)
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error logging in teacher:', error);
+    throw error;
+  }
+};
+
+/**
+ * Check teacher session
+ * @returns {Promise} - API response with teacher data if authenticated
+ */
+export const checkTeacherSession = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/teacher-check-session`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error checking teacher session:', error);
+    throw error;
+  }
+};
+
+// ========== TEACHER MANAGEMENT (for Schools) ==========
+
+/**
+ * Create a new teacher
+ * @param {Object} teacherData - Teacher information (name, email, password, phone, classes)
+ * @returns {Promise} - API response
+ */
+export const createTeacher = async (teacherData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/teachers/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(teacherData)
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error creating teacher:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get all teachers for the school
+ * @returns {Promise} - API response with list of teachers
+ */
+export const getAllTeachers = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/teachers/get-all`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching teachers:', error);
+    throw error;
+  }
+};
+
+/**
+ * Assign classes to a teacher
+ * @param {Object} assignmentData - Teacher ID and array of classes
+ * @returns {Promise} - API response
+ */
+export const assignTeacherClasses = async (assignmentData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/teachers/assign-class`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(assignmentData)
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error assigning classes:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get teacher's assigned classes
+ * @returns {Promise} - API response with list of classes
+ */
+export const getMyClasses = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/teachers/get-my-classes`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching my classes:', error);
+    throw error;
+  }
+};
+
+// ========== ATTENDANCE MARKING (for Teachers) ==========
+
+/**
+ * Get students in a class for attendance marking
+ * @param {Object} params - Class, session, and term
+ * @returns {Promise} - API response with list of students
+ */
+export const getStudentsForAttendance = async (params) => {
+  try {
+    const { class_name, session, term } = params;
+    const response = await fetch(
+      `${API_BASE_URL}/attendance/get-students?class=${encodeURIComponent(class_name)}&session=${encodeURIComponent(session)}&term=${encodeURIComponent(term)}`,
+      { credentials: 'include' }
+    );
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching students for attendance:', error);
+    throw error;
+  }
+};
+
+/**
+ * Mark daily attendance for students
+ * @param {Object} attendanceData - Date and array of attendance records
+ * @returns {Promise} - API response
+ */
+export const markDailyAttendance = async (attendanceData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/attendance/mark-daily`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(attendanceData)
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error marking attendance:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get daily attendance records
+ * @param {Object} params - Date, class (optional), session, term
+ * @returns {Promise} - API response with attendance records
+ */
+export const getDailyAttendance = async (params) => {
+  try {
+    const { date, class_name, session, term } = params;
+    let url = `${API_BASE_URL}/attendance/get-daily?date=${date}`;
+    if (class_name) url += `&class=${encodeURIComponent(class_name)}`;
+    if (session) url += `&session=${encodeURIComponent(session)}`;
+    if (term) url += `&term=${encodeURIComponent(term)}`;
+
+    const response = await fetch(url, { credentials: 'include' });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching daily attendance:', error);
+    throw error;
+  }
+};

@@ -51,6 +51,7 @@ try {
     }
 
     // Set school data in session
+    $_SESSION['user_type'] = 'school';
     $_SESSION['school_id'] = $school['id'];
     $_SESSION['school_name'] = $school['school_name'];
     $_SESSION['email'] = $school['email'];

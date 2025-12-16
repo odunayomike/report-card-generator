@@ -14,6 +14,7 @@ import {
   ChevronRight,
   GraduationCap
 } from 'lucide-react';
+import schoolLogo from '../assets/schoolhub.png';
 
 export default function LandingPage() {
   return (
@@ -23,23 +24,40 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-7 h-7 text-white" />
-              </div>
-              <h1 className="text-2xl font-bold text-blue-600">
+              <img 
+                src={schoolLogo} 
+                alt="SchoolHub Logo" 
+                className="w-20 h-20 object-contain"
+              />
+              <h1 className="text-2xl font-bold" style={{color: '#1791C8'}}>
                 SchoolHub
               </h1>
             </div>
             <div className="flex gap-4">
               <Link
-                to="/login"
-                className="px-6 py-2.5 text-gray-700 hover:text-blue-600 transition-colors font-medium"
+                to="/teacher/login"
+                className="px-6 py-2.5 text-gray-700 transition-colors font-medium"
+                style={{'&:hover': {color: '#1791C8'}}}
+                onMouseEnter={(e) => e.target.style.color = '#1791C8'}
+                onMouseLeave={(e) => e.target.style.color = '#374151'}
               >
-                Login
+                Teacher Login
+              </Link>
+              <Link
+                to="/login"
+                className="px-6 py-2.5 text-gray-700 transition-colors font-medium"
+                style={{'&:hover': {color: '#1791C8'}}}
+                onMouseEnter={(e) => e.target.style.color = '#1791C8'}
+                onMouseLeave={(e) => e.target.style.color = '#374151'}
+              >
+                School Login
               </Link>
               <Link
                 to="/register"
-                className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all font-semibold"
+                className="px-6 py-2.5 text-white rounded-lg hover:shadow-lg transition-all font-semibold"
+                style={{backgroundColor: '#1791C8'}}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#1478A6'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#1791C8'}
               >
                 Get Started Free
               </Link>
@@ -49,17 +67,17 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-blue-50 py-20">
+      <section className="relative overflow-hidden py-20" style={{backgroundColor: '#E8F4FD'}}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold" style={{backgroundColor: '#CCE7F7', color: '#1791C8'}}>
                 <GraduationCap className="w-4 h-4" />
                 All-in-One School Management Platform
               </div>
               <h1 className="text-5xl md:text-6xl font-bold text-gray-900 leading-tight">
                 Manage Your School
-                <span className="block text-blue-600">
+                <span className="block" style={{color: '#1791C8'}}>
                   Smarter & Faster
                 </span>
               </h1>
@@ -69,11 +87,16 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   to="/register"
-                  className="px-8 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 hover:shadow-xl transition-all font-bold text-lg text-center"
+                  className="px-8 py-4 text-white rounded-xl hover:shadow-xl transition-all font-bold text-lg text-center"
+                  style={{backgroundColor: '#1791C8'}}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#1478A6'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = '#1791C8'}
                 >
                   Start Free Trial
                 </Link>
-                <button className="px-8 py-4 bg-white border-2 border-gray-300 text-gray-700 rounded-xl hover:border-blue-600 hover:text-blue-600 transition-all font-semibold text-lg">
+                <button className="px-8 py-4 bg-white border-2 border-gray-300 text-gray-700 rounded-xl transition-all font-semibold text-lg"
+                  onMouseEnter={(e) => {e.target.style.borderColor = '#1791C8'; e.target.style.color = '#1791C8';}}
+                  onMouseLeave={(e) => {e.target.style.borderColor = '#D1D5DB'; e.target.style.color = '#374151';}}>
                   Watch Demo
                 </button>
               </div>
@@ -99,7 +122,7 @@ export default function LandingPage() {
                   alt="Students in classroom"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-blue-600/20 backdrop-blur-[2px]"></div>
+                <div className="absolute inset-0 backdrop-blur-[2px]" style={{backgroundColor: 'rgba(23, 145, 200, 0.2)'}}></div>
               </div>
               {/* Floating elements */}
               <div className="absolute -top-4 -right-4 w-20 h-20 bg-yellow-400 rounded-full animate-bounce"></div>
@@ -268,16 +291,16 @@ export default function LandingPage() {
               return (
                 <div key={index} className="relative">
                   <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all">
-                    <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
-                      <IconComponent className="w-8 h-8 text-blue-600" />
+                    <div className="w-16 h-16 rounded-xl flex items-center justify-center mb-6" style={{backgroundColor: '#CCE7F7'}}>
+                      <IconComponent className="w-8 h-8" style={{color: '#1791C8'}} />
                     </div>
-                    <div className="text-blue-600 font-bold text-sm mb-2">STEP {item.step}</div>
+                    <div className="font-bold text-sm mb-2" style={{color: '#1791C8'}}>STEP {item.step}</div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-4">{item.title}</h3>
                     <p className="text-gray-600 leading-relaxed">{item.description}</p>
                   </div>
                   {index < 2 && (
                     <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2">
-                      <ChevronRight className="w-8 h-8 text-blue-600" />
+                      <ChevronRight className="w-8 h-8" style={{color: '#1791C8'}} />
                     </div>
                   )}
                 </div>
@@ -326,8 +349,8 @@ export default function LandingPage() {
                   const IconComponent = benefit.icon;
                   return (
                     <div key={index} className="flex gap-4">
-                      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <IconComponent className="w-6 h-6 text-blue-600" />
+                      <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style={{backgroundColor: '#CCE7F7'}}>
+                        <IconComponent className="w-6 h-6" style={{color: '#1791C8'}} />
                       </div>
                       <div>
                         <h3 className="text-xl font-bold text-gray-900 mb-2">{benefit.title}</h3>
@@ -379,18 +402,19 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-blue-600">
+      <section className="py-20" style={{backgroundColor: '#1791C8'}}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Ready to Transform Your School?
           </h2>
-          <p className="text-xl text-blue-100 mb-8">
+          <p className="text-xl mb-8" style={{color: '#CCE7F7'}}>
             Join hundreds of schools already using SchoolHub to streamline their operations
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/register"
-              className="px-10 py-4 bg-white text-blue-600 rounded-xl hover:bg-gray-100 transition-all font-bold text-lg shadow-xl"
+              className="px-10 py-4 bg-white rounded-xl hover:bg-gray-100 transition-all font-bold text-lg shadow-xl"
+              style={{color: '#1791C8'}}
             >
               Get Started Free
             </Link>
@@ -398,7 +422,7 @@ export default function LandingPage() {
               Schedule Demo
             </button>
           </div>
-          <p className="text-blue-100 mt-6">No credit card required • Free 30-day trial • Cancel anytime</p>
+          <p className="mt-6" style={{color: '#CCE7F7'}}>No credit card required • Free 30-day trial • Cancel anytime</p>
         </div>
       </section>
 
@@ -408,9 +432,11 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <BookOpen className="w-6 h-6 text-white" />
-                </div>
+                <img 
+                  src={schoolLogo} 
+                  alt="SchoolHub Logo" 
+                  className="w-14 h-14 object-contain"
+                />
                 <span className="text-xl font-bold text-white">SchoolHub</span>
               </div>
               <p className="text-sm">Making school management simple and efficient for everyone.</p>

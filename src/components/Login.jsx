@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import schoolLogo from '../assets/schoolhub.png';
 
 export default function Login({ onLogin }) {
   const [formData, setFormData] = useState({
@@ -50,42 +51,49 @@ export default function Login({ onLogin }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Welcome Back</h1>
-          <p className="text-gray-300">Sign in to your school account</p>
+          <div className="flex justify-center mb-4">
+            <img 
+              src={schoolLogo} 
+              alt="SchoolHub Logo" 
+              className="w-24 h-24 object-contain"
+            />
+          </div>
+          <h1 className="text-4xl font-bold mb-2 text-primary-500">Welcome Back</h1>
+          <p className="text-gray-600">Sign in to your school account</p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-8">
+        <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-lg">
           {error && (
-            <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-sm">
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-white mb-2">Email Address</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="school@example.com"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-white mb-2">Password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
               <input
                 type="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="Enter your password"
                 required
               />
@@ -94,23 +102,23 @@ export default function Login({ onLogin }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full px-6 py-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors font-semibold shadow-lg disabled:bg-gray-500 disabled:cursor-not-allowed"
+              className="w-full px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors font-semibold shadow-lg disabled:bg-gray-500 disabled:cursor-not-allowed"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-300">
+            <p className="text-gray-600">
               Don't have an account?{' '}
-              <Link to="/register" className="text-pink-300 hover:text-pink-200 font-semibold">
+              <Link to="/register" className="font-semibold text-primary-500 hover:text-primary-600">
                 Sign up
               </Link>
             </p>
           </div>
 
           <div className="mt-4 text-center">
-            <Link to="/" className="text-gray-400 hover:text-gray-300 text-sm">
+            <Link to="/" className="text-gray-500 hover:text-gray-700 text-sm">
               ← Back to home
             </Link>
           </div>

@@ -41,6 +41,45 @@ try {
             require __DIR__ . '/routes/auth/register.php';
             break;
 
+        // Teacher Auth routes
+        case '/auth/teacher-login':
+            require __DIR__ . '/routes/auth/teacher-login.php';
+            break;
+
+        case '/auth/teacher-check-session':
+            require __DIR__ . '/routes/auth/teacher-check-session.php';
+            break;
+
+        // Teacher Management routes (for schools)
+        case '/teachers/create':
+            require __DIR__ . '/routes/teachers/create.php';
+            break;
+
+        case '/teachers/get-all':
+            require __DIR__ . '/routes/teachers/get-all.php';
+            break;
+
+        case '/teachers/assign-class':
+            require __DIR__ . '/routes/teachers/assign-class.php';
+            break;
+
+        case '/teachers/get-my-classes':
+            require __DIR__ . '/routes/teachers/get-my-classes.php';
+            break;
+
+        // Attendance routes (for teachers)
+        case '/attendance/get-students':
+            require __DIR__ . '/routes/attendance/get-students.php';
+            break;
+
+        case '/attendance/mark-daily':
+            require __DIR__ . '/routes/attendance/mark-daily.php';
+            break;
+
+        case '/attendance/get-daily':
+            require __DIR__ . '/routes/attendance/get-daily.php';
+            break;
+
         // Student/Report routes
         case '/save-report':
             require __DIR__ . '/routes/save-report.php';
