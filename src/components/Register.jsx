@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import schoolLogo from '../assets/schoolhub.png';
+import { API_BASE_URL } from '../config/env';
 
 export default function Register({ onRegister }) {
   const [formData, setFormData] = useState({
@@ -45,7 +46,7 @@ export default function Register({ onRegister }) {
     try {
       const { confirmPassword, ...dataToSend } = formData;
 
-      const response = await fetch('http://localhost:8000/api/auth/register.php', {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

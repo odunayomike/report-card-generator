@@ -16,6 +16,25 @@ if (!$school_id) {
 }
 
 try {
+    // Get total student count
+    $totalStudentsQuery = "SELECT COUNT(*) as total FROM students WHERE school_id = ?";
+    $stmt = $db->prepare($totalStudentsQuery);
+    $stmt->execute([$school_id]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $totalStudents = $result ? $result['total'] : 0;
+
+    // Get total reports (students with subjects)
+    $totalReportsQuery = "
+        SELECT COUNT(DISTINCT s.id) as total
+        FROM students s
+        INNER JOIN subjects sub ON s.id = sub.student_id
+        WHERE s.school_id = ?
+    ";
+    $stmt = $db->prepare($totalReportsQuery);
+    $stmt->execute([$school_id]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $totalReports = $result ? $result['total'] : 0;
+
     // Get top students per class (based on average scores)
     $topStudentsQuery = "
         SELECT
@@ -38,7 +57,7 @@ try {
 
     $stmt = $db->prepare($topStudentsQuery);
     $stmt->execute([':school_id' => $school_id]);
-    $allStudents = $stmt->fetchAll();
+    $allStudents = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Group by class and get top 3 per class
     $topStudentsByClass = [];
@@ -59,7 +78,7 @@ try {
                 'session' => $student['session'],
                 'term' => $student['term'],
                 'photo' => $student['photo'],
-                'averageScore' => round($student['average_score'], 2),
+                'averageScore' => $student['average_score'] !== null ? round($student['average_score'], 2) : 0,
                 'subjectCount' => $student['subject_count']
             ];
         }
@@ -82,7 +101,7 @@ try {
             'session' => $student['session'],
             'term' => $student['term'],
             'photo' => $student['photo'],
-            'averageScore' => round($student['average_score'], 2),
+            'averageScore' => $student['average_score'] !== null ? round($student['average_score'], 2) : 0,
             'subjectCount' => $student['subject_count']
         ];
     }, $topOverall);
@@ -103,12 +122,12 @@ try {
 
     $stmt = $db->prepare($classPerformanceQuery);
     $stmt->execute([':school_id' => $school_id]);
-    $classPerformance = $stmt->fetchAll();
+    $classPerformance = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $classPerformanceFormatted = array_map(function($class) {
         return [
             'class' => $class['class'],
-            'averageScore' => round($class['average_score'], 2),
+            'averageScore' => $class['average_score'] !== null ? round($class['average_score'], 2) : 0,
             'studentCount' => $class['student_count'],
             'totalSubmissions' => $class['total_submissions']
         ];
@@ -153,7 +172,7 @@ try {
 
     $stmt = $db->prepare($recentActivityQuery);
     $stmt->execute([':school_id' => $school_id]);
-    $recentActivity = $stmt->fetchAll();
+    $recentActivity = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $recentActivityFormatted = array_map(function($activity) {
         return [
@@ -170,6 +189,8 @@ try {
     echo json_encode([
         'success' => true,
         'analytics' => [
+            'totalStudents' => (int)$totalStudents,
+            'totalReports' => (int)$totalReports,
             'topStudentsByClass' => $topStudentsByClass,
             'topOverall' => $topOverallFormatted,
             'classPerformance' => $classPerformanceFormatted,

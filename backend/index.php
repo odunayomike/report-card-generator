@@ -8,6 +8,7 @@
 session_start();
 
 // Load configurations
+require_once __DIR__ . '/config/env.php';
 require_once __DIR__ . '/config/cors.php';
 require_once __DIR__ . '/config/database.php';
 
@@ -81,6 +82,14 @@ try {
             break;
 
         // Student/Report routes
+        case '/generate-admission-number':
+            require __DIR__ . '/routes/generate-admission-number.php';
+            break;
+
+        case '/create-student':
+            require __DIR__ . '/routes/create-student.php';
+            break;
+
         case '/save-report':
             require __DIR__ . '/routes/save-report.php';
             break;
@@ -138,6 +147,36 @@ try {
         // PDF view route (for Puppeteer)
         case '/pdf-view':
             require __DIR__ . '/routes/pdf-view.php';
+            break;
+
+        // Subscription routes
+        case '/subscription/get-plans':
+            require __DIR__ . '/routes/subscription/get-plans.php';
+            break;
+
+        case '/subscription/initialize-payment':
+            require __DIR__ . '/routes/subscription/initialize-payment.php';
+            break;
+
+        case '/subscription/verify-payment':
+            require __DIR__ . '/routes/subscription/verify-payment.php';
+            break;
+
+        case '/subscription/get-status':
+            require __DIR__ . '/routes/subscription/get-status.php';
+            break;
+
+        // Auto-debit routes
+        case '/auto-debit/enable':
+            require __DIR__ . '/routes/enable-auto-debit.php';
+            break;
+
+        case '/auto-debit/manage':
+            require __DIR__ . '/routes/manage-auto-debit.php';
+            break;
+
+        case '/process-auto-debit':
+            require __DIR__ . '/routes/process-auto-debit.php';
             break;
 
         // Default - 404

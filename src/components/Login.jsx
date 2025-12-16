@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import schoolLogo from '../assets/schoolhub.png';
+import { API_BASE_URL } from '../config/env';
 
 export default function Login({ onLogin }) {
   const [formData, setFormData] = useState({
@@ -25,7 +26,7 @@ export default function Login({ onLogin }) {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8000/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

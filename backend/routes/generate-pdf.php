@@ -118,7 +118,7 @@ if ($returnCode === 0 && $result && $result['success']) {
     // PDF generated successfully
     if (file_exists($outputPath)) {
         // Return the PDF file URL for download
-        $fileUrl = 'http://localhost:8000/temp/' . $filename;
+        $fileUrl = BACKEND_URL . '/temp/' . $filename;
         echo json_encode([
             'success' => true,
             'url' => $fileUrl,

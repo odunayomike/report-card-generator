@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { API_BASE_URL } from './config/env';
 import LandingPage from './components/LandingPage';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -20,6 +21,8 @@ import AttendanceMarker from './pages/AttendanceMarker';
 import ManageTeachers from './pages/ManageTeachers';
 import ViewAttendance from './pages/ViewAttendance';
 import ComingSoon from './pages/ComingSoon';
+import VerifyPayment from './pages/VerifyPayment';
+import AddStudent from './pages/AddStudent';
 
 function App() {
   const [school, setSchool] = useState(null);
@@ -34,7 +37,7 @@ function App() {
   const checkSession = async () => {
     try {
       // Check school session
-      const schoolResponse = await fetch('http://localhost:8000/api/auth/check-session', {
+      const schoolResponse = await fetch(`${API_BASE_URL}/auth/check-session`, {
         credentials: 'include'
       });
       const schoolData = await schoolResponse.json();
@@ -43,7 +46,7 @@ function App() {
         setSchool(schoolData.school);
       } else {
         // Check teacher session if school is not authenticated
-        const teacherResponse = await fetch('http://localhost:8000/api/auth/teacher-check-session', {
+        const teacherResponse = await fetch(`${API_BASE_URL}/auth/teacher-check-session`, {
           credentials: 'include'
         });
         const teacherData = await teacherResponse.json();
@@ -81,7 +84,7 @@ function App() {
 
   const refreshSchool = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/auth/check-session', {
+      const response = await fetch(`${API_BASE_URL}/auth/check-session`, {
         credentials: 'include'
       });
       const data = await response.json();
@@ -128,6 +131,7 @@ function App() {
         >
           <Route index element={<DashboardHome school={school} />} />
           <Route path="create" element={<CreateReport school={school} />} />
+          <Route path="add-student" element={<AddStudent />} />
           <Route path="students" element={<AllStudents />} />
           <Route path="students/:admissionNo" element={<StudentProfile />} />
           <Route path="reports/:id" element={<ViewReport school={school} />} />
@@ -137,8 +141,15 @@ function App() {
           <Route path="settings" element={<SchoolSettings />} />
           <Route path="attendance" element={<ViewAttendance />} />
           <Route path="manage-teachers" element={<ManageTeachers />} />
+          <Route path="accounting" element={<ComingSoon feature="School Accounting & Fee Management" />} />
           <Route path="cbt" element={<ComingSoon feature="Computer-Based Testing (CBT)" />} />
         </Route>
+
+        {/* Subscription Routes (accessible by authenticated schools) */}
+        <Route
+          path="/subscription/verify"
+          element={school ? <VerifyPayment /> : <Navigate to="/login" />}
+        />
 
         {/* Teacher Routes with Nested Layout */}
         <Route
@@ -151,6 +162,7 @@ function App() {
         >
           <Route path="dashboard" element={<TeacherDashboard />} />
           <Route path="mark-attendance" element={<AttendanceMarker />} />
+          <Route path="add-student" element={<AddStudent />} />
           <Route path="students" element={<AllStudents />} />
           <Route path="cbt" element={<ComingSoon feature="Computer-Based Testing (CBT)" />} />
         </Route>

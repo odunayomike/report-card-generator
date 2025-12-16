@@ -2,7 +2,48 @@
  * API Service for Report Card Backend
  */
 
-const API_BASE_URL = 'http://localhost:8000/api';
+import { API_BASE_URL } from '../config/env';
+
+/**
+ * Generate a unique admission number for a new student
+ * @returns {Promise} - API response with admission number
+ */
+export const generateAdmissionNumber = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/generate-admission-number`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error generating admission number:', error);
+    throw error;
+  }
+};
+
+/**
+ * Create a student profile (without report)
+ * @param {Object} studentData - Student information
+ * @returns {Promise} - API response
+ */
+export const createStudent = async (studentData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/create-student`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(studentData)
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error creating student:', error);
+    throw error;
+  }
+};
 
 /**
  * Save a report card to the database
@@ -126,7 +167,9 @@ export const getAnalytics = async () => {
     const response = await fetch(`${API_BASE_URL}/get-analytics`, {
       credentials: 'include'
     });
-    const data = await response.json();
+    const text = await response.text();
+    console.log('Analytics response:', text.substring(0, 500)); // Log first 500 chars
+    const data = JSON.parse(text);
     return data;
   } catch (error) {
     console.error('Error fetching analytics:', error);
@@ -450,6 +493,81 @@ export const getDailyAttendance = async (params) => {
     return data;
   } catch (error) {
     console.error('Error fetching daily attendance:', error);
+    throw error;
+  }
+};
+
+// ========== SUBSCRIPTION & PAYMENT ==========
+
+/**
+ * Get all available subscription plans
+ * @returns {Promise} - API response with plans list
+ */
+export const getSubscriptionPlans = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/subscription/get-plans`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching subscription plans:', error);
+    throw error;
+  }
+};
+
+/**
+ * Initialize payment for a subscription plan
+ * @param {number} planId - The subscription plan ID
+ * @returns {Promise} - API response with payment authorization URL
+ */
+export const initializeSubscriptionPayment = async (planId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/subscription/initialize-payment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ plan_id: planId })
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error initializing payment:', error);
+    throw error;
+  }
+};
+
+/**
+ * Verify payment after Paystack redirect
+ * @param {string} reference - Payment reference
+ * @returns {Promise} - API response with verification result
+ */
+export const verifySubscriptionPayment = async (reference) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/subscription/verify-payment?reference=${reference}`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error verifying payment:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get current subscription status for the logged-in school
+ * @returns {Promise} - API response with subscription details
+ */
+export const getSubscriptionStatus = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/subscription/get-status`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching subscription status:', error);
     throw error;
   }
 };

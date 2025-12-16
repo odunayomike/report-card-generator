@@ -39,14 +39,6 @@ export default function DashboardHome({ school }) {
     );
   }
 
-  if (!analytics) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">No analytics data available</p>
-      </div>
-    );
-  }
-
   return (
     <div>
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Dashboard Overview</h2>
@@ -56,8 +48,22 @@ export default function DashboardHome({ school }) {
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
+              <p className="text-sm font-medium text-gray-600">Total Students</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{analytics?.totalStudents || 0}</p>
+            </div>
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between">
+            <div>
               <p className="text-sm font-medium text-gray-600">Total Reports</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{analytics.recentActivity.length}</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{analytics?.totalReports || 0}</p>
             </div>
             <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
               <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,7 +77,7 @@ export default function DashboardHome({ school }) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Classes</p>
-              <p className="text-3xl font-bold text-gray-900 mt-2">{Object.keys(analytics.classCounts).length}</p>
+              <p className="text-3xl font-bold text-gray-900 mt-2">{Object.keys(analytics?.classCounts || {}).length}</p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
               <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -86,7 +92,7 @@ export default function DashboardHome({ school }) {
             <div>
               <p className="text-sm font-medium text-gray-600">Avg Performance</p>
               <p className="text-3xl font-bold text-gray-900 mt-2">
-                {analytics.classPerformance.length > 0
+                {analytics?.classPerformance?.length > 0
                   ? (analytics.classPerformance.reduce((sum, c) => sum + c.averageScore, 0) / analytics.classPerformance.length).toFixed(1)
                   : '0'}%
               </p>
@@ -104,7 +110,7 @@ export default function DashboardHome({ school }) {
             <div>
               <p className="text-sm font-medium text-gray-600">Excellence Rate</p>
               <p className="text-3xl font-bold text-gray-900 mt-2">
-                {analytics.gradeDistribution.A || 0} A's
+                {analytics?.gradeDistribution?.A || 0} A's
               </p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -117,7 +123,7 @@ export default function DashboardHome({ school }) {
       </div>
 
       {/* Top Overall Students */}
-      {analytics.topOverall.length > 0 && (
+      {analytics?.topOverall?.length > 0 && (
         <div className="bg-white rounded-lg shadow mb-8">
           <div className="px-6 py-4 border-b border-gray-200 flex items-center gap-2">
             <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
@@ -154,7 +160,7 @@ export default function DashboardHome({ school }) {
       )}
 
       {/* Top Students by Class */}
-      {Object.keys(analytics.topStudentsByClass).length > 0 && (
+      {Object.keys(analytics?.topStudentsByClass || {}).length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {Object.entries(analytics.topStudentsByClass).slice(0, 4).map(([className, topStudents]) => (
             <div key={className} className="bg-white rounded-lg shadow">
@@ -193,7 +199,7 @@ export default function DashboardHome({ school }) {
       )}
 
       {/* Class Performance Overview */}
-      {analytics.classPerformance.length > 0 && (
+      {analytics?.classPerformance?.length > 0 && (
         <div className="bg-white rounded-lg shadow mb-8">
           <div className="px-6 py-4 border-b border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900">Class Performance Overview</h3>
@@ -227,7 +233,7 @@ export default function DashboardHome({ school }) {
       )}
 
       {/* Recent Activity */}
-      {analytics.recentActivity.length > 0 && (
+      {analytics?.recentActivity?.length > 0 && (
         <div className="bg-white rounded-lg shadow">
           <div className="px-6 py-4 border-b border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>

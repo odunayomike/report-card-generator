@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import StudentForm from './StudentForm';
 import ReportCard from './ReportCard';
 import { saveReportCard, getAllStudents, getReportCard, getStudentProfile, getAnalytics } from '../services/api';
+import { API_BASE_URL } from '../config/env';
 
 export default function Dashboard({ school, onLogout }) {
   const [currentView, setCurrentView] = useState('dashboard'); // dashboard, create, students, view-report, edit-report, view-profile
@@ -131,7 +132,7 @@ export default function Dashboard({ school, onLogout }) {
 
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:8000/api/auth/logout', {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
         credentials: 'include'
       });
       onLogout();

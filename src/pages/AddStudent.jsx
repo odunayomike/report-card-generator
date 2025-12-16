@@ -1,0 +1,343 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { createStudent, generateAdmissionNumber } from '../services/api';
+
+const AddStudent = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [generatingAdmission, setGeneratingAdmission] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  const [formData, setFormData] = useState({
+    name: '',
+    admission_no: '',
+    class: '',
+    session: '',
+    term: '',
+    gender: '',
+    height: '',
+    weight: '',
+    club_society: '',
+    fav_col: '',
+    photo: ''
+  });
+
+  // Auto-generate admission number on component mount
+  useEffect(() => {
+    fetchAdmissionNumber();
+  }, []);
+
+  const fetchAdmissionNumber = async () => {
+    try {
+      setGeneratingAdmission(true);
+      const response = await generateAdmissionNumber();
+      if (response.success) {
+        setFormData(prev => ({
+          ...prev,
+          admission_no: response.admission_number
+        }));
+      }
+    } catch (error) {
+      console.error('Error generating admission number:', error);
+    } finally {
+      setGeneratingAdmission(false);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    setError('');
+  };
+
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({
+          ...prev,
+          photo: reader.result
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await createStudent(formData);
+
+      if (response.success) {
+        setSuccess('Student profile created successfully!');
+        setTimeout(() => {
+          navigate('/dashboard/students');
+        }, 2000);
+      } else {
+        setError(response.message || 'Failed to create student profile');
+      }
+    } catch (error) {
+      console.error('Error creating student:', error);
+      setError('An error occurred while creating the student profile');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const currentSession = new Date().getFullYear() + '/' + (new Date().getFullYear() + 1);
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="bg-white rounded-lg shadow p-6">
+        <h1 className="text-2xl font-bold mb-6">Add New Student</h1>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-400 rounded">
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        )}
+
+        {success && (
+          <div className="mb-4 p-3 bg-green-50 border-l-4 border-green-400 rounded">
+            <p className="text-sm text-green-700">{success}</p>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Personal Information */}
+          <div>
+            <h2 className="text-lg font-semibold mb-3">Personal Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter student's full name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Admission Number <span className="text-red-500">*</span>
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    name="admission_no"
+                    value={formData.admission_no}
+                    readOnly
+                    required
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 font-medium"
+                    placeholder="Generating..."
+                  />
+                  <button
+                    type="button"
+                    onClick={fetchAdmissionNumber}
+                    disabled={generatingAdmission}
+                    className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Generate new admission number"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Auto-generated. Click refresh to generate a new number.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Gender <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Class <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="class"
+                  value={formData.class}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., Primary 1A, JSS 2B"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Height (cm)
+                </label>
+                <input
+                  type="text"
+                  name="height"
+                  value={formData.height}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., 120"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Weight (kg)
+                </label>
+                <input
+                  type="text"
+                  name="weight"
+                  value={formData.weight}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., 35"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Academic Information */}
+          <div>
+            <h2 className="text-lg font-semibold mb-3">Academic Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Session <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="session"
+                  value={formData.session}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder={`e.g., ${currentSession}`}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Term <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="term"
+                  value={formData.term}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select Term</option>
+                  <option value="First Term">First Term</option>
+                  <option value="Second Term">Second Term</option>
+                  <option value="Third Term">Third Term</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Additional Information */}
+          <div>
+            <h2 className="text-lg font-semibold mb-3">Additional Information</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Club/Society
+                </label>
+                <input
+                  type="text"
+                  name="club_society"
+                  value={formData.club_society}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., Science Club"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Favorite Color
+                </label>
+                <input
+                  type="text"
+                  name="fav_col"
+                  value={formData.fav_col}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., Blue"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Student Photo
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                {formData.photo && (
+                  <div className="mt-2">
+                    <img
+                      src={formData.photo}
+                      alt="Student preview"
+                      className="w-24 h-24 object-cover rounded-lg"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-4">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Creating...' : 'Create Student Profile'}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard/students')}
+              className="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default AddStudent;
