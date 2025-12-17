@@ -36,10 +36,20 @@ $request_method = $_SERVER['REQUEST_METHOD'];
 $path = parse_url($request_uri, PHP_URL_PATH);
 
 // Remove /backend prefix if present (for production)
-$path = preg_replace('#^/backend#', '', $path);
+$path = preg_replace('#^/backend#i', '', $path);
 
 // Remove /api prefix if present
-$path = preg_replace('#^/api#', '', $path);
+$path = preg_replace('#^/api#i', '', $path);
+
+// Ensure path starts with /
+if (!empty($path) && $path[0] !== '/') {
+    $path = '/' . $path;
+}
+
+// Remove trailing slash unless it's the root
+if (strlen($path) > 1 && substr($path, -1) === '/') {
+    $path = rtrim($path, '/');
+}
 
 // Route the request
 try {

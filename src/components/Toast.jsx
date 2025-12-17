@@ -53,7 +53,7 @@ export default function Toast({ message, type = 'info', duration = 5000, onClose
 
   return (
     <div
-      className={`fixed top-4 right-4 z-50 transition-all duration-300 transform ${
+      className={`fixed top-4 right-4 z-[9999] transition-all duration-300 transform ${
         isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
       }`}
     >
@@ -78,7 +78,7 @@ export default function Toast({ message, type = 'info', duration = 5000, onClose
 // Toast Container Component
 export function ToastContainer({ toasts, removeToast }) {
   return (
-    <div className="fixed top-0 right-0 z-50 pointer-events-none">
+    <div className="fixed top-0 right-0 z-[9999] pointer-events-none">
       <div className="flex flex-col gap-2 p-4 pointer-events-auto">
         {toasts.map((toast) => (
           <Toast

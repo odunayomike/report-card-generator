@@ -133,11 +133,17 @@ try {
                   VALUES (:student_id, :opened, :present, :absent)";
 
         $stmt = $db->prepare($query);
+
+        // Convert empty strings to 0 for integer fields
+        $opened = ($data['noOfTimesSchoolOpened'] ?? '') === '' ? 0 : intval($data['noOfTimesSchoolOpened']);
+        $present = ($data['noOfTimesPresent'] ?? '') === '' ? 0 : intval($data['noOfTimesPresent']);
+        $absent = ($data['noOfTimesAbsent'] ?? '') === '' ? 0 : intval($data['noOfTimesAbsent']);
+
         $stmt->execute([
             ':student_id' => $student_id,
-            ':opened' => $data['noOfTimesSchoolOpened'] ?? 0,
-            ':present' => $data['noOfTimesPresent'] ?? 0,
-            ':absent' => $data['noOfTimesAbsent'] ?? 0
+            ':opened' => $opened,
+            ':present' => $present,
+            ':absent' => $absent
         ]);
     }
 

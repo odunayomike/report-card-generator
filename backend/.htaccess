@@ -4,6 +4,9 @@ RewriteEngine On
 # Set the base directory
 RewriteBase /backend/
 
+# TEST: Check if .htaccess is working
+RewriteRule ^htaccess-test$ test-htaccess.php [L]
+
 # Allow access to temp directory for PDF files
 RewriteCond %{REQUEST_URI} ^/backend/temp/.*\.pdf$ [NC]
 RewriteRule ^ - [L]

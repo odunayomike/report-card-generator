@@ -87,5 +87,85 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- WhatsApp Floating Chat Button -->
+    <a href="https://wa.me/2347010123061?text=Hello,%20I%20need%20help%20with%20SchoolHub"
+       class="whatsapp-float"
+       target="_blank"
+       rel="noopener noreferrer"
+       aria-label="Chat on WhatsApp">
+      <svg viewBox="0 0 32 32" class="whatsapp-icon">
+        <path fill="currentColor" d="M16 0c-8.837 0-16 7.163-16 16 0 2.825 0.737 5.607 2.137 8.048l-2.137 7.952 7.933-2.127c2.42 1.37 5.173 2.127 8.067 2.127 8.837 0 16-7.163 16-16s-7.163-16-16-16zM16 29.467c-2.482 0-4.908-0.646-7.07-1.87l-0.507-0.292-5.247 1.409 1.417-5.267-0.315-0.517c-1.318-2.17-2.011-4.658-2.011-7.223 0-7.51 6.11-13.62 13.62-13.62s13.62 6.11 13.62 13.62c0 7.51-6.11 13.62-13.62 13.62zM21.305 19.26c-0.346-0.174-2.049-1.007-2.366-1.123-0.316-0.117-0.547-0.174-0.776 0.174s-0.892 1.123-1.094 1.347c-0.201 0.227-0.402 0.255-0.748 0.081-0.346-0.174-1.461-0.538-2.784-1.721-1.029-0.919-1.724-2.053-1.925-2.401-0.201-0.346-0.021-0.533 0.152-0.707 0.156-0.155 0.346-0.402 0.518-0.603 0.174-0.201 0.231-0.346 0.346-0.574 0.117-0.227 0.058-0.427-0.028-0.603-0.087-0.174-0.776-1.87-1.063-2.565-0.28-0.672-0.56-0.58-0.776-0.591-0.2-0.010-0.428-0.012-0.656-0.012s-0.603 0.087-0.919 0.427c-0.316 0.346-1.206 1.179-1.206 2.873s1.235 3.333 1.406 3.561c0.174 0.227 2.441 3.733 5.913 5.232 0.827 0.357 1.473 0.571 1.977 0.731 0.831 0.263 1.586 0.226 2.183 0.137 0.666-0.099 2.049-0.838 2.335-1.647 0.289-0.809 0.289-1.502 0.201-1.647-0.086-0.146-0.315-0.232-0.659-0.406z"/>
+      </svg>
+    </a>
+
+    <style>
+      .whatsapp-float {
+        position: fixed;
+        width: 60px;
+        height: 60px;
+        bottom: 30px;
+        right: 30px;
+        background-color: #25d366;
+        color: #fff;
+        border-radius: 50px;
+        text-align: center;
+        font-size: 30px;
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+      }
+
+      .whatsapp-float:hover {
+        background-color: #128c7e;
+        transform: scale(1.1);
+        box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.4);
+      }
+
+      .whatsapp-icon {
+        width: 35px;
+        height: 35px;
+      }
+
+      /* Responsive adjustments */
+      @media screen and (max-width: 768px) {
+        .whatsapp-float {
+          width: 50px;
+          height: 50px;
+          bottom: 20px;
+          right: 20px;
+        }
+
+        .whatsapp-icon {
+          width: 28px;
+          height: 28px;
+        }
+      }
+
+      /* Animation on page load */
+      @keyframes whatsapp-pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 15px rgba(37, 211, 102, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+        }
+      }
+
+      .whatsapp-float {
+        animation: whatsapp-pulse 2s infinite;
+      }
+
+      .whatsapp-float:hover {
+        animation: none;
+      }
+    </style>
   </body>
 </html>

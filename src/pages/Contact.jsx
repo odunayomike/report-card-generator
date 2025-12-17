@@ -160,7 +160,7 @@ export default function Contact() {
                 {
                   icon: Phone,
                   title: 'Call Us',
-                  info: '+234 800 123 4567',
+                  info: '+234 701 012 3061',
                   subinfo: 'Mon-Fri, 8am-6pm WAT',
                   color: '#667eea'
                 }
