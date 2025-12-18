@@ -136,11 +136,12 @@ function generateReportHTML(data) {
       margin-top: -8px;
     }
     .school-info h1 {
-      font-size: 18px;
+      font-size: 24px;
       font-weight: bold;
       letter-spacing: 0.5px;
       text-transform: uppercase;
       line-height: 1.2;
+      font-family: 'Georgia', 'Times New Roman', serif;
     }
     .school-info p {
       font-size: 10px;
@@ -279,7 +280,7 @@ function generateReportHTML(data) {
     /* Bottom Grid */
     .bottom-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 10px;
       margin-bottom: 6px;
     }
@@ -511,11 +512,6 @@ function generateReportHTML(data) {
           </table>
         </div>
 
-        <!-- Grading Scale -->
-        <div class="grading-scale">
-          <p><strong>${gradingScale.A[0]}-${gradingScale.A[1]}%=EXCELLENT (A); ${gradingScale.B[0]}-${gradingScale.B[1]}%=VERY GOOD (B); ${gradingScale.C[0]}-${gradingScale.C[1]}%=GOOD (C);</strong></p>
-          <p><strong>${gradingScale.D[0]}-${gradingScale.D[1]}%=FAIR (D); ${gradingScale.F[0]}-${gradingScale.F[1]}%=FAIL (F)</strong></p>
-        </div>
       </div>
 
       <!-- Right Column: Attendance & Affective Domain -->
@@ -570,7 +566,7 @@ function generateReportHTML(data) {
       </div>
     </div>
 
-    <!-- Bottom Grid: Psychomotor & Grade Summary -->
+    <!-- Bottom Grid: Psychomotor, Grade Summary & Grading Scale -->
     <div class="bottom-grid">
       <!-- Psychomotor Domain -->
       <div>
@@ -627,6 +623,47 @@ function generateReportHTML(data) {
             <tr>
               <td colspan="3" class="font-bold text-left">TOTAL SUBJECTS OFFERED</td>
               <td colspan="4" class="font-bold">${validSubjects.length}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Grading Scale -->
+      <div>
+        <div class="section-header">GRADING SCALE</div>
+        <table>
+          <thead>
+            <tr class="bg-gray">
+              <th>SCORE</th>
+              <th>GRADE</th>
+              <th>REMARK</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>${gradingScale.A[0]}-${gradingScale.A[1]}%</td>
+              <td class="font-bold">A</td>
+              <td>EXCELLENT</td>
+            </tr>
+            <tr>
+              <td>${gradingScale.B[0]}-${gradingScale.B[1]}%</td>
+              <td class="font-bold">B</td>
+              <td>VERY GOOD</td>
+            </tr>
+            <tr>
+              <td>${gradingScale.C[0]}-${gradingScale.C[1]}%</td>
+              <td class="font-bold">C</td>
+              <td>GOOD</td>
+            </tr>
+            <tr>
+              <td>${gradingScale.D[0]}-${gradingScale.D[1]}%</td>
+              <td class="font-bold">D</td>
+              <td>FAIR</td>
+            </tr>
+            <tr>
+              <td>${gradingScale.F[0]}-${gradingScale.F[1]}%</td>
+              <td class="font-bold">F</td>
+              <td>FAIL</td>
             </tr>
           </tbody>
         </table>

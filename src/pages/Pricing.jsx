@@ -118,43 +118,46 @@ export default function Pricing() {
                 Everything your school needs to succeed.
               </p>
               <div className="mt-8 inline-flex items-center gap-2 px-6 py-3 bg-white rounded-full shadow-sm">
-                <span className="text-sm font-semibold text-gray-700">🎉 7-day free trial • No credit card required</span>
+                <span className="text-sm font-semibold text-gray-700">7-day free trial • No credit card required</span>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Pricing Card */}
+        {/* Pricing Cards */}
         <section className="py-20 bg-white">
-          <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="bg-white rounded-3xl p-10 border-4 shadow-2xl" style={{borderColor: '#1791C8'}}>
-              <div className="text-center mb-8">
-                <div className="w-20 h-20 mx-auto rounded-2xl flex items-center justify-center mb-6" style={{backgroundColor: '#CCE7F7'}}>
-                  <Zap className="w-10 h-10" style={{color: '#1791C8'}} />
-                </div>
-                <h2 className="text-4xl font-bold text-gray-900 mb-4">Complete School Management</h2>
-                <p className="text-xl text-gray-600 mb-8">Everything you need to run your school efficiently</p>
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-                <div className="mb-8">
-                  <div className="flex items-baseline justify-center gap-2">
-                    <span className="text-6xl font-bold text-gray-900">₦5,000</span>
-                    <span className="text-2xl text-gray-600">/ month</span>
+              {/* Monthly Plan */}
+              <div className="bg-white rounded-2xl p-6 border-2 shadow-lg hover:shadow-xl transition-shadow" style={{borderColor: '#1791C8'}}>
+                <div className="text-center mb-6">
+                  <div className="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-4" style={{backgroundColor: '#CCE7F7'}}>
+                    <Zap className="w-6 h-6" style={{color: '#1791C8'}} />
                   </div>
-                  <p className="text-gray-500 mt-2">Billed monthly • Cancel anytime</p>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-1">Monthly Plan</h2>
+                  <p className="text-gray-600 text-sm mb-4">Pay as you go</p>
+
+                  <div className="mb-6">
+                    <div className="flex items-baseline justify-center gap-2">
+                      <span className="text-4xl font-bold text-gray-900">₦5,000</span>
+                      <span className="text-lg text-gray-600">/ month</span>
+                    </div>
+                    <p className="text-gray-500 mt-2 text-xs">Billed monthly • Cancel anytime</p>
+                  </div>
+
+                  <Link
+                    to="/register"
+                    className="inline-block w-full py-3 text-white rounded-lg hover:shadow-xl transition-all font-bold text-base"
+                    style={{backgroundColor: '#1791C8'}}
+                  >
+                    Start Free Trial
+                  </Link>
                 </div>
 
-                <Link
-                  to="/register"
-                  className="inline-block w-full py-5 text-white rounded-xl hover:shadow-2xl transition-all font-bold text-xl"
-                  style={{backgroundColor: '#1791C8'}}
-                >
-                  Start 7-Day Free Trial
-                </Link>
-              </div>
-
-              <div className="border-t border-gray-200 pt-8 mt-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">All Features Included</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="border-t border-gray-200 pt-6 mt-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4 text-center">All Features Included</h3>
+                <div className="flex flex-wrap gap-x-4 gap-y-2">
                   {[
                     'Unlimited students',
                     'Unlimited teacher accounts',
@@ -175,30 +178,116 @@ export default function Pricing() {
                     'Auto-debit payments',
                     'Subscription management'
                   ].map((feature, index) => (
-                    <div key={index} className="flex items-start gap-3">
-                      <Check className="w-6 h-6 flex-shrink-0 mt-0.5" style={{color: '#1791C8'}} />
-                      <span className="text-gray-700">{feature}</span>
+                    <div key={index} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{color: '#1791C8'}} />
+                      <span className="text-gray-700 text-sm">{feature}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 pt-8 mt-8">
-                <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Coming Soon (At No Extra Cost)</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <h3 className="text-base font-bold text-gray-900 mb-3 text-center">Coming Soon</h3>
+                <div className="grid grid-cols-1 gap-2">
                   {[
                     'School accounting',
                     'Fee management',
                     'Computer-Based Testing (CBT)',
                     'Online exams'
                   ].map((feature, index) => (
-                    <div key={index} className="flex items-start gap-3">
-                      <Check className="w-6 h-6 flex-shrink-0 mt-0.5 text-gray-400" />
-                      <span className="text-gray-500">{feature}</span>
+                    <div key={index} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-gray-400" />
+                      <span className="text-gray-500 text-sm">{feature}</span>
                     </div>
                   ))}
                 </div>
               </div>
+              </div>
+
+              {/* Annual Plan */}
+              <div className="bg-white rounded-2xl p-6 border-4 shadow-lg hover:shadow-xl transition-shadow relative" style={{borderColor: '#1791C8'}}>
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">Save 17%</span>
+                </div>
+                <div className="text-center mb-6">
+                  <div className="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-4" style={{backgroundColor: '#CCE7F7'}}>
+                    <Zap className="w-6 h-6" style={{color: '#1791C8'}} />
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-1">Annual Plan</h2>
+                  <p className="text-gray-600 text-sm mb-4">Best value - 2 months free</p>
+
+                  <div className="mb-6">
+                    <div className="flex items-baseline justify-center gap-2">
+                      <span className="text-4xl font-bold text-gray-900">₦50,000</span>
+                      <span className="text-lg text-gray-600">/ year</span>
+                    </div>
+                    <div className="mt-2">
+                      <p className="text-gray-500 text-sm">
+                        <span className="line-through text-gray-400">₦60,000</span>
+                        <span className="ml-2 text-green-600 font-semibold">Save ₦10,000/year</span>
+                      </p>
+                      <p className="text-gray-500 text-xs mt-1">Only ₦4,167/month • Billed annually</p>
+                    </div>
+                  </div>
+
+                  <Link
+                    to="/register"
+                    className="inline-block w-full py-3 text-white rounded-lg hover:shadow-xl transition-all font-bold text-base"
+                    style={{backgroundColor: '#1791C8'}}
+                  >
+                    Start Free Trial
+                  </Link>
+                </div>
+
+              <div className="border-t border-gray-200 pt-6 mt-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4 text-center">All Features Included</h3>
+                <div className="flex flex-wrap gap-x-4 gap-y-2">
+                  {[
+                    'Unlimited students',
+                    'Unlimited teacher accounts',
+                    'Report card generation',
+                    'Student management',
+                    'Attendance tracking',
+                    'Performance analytics',
+                    'Real-time dashboard',
+                    'School branding & logo',
+                    'Grade management',
+                    'Class management',
+                    'Student profiles',
+                    'PDF export',
+                    'Mobile access',
+                    'Cloud storage',
+                    'Daily backups',
+                    'Email support',
+                    'Auto-debit payments',
+                    'Subscription management'
+                  ].map((feature, index) => (
+                    <div key={index} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{color: '#1791C8'}} />
+                      <span className="text-gray-700 text-sm">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <h3 className="text-base font-bold text-gray-900 mb-3 text-center">Coming Soon</h3>
+                <div className="grid grid-cols-1 gap-2">
+                  {[
+                    'School accounting',
+                    'Fee management',
+                    'Computer-Based Testing (CBT)',
+                    'Online exams'
+                  ].map((feature, index) => (
+                    <div key={index} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-gray-400" />
+                      <span className="text-gray-500 text-sm">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              </div>
+
             </div>
           </div>
         </section>

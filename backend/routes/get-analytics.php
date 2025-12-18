@@ -16,24 +16,55 @@ if (!$school_id) {
 }
 
 try {
-    // Get total student count
-    $totalStudentsQuery = "SELECT COUNT(*) as total FROM students WHERE school_id = ?";
+    // Get unique student count (by admission number)
+    $totalStudentsQuery = "SELECT COUNT(DISTINCT admission_no) as total FROM students WHERE school_id = ?";
     $stmt = $db->prepare($totalStudentsQuery);
     $stmt->execute([$school_id]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     $totalStudents = $result ? $result['total'] : 0;
 
-    // Get total reports (students with subjects)
-    $totalReportsQuery = "
-        SELECT COUNT(DISTINCT s.id) as total
-        FROM students s
-        INNER JOIN subjects sub ON s.id = sub.student_id
-        WHERE s.school_id = ?
-    ";
+    // Get total reports count
+    $totalReportsQuery = "SELECT COUNT(*) as total FROM students WHERE school_id = ?";
     $stmt = $db->prepare($totalReportsQuery);
     $stmt->execute([$school_id]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     $totalReports = $result ? $result['total'] : 0;
+
+    // Get total teachers count
+    $totalTeachersQuery = "SELECT COUNT(*) as total FROM teachers WHERE school_id = ? AND is_active = 1";
+    $stmt = $db->prepare($totalTeachersQuery);
+    $stmt->execute([$school_id]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $totalTeachers = $result ? $result['total'] : 0;
+
+    // Get total classes count
+    $totalClassesQuery = "SELECT COUNT(DISTINCT class) as total FROM students WHERE school_id = ?";
+    $stmt = $db->prepare($totalClassesQuery);
+    $stmt->execute([$school_id]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $totalClasses = $result ? $result['total'] : 0;
+
+    // Get attendance statistics (for current month)
+    $attendanceQuery = "
+        SELECT
+            COUNT(DISTINCT student_id) as students_tracked,
+            SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END) as total_present,
+            SUM(CASE WHEN status = 'absent' THEN 1 ELSE 0 END) as total_absent,
+            COUNT(*) as total_records
+        FROM daily_attendance da
+        INNER JOIN students s ON da.student_id = s.id
+        WHERE s.school_id = ?
+        AND MONTH(da.date) = MONTH(CURRENT_DATE)
+        AND YEAR(da.date) = YEAR(CURRENT_DATE)
+    ";
+    $stmt = $db->prepare($attendanceQuery);
+    $stmt->execute([$school_id]);
+    $attendanceStats = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $attendanceRate = 0;
+    if ($attendanceStats && $attendanceStats['total_records'] > 0) {
+        $attendanceRate = round(($attendanceStats['total_present'] / $attendanceStats['total_records']) * 100, 1);
+    }
 
     // Get top students per class (based on average scores)
     $topStudentsQuery = "
@@ -189,8 +220,15 @@ try {
     echo json_encode([
         'success' => true,
         'analytics' => [
+            // Overall School Stats
             'totalStudents' => (int)$totalStudents,
             'totalReports' => (int)$totalReports,
+            'totalTeachers' => (int)$totalTeachers,
+            'totalClasses' => (int)$totalClasses,
+            'attendanceRate' => $attendanceRate,
+            'attendanceStats' => $attendanceStats,
+
+            // Performance Analytics
             'topStudentsByClass' => $topStudentsByClass,
             'topOverall' => $topOverallFormatted,
             'classPerformance' => $classPerformanceFormatted,

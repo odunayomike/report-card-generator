@@ -22,14 +22,20 @@ $db = $database->getConnection();
 try {
     if ($userType === 'teacher') {
         // Teachers only see students in their assigned classes
-        $query = "SELECT DISTINCT s.id, s.name, s.class, s.session, s.admission_no, s.term, s.gender, s.created_at
+        // Get unique students by admission number with their most recent report
+        $query = "SELECT s.admission_no, s.name, s.gender,
+                  MAX(s.created_at) as latest_report_date,
+                  COUNT(s.id) as total_reports,
+                  GROUP_CONCAT(DISTINCT s.class ORDER BY s.created_at DESC SEPARATOR ', ') as classes,
+                  (SELECT s2.class FROM students s2 WHERE s2.admission_no = s.admission_no AND s2.school_id = :school_id ORDER BY s2.created_at DESC LIMIT 1) as current_class
                   FROM students s
                   INNER JOIN teacher_classes tc ON s.class = tc.class_name
                       AND s.session = tc.session
                       AND s.term = tc.term
                   WHERE s.school_id = :school_id
                       AND tc.teacher_id = :teacher_id
-                  ORDER BY s.created_at DESC";
+                  GROUP BY s.admission_no, s.name, s.gender
+                  ORDER BY latest_report_date DESC";
 
         $stmt = $db->prepare($query);
         $stmt->execute([
@@ -38,11 +44,17 @@ try {
         ]);
         $students = $stmt->fetchAll();
     } else {
-        // Schools see all students
-        $query = "SELECT id, name, class, session, admission_no, term, gender, created_at
-                  FROM students
-                  WHERE school_id = :school_id
-                  ORDER BY created_at DESC";
+        // Schools see all unique students
+        // Get unique students by admission number with their most recent report info
+        $query = "SELECT s.admission_no, s.name, s.gender,
+                  MAX(s.created_at) as latest_report_date,
+                  COUNT(s.id) as total_reports,
+                  GROUP_CONCAT(DISTINCT s.class ORDER BY s.created_at DESC SEPARATOR ', ') as classes,
+                  (SELECT s2.class FROM students s2 WHERE s2.admission_no = s.admission_no AND s2.school_id = :school_id ORDER BY s2.created_at DESC LIMIT 1) as current_class
+                  FROM students s
+                  WHERE s.school_id = :school_id
+                  GROUP BY s.admission_no, s.name, s.gender
+                  ORDER BY latest_report_date DESC";
 
         $stmt = $db->prepare($query);
         $stmt->execute([':school_id' => $school_id]);

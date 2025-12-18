@@ -73,9 +73,22 @@ try {
             'totalReports' => count($reports)
         ]);
     } else {
-        http_response_code(404);
+        // No reports found - return empty profile with just admission number
+        http_response_code(200);
         echo json_encode([
-            'success' => false,
+            'success' => true,
+            'studentInfo' => [
+                'name' => 'Unknown',
+                'gender' => 'Unknown',
+                'admissionNo' => $admission_no,
+                'height' => '',
+                'weight' => '',
+                'clubSociety' => '',
+                'favCol' => '',
+                'photo' => null
+            ],
+            'reports' => [],
+            'totalReports' => 0,
             'message' => 'No reports found for this student'
         ]);
     }

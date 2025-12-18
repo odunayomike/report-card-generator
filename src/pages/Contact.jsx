@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, Send, MessageCircle, Clock, CheckCircle, ChevronDown } from 'lucide-react';
+import { Mail, Phone, Send, MessageCircle, Clock, CheckCircle, ChevronDown, AlertCircle } from 'lucide-react';
 import schoolLogo from '../assets/schoolhub.png';
 import SEO from '../components/SEO';
+import { submitContactForm } from '../services/api';
 
 export default function Contact() {
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
@@ -15,13 +16,37 @@ export default function Contact() {
     message: ''
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 5000);
+    setSubmitting(true);
+    setError('');
+
+    try {
+      const response = await submitContactForm(formData);
+
+      if (response.success) {
+        setSubmitted(true);
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          school: '',
+          subject: '',
+          message: ''
+        });
+        setTimeout(() => setSubmitted(false), 10000);
+      } else {
+        setError(response.message || 'Failed to send message. Please try again.');
+      }
+    } catch (err) {
+      console.error('Contact form error:', err);
+      setError('Failed to send message. Please try again or email us directly at support@schoolhub.tech');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -188,7 +213,14 @@ export default function Contact() {
                 {submitted && (
                   <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600" />
-                    <p className="text-green-800">Thank you! We'll get back to you within 24 hours.</p>
+                    <p className="text-green-800">Thank you! We'll get back to you within 24 hours. A confirmation email has been sent to your inbox.</p>
+                  </div>
+                )}
+
+                {error && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-600" />
+                    <p className="text-red-800">{error}</p>
                   </div>
                 )}
 
@@ -288,11 +320,21 @@ export default function Contact() {
 
                   <button
                     type="submit"
-                    className="w-full px-8 py-4 text-white rounded-lg hover:shadow-lg transition-all font-bold text-lg flex items-center justify-center gap-2"
+                    disabled={submitting}
+                    className="w-full px-8 py-4 text-white rounded-lg hover:shadow-lg transition-all font-bold text-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{backgroundColor: '#1791C8'}}
                   >
-                    <Send className="w-5 h-5" />
-                    Send Message
+                    {submitting ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-5 h-5" />
+                        Send Message
+                      </>
+                    )}
                   </button>
                 </form>
               </div>

@@ -5,7 +5,7 @@ import { getAllStudents } from '../services/api';
 export default function AllStudents() {
   const [students, setStudents] = useState([]);
   const [loadingStudents, setLoadingStudents] = useState(true);
-  const [filters, setFilters] = useState({ class: '', session: '', term: '', search: '' });
+  const [filters, setFilters] = useState({ class: '', search: '' });
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -37,24 +37,18 @@ export default function AllStudents() {
     navigate(`${basePath}/students/${admissionNo}`);
   };
 
-  const handleViewReport = (studentId) => {
+  const handleViewReports = (admissionNo) => {
+    // Navigate to student profile which shows all reports
     const basePath = isTeacher ? '/teacher' : '/dashboard';
-    navigate(`${basePath}/reports/${studentId}`);
-  };
-
-  const handleEditReport = (studentId) => {
-    const basePath = isTeacher ? '/teacher' : '/dashboard';
-    navigate(`${basePath}/reports/${studentId}/edit`);
+    navigate(`${basePath}/students/${admissionNo}`);
   };
 
   const filteredStudents = students.filter(student => {
     const matchesSearch = !filters.search ||
       student.name.toLowerCase().includes(filters.search.toLowerCase()) ||
       student.admission_no.toLowerCase().includes(filters.search.toLowerCase());
-    const matchesClass = !filters.class || student.class === filters.class;
-    const matchesSession = !filters.session || student.session === filters.session;
-    const matchesTerm = !filters.term || student.term === filters.term;
-    return matchesSearch && matchesClass && matchesSession && matchesTerm;
+    const matchesClass = !filters.class || student.current_class === filters.class;
+    return matchesSearch && matchesClass;
   });
 
   return (
@@ -85,7 +79,7 @@ export default function AllStudents() {
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow p-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">Search Student</label>
             <input
@@ -97,52 +91,26 @@ export default function AllStudents() {
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Filter by Class</label>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Filter by Current Class</label>
             <select
               value={filters.class}
               onChange={(e) => setFilters(prev => ({ ...prev, class: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
             >
               <option value="">All Classes</option>
-              {[...new Set(students.map(s => s.class))].sort().map(cls => (
+              {[...new Set(students.map(s => s.current_class))].sort().map(cls => (
                 <option key={cls} value={cls}>{cls}</option>
               ))}
             </select>
           </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Filter by Session</label>
-            <select
-              value={filters.session}
-              onChange={(e) => setFilters(prev => ({ ...prev, session: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
-            >
-              <option value="">All Sessions</option>
-              {[...new Set(students.map(s => s.session))].sort().reverse().map(session => (
-                <option key={session} value={session}>{session}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">Filter by Term</label>
-            <select
-              value={filters.term}
-              onChange={(e) => setFilters(prev => ({ ...prev, term: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
-            >
-              <option value="">All Terms</option>
-              <option value="First Term">First Term</option>
-              <option value="Second Term">Second Term</option>
-              <option value="Third Term">Third Term</option>
-            </select>
-          </div>
         </div>
-        {(filters.search || filters.class || filters.session || filters.term) && (
+        {(filters.search || filters.class) && (
           <div className="mt-3 flex items-center justify-between">
             <p className="text-sm text-gray-600">
-              Showing {filteredStudents.length} of {students.length} report cards
+              Showing {filteredStudents.length} of {students.length} students
             </p>
             <button
-              onClick={() => setFilters({ class: '', session: '', term: '', search: '' })}
+              onClick={() => setFilters({ class: '', search: '' })}
               className="text-sm text-primary-600 hover:text-primary-900 font-medium"
             >
               Clear Filters
@@ -175,16 +143,15 @@ export default function AllStudents() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Class</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Term</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Session</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Class</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Reports</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredStudents.map((student) => (
-                <tr key={student.id} className="hover:bg-gray-50">
+                <tr key={student.admission_no} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
@@ -200,32 +167,23 @@ export default function AllStudents() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                      {student.class}
+                      {student.current_class}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.term}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.session}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                      {student.total_reports} {student.total_reports === 1 ? 'Report' : 'Reports'}
+                    </span>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(student.created_at).toLocaleDateString()}
+                    {new Date(student.latest_report_date).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
-                      onClick={() => handleViewProfile(student.admission_no)}
-                      className="text-purple-600 hover:text-purple-900 mr-4"
+                      onClick={() => handleViewReports(student.admission_no)}
+                      className="text-primary-600 hover:text-primary-900"
                     >
-                      Profile
-                    </button>
-                    <button
-                      onClick={() => handleViewReport(student.id)}
-                      className="text-primary-600 hover:text-primary-900 mr-4"
-                    >
-                      View
-                    </button>
-                    <button
-                      onClick={() => handleEditReport(student.id)}
-                      className="text-green-600 hover:text-green-900"
-                    >
-                      Edit
+                      View Reports
                     </button>
                   </td>
                 </tr>

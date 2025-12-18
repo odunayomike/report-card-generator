@@ -156,8 +156,24 @@ export default function StudentProfile() {
             {/* All Report Cards Grouped by Session and Class */}
             <h2 className="text-lg font-bold text-gray-900 mb-3">All Report Cards ({viewingProfile.totalReports})</h2>
 
-            {/* Group reports by session and class */}
-            {Object.entries(
+            {/* Check if student has any valid reports */}
+            {!viewingProfile.reports || viewingProfile.reports.length === 0 || viewingProfile.totalReports === 0 ? (
+              <div className="bg-gray-50 rounded-lg p-8 text-center">
+                <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Report Cards Generated</h3>
+                <p className="text-sm text-gray-500 mb-4">This student doesn't have any report cards yet.</p>
+                <button
+                  onClick={() => navigate('/dashboard/create')}
+                  className="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700"
+                >
+                  Create Report Card
+                </button>
+              </div>
+            ) : (
+              /* Group reports by session and class */
+              Object.entries(
               viewingProfile.reports.reduce((acc, report) => {
                 const key = `${report.session} - ${report.class}`;
                 if (!acc[key]) acc[key] = [];
@@ -218,7 +234,8 @@ export default function StudentProfile() {
                   ))}
                 </div>
               </div>
-            ))}
+            ))
+            )}
           </div>
         </div>
       </div>

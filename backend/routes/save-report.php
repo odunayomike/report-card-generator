@@ -230,13 +230,20 @@ try {
                   VALUES (:student_id, :teacher_name, :teacher_remark, :principal_name, :principal_remark, :next_term_begins)";
 
         $stmt = $db->prepare($query);
+
+        // Handle next_term_begins date - convert empty string to NULL or use valid date
+        $nextTermBegins = $data['nextTermBegins'] ?? '';
+        if (empty($nextTermBegins)) {
+            $nextTermBegins = null;
+        }
+
         $stmt->execute([
             ':student_id' => $student_id,
             ':teacher_name' => $data['teacherName'] ?? '',
             ':teacher_remark' => $data['teacherRemark'] ?? '',
             ':principal_name' => $data['principalName'] ?? '',
             ':principal_remark' => $data['principalRemark'] ?? '',
-            ':next_term_begins' => $data['nextTermBegins'] ?? date('Y-m-d')
+            ':next_term_begins' => $nextTermBegins
         ]);
     }
 

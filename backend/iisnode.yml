@@ -1,0 +1,5 @@
+# IIS Node configuration
+nodeProcessCommandLine: "node"
+node_env: production
+loggingEnabled: true
+devErrorsEnabled: false

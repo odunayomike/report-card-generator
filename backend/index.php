@@ -184,6 +184,16 @@ try {
             require __DIR__ . '/routes/pdf-view.php';
             break;
 
+        // Contact form submission
+        case '/contact':
+            if ($request_method === 'POST') {
+                require __DIR__ . '/routes/contact.php';
+            } else {
+                http_response_code(405);
+                echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            }
+            break;
+
         // Subscription routes
         case '/subscription/get-plans':
             require __DIR__ . '/routes/subscription/get-plans.php';

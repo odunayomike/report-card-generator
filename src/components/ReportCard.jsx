@@ -60,6 +60,13 @@ export default function ReportCard({ data, school, hideButtons = false }) {
   // Filter subjects that have grades
   const subjectsWithGrades = data.subjects.filter(s => s.total);
 
+  // Calculate grade distribution
+  const gradeDistribution = subjectsWithGrades.reduce((acc, subject) => {
+    const { grade } = getGradeAndRemark(subject.total);
+    acc[grade] = (acc[grade] || 0) + 1;
+    return acc;
+  }, {});
+
   const handlePrint = () => {
     window.print();
   };
@@ -165,7 +172,7 @@ export default function ReportCard({ data, school, hideButtons = false }) {
               </div>
             )}
             <div className="text-center flex-1 -mt-2">
-              <h1 className="text-lg font-bold tracking-wide leading-tight">{school?.school_name?.toUpperCase() || 'SCHOOL NAME'}</h1>
+              <h1 className="text-2xl font-bold tracking-wide leading-tight" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>{school?.school_name?.toUpperCase() || 'SCHOOL NAME'}</h1>
               {school?.show_motto_on_report !== false && school?.motto && (
                 <p className="text-[10px] italic mt-0.5">"{school.motto}"</p>
               )}
@@ -306,6 +313,12 @@ export default function ReportCard({ data, school, hideButtons = false }) {
                     <td className="border border-black px-1 py-0.5 text-center text-[7px]">{performance.obtainable}</td>
                   </tr>
                   <tr>
+                    <td className="border border-black px-1 py-0.5 font-bold text-[7px]">Average Score:</td>
+                    <td className="border border-black px-1 py-0.5 text-center font-bold text-[7px]">{performance.average}</td>
+                    <td className="border border-black px-1 py-0.5 font-bold text-[7px]">Percentage:</td>
+                    <td className="border border-black px-1 py-0.5 text-center font-bold text-[7px]">{performance.average}%</td>
+                  </tr>
+                  <tr>
                     <td className="border border-black px-1 py-0.5 font-bold text-[7px]" colSpan="2">GRADE:</td>
                     <td className="border border-black px-1 py-0.5 text-center font-bold text-[7px]" colSpan="2">{performance.grade}</td>
                   </tr>
@@ -317,15 +330,6 @@ export default function ReportCard({ data, school, hideButtons = false }) {
               </table>
             </div>
 
-            {/* Grading Scale */}
-            <div className="mt-2 text-[8px] leading-tight">
-              <p><strong>
-                {gradingScale.A[0]}-{gradingScale.A[1]}%=EXCELLENT (A); {gradingScale.B[0]}-{gradingScale.B[1]}%=VERY GOOD (B); {gradingScale.C[0]}-{gradingScale.C[1]}%=GOOD (C);
-              </strong></p>
-              <p><strong>
-                {gradingScale.D[0]}-{gradingScale.D[1]}%=FAIR (D); {gradingScale.F[0]}-{gradingScale.F[1]}%=FAIL (F)
-              </strong></p>
-            </div>
           </div>
 
           {/* Right Column - Attendance, Affective, and Psychomotor */}
@@ -464,16 +468,59 @@ export default function ReportCard({ data, school, hideButtons = false }) {
               <tbody>
                 <tr>
                   <td className="border border-black px-1 py-0.5 text-[7px]">NO</td>
-                  <td className="border border-black px-1 py-0.5 text-center text-[7px]"></td>
-                  <td className="border border-black px-1 py-0.5 text-center text-[7px]"></td>
-                  <td className="border border-black px-1 py-0.5 text-center text-[7px]"></td>
-                  <td className="border border-black px-1 py-0.5 text-center text-[7px]"></td>
-                  <td className="border border-black px-1 py-0.5 text-center text-[7px]"></td>
-                  <td className="border border-black px-1 py-0.5 text-center text-[7px]"></td>
+                  <td className="border border-black px-1 py-0.5 text-center text-[7px]">{gradeDistribution.A || 0}</td>
+                  <td className="border border-black px-1 py-0.5 text-center text-[7px]">{gradeDistribution.B || 0}</td>
+                  <td className="border border-black px-1 py-0.5 text-center text-[7px]">{gradeDistribution.C || 0}</td>
+                  <td className="border border-black px-1 py-0.5 text-center text-[7px]">{gradeDistribution.D || 0}</td>
+                  <td className="border border-black px-1 py-0.5 text-center text-[7px]">{gradeDistribution.E || 0}</td>
+                  <td className="border border-black px-1 py-0.5 text-center text-[7px]">{gradeDistribution.F || 0}</td>
                 </tr>
                 <tr>
                   <td className="border border-black px-1 py-0.5 text-[7px] font-bold" colSpan="3">TOTAL SUBJECTS OFFERED</td>
                   <td className="border border-black px-1 py-0.5 text-center font-bold text-[7px]" colSpan="4">{subjectsWithGrades.length}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Grading Scale */}
+          <div className="">
+            <div className="bg-gray-200 border-b-2 border-black px-1 py-0.5 text-center font-bold text-[8px]">
+              GRADING SCALE
+            </div>
+            <table className="w-full text-[7px]">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="border border-black px-1 py-0.5 text-[7px]">SCORE</th>
+                  <th className="border border-black px-1 py-0.5 text-center text-[7px]">GRADE</th>
+                  <th className="border border-black px-1 py-0.5 text-[7px]">REMARK</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border border-black px-1 py-0.5 text-[7px]">{gradingScale.A[0]}-{gradingScale.A[1]}%</td>
+                  <td className="border border-black px-1 py-0.5 text-center font-bold text-[7px]">A</td>
+                  <td className="border border-black px-1 py-0.5 text-[7px]">EXCELLENT</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-1 py-0.5 text-[7px]">{gradingScale.B[0]}-{gradingScale.B[1]}%</td>
+                  <td className="border border-black px-1 py-0.5 text-center font-bold text-[7px]">B</td>
+                  <td className="border border-black px-1 py-0.5 text-[7px]">VERY GOOD</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-1 py-0.5 text-[7px]">{gradingScale.C[0]}-{gradingScale.C[1]}%</td>
+                  <td className="border border-black px-1 py-0.5 text-center font-bold text-[7px]">C</td>
+                  <td className="border border-black px-1 py-0.5 text-[7px]">GOOD</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-1 py-0.5 text-[7px]">{gradingScale.D[0]}-{gradingScale.D[1]}%</td>
+                  <td className="border border-black px-1 py-0.5 text-center font-bold text-[7px]">D</td>
+                  <td className="border border-black px-1 py-0.5 text-[7px]">FAIR</td>
+                </tr>
+                <tr>
+                  <td className="border border-black px-1 py-0.5 text-[7px]">{gradingScale.F[0]}-{gradingScale.F[1]}%</td>
+                  <td className="border border-black px-1 py-0.5 text-center font-bold text-[7px]">F</td>
+                  <td className="border border-black px-1 py-0.5 text-[7px]">FAIL</td>
                 </tr>
               </tbody>
             </table>

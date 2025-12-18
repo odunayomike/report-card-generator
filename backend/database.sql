@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS remarks (
     teacher_remark TEXT NOT NULL,
     principal_name VARCHAR(255) NOT NULL,
     principal_remark TEXT NOT NULL,
-    next_term_begins DATE NOT NULL,
+    next_term_begins DATE NULL,
     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
 );
 

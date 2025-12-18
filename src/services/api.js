@@ -571,3 +571,25 @@ export const getSubscriptionStatus = async () => {
     throw error;
   }
 };
+
+/**
+ * Submit contact form
+ * @param {Object} contactData - Contact form data
+ * @returns {Promise} - API response
+ */
+export const submitContactForm = async (contactData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/contact`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(contactData)
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error submitting contact form:', error);
+    throw error;
+  }
+};

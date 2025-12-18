@@ -55,6 +55,7 @@ export default function ViewReport({ school }) {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        toast.success('PDF downloaded successfully!');
       } else {
         throw new Error(response.message || 'Failed to generate PDF');
       }
