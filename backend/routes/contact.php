@@ -130,6 +130,11 @@ $htmlBody = "
 </html>
 ";
 
+// Configure SMTP settings (for Windows hosting)
+ini_set('SMTP', 'localhost'); // Your hosting provider's SMTP server
+ini_set('smtp_port', '25');
+ini_set('sendmail_from', 'noreply@schoolhub.tech');
+
 // Email headers
 $headers = "From: SchoolHub <noreply@schoolhub.tech>\r\n";
 $headers .= "Reply-To: {$email}\r\n";
@@ -137,7 +142,7 @@ $headers .= "MIME-Version: 1.0\r\n";
 $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 
 // Send email
-$mailSent = mail($to, $emailSubject, $htmlBody, $headers);
+$mailSent = @mail($to, $emailSubject, $htmlBody, $headers);
 
 if ($mailSent) {
     // Also send confirmation email to user

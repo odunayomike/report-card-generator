@@ -86,6 +86,44 @@ try {
             require __DIR__ . '/routes/auth/teacher-check-session.php';
             break;
 
+        // Super Admin Auth routes
+        case '/super-admin/login':
+            require __DIR__ . '/routes/super-admin/login.php';
+            break;
+
+        case '/super-admin/logout':
+            require __DIR__ . '/routes/super-admin/logout.php';
+            break;
+
+        case '/super-admin/check-session':
+            require __DIR__ . '/routes/super-admin/check-session.php';
+            break;
+
+        // Super Admin Management routes
+        case '/super-admin/get-analytics':
+            require __DIR__ . '/routes/super-admin/get-analytics.php';
+            break;
+
+        case '/super-admin/get-all-schools':
+            require __DIR__ . '/routes/super-admin/get-all-schools.php';
+            break;
+
+        case '/super-admin/get-school-details':
+            require __DIR__ . '/routes/super-admin/get-school-details.php';
+            break;
+
+        case '/super-admin/toggle-school-status':
+            require __DIR__ . '/routes/super-admin/toggle-school-status.php';
+            break;
+
+        case '/super-admin/update-school-subscription':
+            require __DIR__ . '/routes/super-admin/update-school-subscription.php';
+            break;
+
+        case '/super-admin/get-all-students':
+            require __DIR__ . '/routes/super-admin/get-all-students.php';
+            break;
+
         // Teacher Management routes (for schools)
         case '/teachers/create':
             require __DIR__ . '/routes/teachers/create.php';

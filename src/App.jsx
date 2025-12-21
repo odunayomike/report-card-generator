@@ -29,10 +29,16 @@ import Contact from './pages/Contact';
 import Pricing from './pages/Pricing';
 import FAQ from './pages/FAQ';
 import Subscription from './pages/Subscription';
+import SuperAdminLogin from './pages/SuperAdminLogin';
+import SuperAdminLayout from './components/SuperAdminLayout';
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import ManageSchools from './pages/ManageSchools';
+import AllStudentsAdmin from './pages/AllStudentsAdmin';
 
 function App() {
   const [school, setSchool] = useState(null);
   const [teacher, setTeacher] = useState(null);
+  const [superAdmin, setSuperAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Check if user is already logged in
@@ -42,23 +48,35 @@ function App() {
 
   const checkSession = async () => {
     try {
-      // Check school session
-      const schoolResponse = await fetch(`${API_BASE_URL}/auth/check-session`, {
+      // Check super admin session first
+      const superAdminResponse = await fetch(`${API_BASE_URL}/super-admin/check-session`, {
         credentials: 'include'
       });
-      const schoolData = await schoolResponse.json();
+      const superAdminData = await superAdminResponse.json();
 
-      if (schoolData.authenticated) {
-        setSchool(schoolData.school);
+      if (superAdminData.authenticated) {
+        setSuperAdmin(superAdminData.user);
+        localStorage.setItem('userType', 'super_admin');
+        localStorage.setItem('superAdminData', JSON.stringify(superAdminData.user));
       } else {
-        // Check teacher session if school is not authenticated
-        const teacherResponse = await fetch(`${API_BASE_URL}/auth/teacher-check-session`, {
+        // Check school session
+        const schoolResponse = await fetch(`${API_BASE_URL}/auth/check-session`, {
           credentials: 'include'
         });
-        const teacherData = await teacherResponse.json();
+        const schoolData = await schoolResponse.json();
 
-        if (teacherData.authenticated) {
-          setTeacher(teacherData.user);
+        if (schoolData.authenticated) {
+          setSchool(schoolData.school);
+        } else {
+          // Check teacher session if school is not authenticated
+          const teacherResponse = await fetch(`${API_BASE_URL}/auth/teacher-check-session`, {
+            credentials: 'include'
+          });
+          const teacherData = await teacherResponse.json();
+
+          if (teacherData.authenticated) {
+            setTeacher(teacherData.user);
+          }
         }
       }
     } catch (error) {
@@ -86,6 +104,16 @@ function App() {
 
   const handleTeacherLogout = () => {
     setTeacher(null);
+  };
+
+  const handleSuperAdminLogin = (superAdminData) => {
+    setSuperAdmin(superAdminData);
+  };
+
+  const handleSuperAdminLogout = () => {
+    setSuperAdmin(null);
+    localStorage.removeItem('userType');
+    localStorage.removeItem('superAdminData');
   };
 
   const refreshSchool = async () => {
@@ -136,6 +164,22 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/faq" element={<FAQ />} />
+
+        {/* Super Admin Routes */}
+        <Route
+          path="/super-admin/login"
+          element={superAdmin ? <Navigate to="/super-admin/dashboard" /> : <SuperAdminLogin onLogin={handleSuperAdminLogin} />}
+        />
+        <Route
+          path="/super-admin"
+          element={superAdmin ? <SuperAdminLayout superAdmin={superAdmin} onLogout={handleSuperAdminLogout} /> : <Navigate to="/super-admin/login" />}
+        >
+          <Route path="dashboard" element={<SuperAdminDashboard />} />
+          <Route path="schools" element={<ManageSchools />} />
+          <Route path="students" element={<AllStudentsAdmin />} />
+          <Route path="analytics" element={<SuperAdminDashboard />} />
+          <Route path="activity-log" element={<ComingSoon feature="Activity Log" />} />
+        </Route>
 
         {/* Dashboard Routes with Nested Layout */}
         <Route

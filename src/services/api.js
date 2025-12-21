@@ -593,3 +593,192 @@ export const submitContactForm = async (contactData) => {
     throw error;
   }
 };
+
+// ============================
+// SUPER ADMIN API FUNCTIONS
+// ============================
+
+/**
+ * Super Admin Login
+ * @param {string} email - Admin email
+ * @param {string} password - Admin password
+ * @returns {Promise} - API response with user data
+ */
+export const superAdminLogin = async (email, password) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/super-admin/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ email, password })
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error logging in as super admin:', error);
+    throw error;
+  }
+};
+
+/**
+ * Super Admin Logout
+ * @returns {Promise} - API response
+ */
+export const superAdminLogout = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/super-admin/logout`, {
+      method: 'POST',
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error logging out:', error);
+    throw error;
+  }
+};
+
+/**
+ * Check Super Admin Session
+ * @returns {Promise} - API response with session status
+ */
+export const checkSuperAdminSession = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/super-admin/check-session`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error checking super admin session:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get Super Admin Analytics Dashboard Data
+ * @returns {Promise} - API response with analytics
+ */
+export const getSuperAdminAnalytics = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/super-admin/get-analytics`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching super admin analytics:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get All Schools (Super Admin)
+ * @param {Object} params - Query parameters (page, limit, status, search)
+ * @returns {Promise} - API response with schools list
+ */
+export const getAllSchools = async (params = {}) => {
+  try {
+    const queryParams = new URLSearchParams(params).toString();
+    const response = await fetch(`${API_BASE_URL}/super-admin/get-all-schools?${queryParams}`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching all schools:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get School Details (Super Admin)
+ * @param {number} schoolId - School ID
+ * @returns {Promise} - API response with school details
+ */
+export const getSchoolDetails = async (schoolId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/super-admin/get-school-details?school_id=${schoolId}`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching school details:', error);
+    throw error;
+  }
+};
+
+/**
+ * Toggle School Active Status (Super Admin)
+ * @param {number} schoolId - School ID
+ * @param {boolean} isActive - New active status
+ * @returns {Promise} - API response
+ */
+export const toggleSchoolStatus = async (schoolId, isActive) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/super-admin/toggle-school-status`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ school_id: schoolId, is_active: isActive })
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error toggling school status:', error);
+    throw error;
+  }
+};
+
+/**
+ * Update School Subscription (Super Admin Override)
+ * @param {number} schoolId - School ID
+ * @param {string} subscriptionStatus - New subscription status (active, trial, expired)
+ * @param {string} subscriptionEndDate - New end date (YYYY-MM-DD)
+ * @returns {Promise} - API response
+ */
+export const updateSchoolSubscription = async (schoolId, subscriptionStatus, subscriptionEndDate) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/super-admin/update-school-subscription`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        school_id: schoolId,
+        subscription_status: subscriptionStatus,
+        subscription_end_date: subscriptionEndDate
+      })
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error updating school subscription:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get All Students Across All Schools (Super Admin)
+ * @param {Object} params - Query parameters (page, limit, school_id, class, session, term, search)
+ * @returns {Promise} - API response with students list
+ */
+export const getAllStudentsAdmin = async (params = {}) => {
+  try {
+    const queryParams = new URLSearchParams(params).toString();
+    const response = await fetch(`${API_BASE_URL}/super-admin/get-all-students?${queryParams}`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching all students:', error);
+    throw error;
+  }
+};
