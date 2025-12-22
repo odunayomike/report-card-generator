@@ -3,15 +3,25 @@ import { Link } from 'react-router-dom';
 import { Check, Zap, ChevronDown } from 'lucide-react';
 import schoolLogo from '../assets/schoolhub.png';
 import SEO from '../components/SEO';
+import CurrencySelector from '../components/CurrencySelector';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 export default function Pricing() {
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
+  const { formatPrice, currency } = useCurrency();
+
+  // Plan prices in NGN (base currency)
+  const plans = {
+    monthly: { price: 15000, savings: 0, perMonth: 15000 },
+    term: { price: 40000, savings: 5000, perMonth: 13333 },
+    yearly: { price: 150000, savings: 30000, perMonth: 12500 }
+  };
 
   return (
     <>
       <SEO
-        title="Pricing - SchoolHub | ₦5,000/Month School Management Software Nigeria"
-        description="Simple, affordable pricing for Nigerian schools. Only ₦5,000 per month. All features included: report cards, student management, attendance tracking, analytics, and more. 7-day free trial available."
+        title="Pricing - SchoolHub | Starting ₦15,000/Month School Management Software Nigeria"
+        description="Flexible pricing for Nigerian schools. Monthly ₦15,000, Per Term ₦40,000, or Yearly ₦150,000. All features included: report cards, student management, attendance tracking, analytics, and more. 7-day free trial available."
         keywords="schoolhub pricing, school management software cost Nigeria, school software pricing, affordable school management system, school portal pricing Nigeria, report card software cost"
         url="/pricing"
       />
@@ -91,6 +101,8 @@ export default function Pricing() {
                   )}
                 </div>
 
+                <CurrencySelector />
+
                 <Link
                   to="/register"
                   className="px-6 py-2.5 text-white rounded-lg hover:shadow-lg transition-all font-semibold"
@@ -114,7 +126,7 @@ export default function Pricing() {
                 </span>
               </h1>
               <p className="text-xl text-gray-600 leading-relaxed">
-                One plan, all features included. No hidden fees, no surprises.
+                Choose the plan that works for you. All features included. No hidden fees, no surprises.
                 Everything your school needs to succeed.
               </p>
               <div className="mt-8 inline-flex items-center gap-2 px-6 py-3 bg-white rounded-full shadow-sm">
@@ -126,8 +138,8 @@ export default function Pricing() {
 
         {/* Pricing Cards */}
         <section className="py-20 bg-white">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
               {/* Monthly Plan */}
               <div className="bg-white rounded-2xl p-6 border-2 shadow-lg hover:shadow-xl transition-shadow" style={{borderColor: '#1791C8'}}>
@@ -140,7 +152,7 @@ export default function Pricing() {
 
                   <div className="mb-6">
                     <div className="flex items-baseline justify-center gap-2">
-                      <span className="text-4xl font-bold text-gray-900">₦5,000</span>
+                      <span className="text-4xl font-bold text-gray-900">{formatPrice(plans.monthly.price)}</span>
                       <span className="text-lg text-gray-600">/ month</span>
                     </div>
                     <p className="text-gray-500 mt-2 text-xs">Billed monthly • Cancel anytime</p>
@@ -175,8 +187,10 @@ export default function Pricing() {
                     'Cloud storage',
                     'Daily backups',
                     'Email support',
-                    'Auto-debit payments',
-                    'Subscription management'
+                    'Subscription management',
+                    'Computer-Based Testing (CBT)',
+                    'Online exams & grading',
+                    'Guardian/Parent app'
                   ].map((feature, index) => (
                     <div key={index} className="flex items-start gap-2">
                       <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{color: '#1791C8'}} />
@@ -191,9 +205,7 @@ export default function Pricing() {
                 <div className="grid grid-cols-1 gap-2">
                   {[
                     'School accounting',
-                    'Fee management',
-                    'Computer-Based Testing (CBT)',
-                    'Online exams'
+                    'Fee management'
                   ].map((feature, index) => (
                     <div key={index} className="flex items-start gap-2">
                       <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-gray-400" />
@@ -204,36 +216,35 @@ export default function Pricing() {
               </div>
               </div>
 
-              {/* Annual Plan */}
-              <div className="bg-white rounded-2xl p-6 border-4 shadow-lg hover:shadow-xl transition-shadow relative" style={{borderColor: '#1791C8'}}>
+              {/* Per Term Plan */}
+              <div className="bg-white rounded-2xl p-6 border-4 shadow-lg hover:shadow-xl transition-shadow relative" style={{borderColor: '#6366F1'}}>
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">Save 17%</span>
+                  <span className="bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase">Most Popular</span>
                 </div>
                 <div className="text-center mb-6">
-                  <div className="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-4" style={{backgroundColor: '#CCE7F7'}}>
-                    <Zap className="w-6 h-6" style={{color: '#1791C8'}} />
+                  <div className="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-4" style={{backgroundColor: '#E0E7FF'}}>
+                    <Zap className="w-6 h-6 text-indigo-600" />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-1">Annual Plan</h2>
-                  <p className="text-gray-600 text-sm mb-4">Best value - 2 months free</p>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-1">Per Term Plan</h2>
+                  <p className="text-gray-600 text-sm mb-4">Perfect for academic terms</p>
 
                   <div className="mb-6">
                     <div className="flex items-baseline justify-center gap-2">
-                      <span className="text-4xl font-bold text-gray-900">₦50,000</span>
-                      <span className="text-lg text-gray-600">/ year</span>
+                      <span className="text-4xl font-bold text-gray-900">{formatPrice(plans.term.price)}</span>
+                      <span className="text-lg text-gray-600">/ term</span>
                     </div>
                     <div className="mt-2">
                       <p className="text-gray-500 text-sm">
-                        <span className="line-through text-gray-400">₦60,000</span>
-                        <span className="ml-2 text-green-600 font-semibold">Save ₦10,000/year</span>
+                        <span className="line-through text-gray-400">{formatPrice(plans.monthly.price * 3)}</span>
+                        <span className="ml-2 text-green-600 font-semibold">Save {formatPrice(plans.term.savings)}</span>
                       </p>
-                      <p className="text-gray-500 text-xs mt-1">Only ₦4,167/month • Billed annually</p>
+                      <p className="text-gray-500 text-xs mt-1">Only {formatPrice(plans.term.perMonth)}/month • 3 months</p>
                     </div>
                   </div>
 
                   <Link
                     to="/register"
-                    className="inline-block w-full py-3 text-white rounded-lg hover:shadow-xl transition-all font-bold text-base"
-                    style={{backgroundColor: '#1791C8'}}
+                    className="inline-block w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 hover:shadow-xl transition-all font-bold text-base"
                   >
                     Start Free Trial
                   </Link>
@@ -259,8 +270,93 @@ export default function Pricing() {
                     'Cloud storage',
                     'Daily backups',
                     'Email support',
-                    'Auto-debit payments',
-                    'Subscription management'
+                    'Subscription management',
+                    'Computer-Based Testing (CBT)',
+                    'Online exams & grading',
+                    'Guardian/Parent app'
+                  ].map((feature, index) => (
+                    <div key={index} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-indigo-600" />
+                      <span className="text-gray-700 text-sm">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <h3 className="text-base font-bold text-gray-900 mb-3 text-center">Coming Soon</h3>
+                <div className="grid grid-cols-1 gap-2">
+                  {[
+                    'School accounting',
+                    'Fee management'
+                  ].map((feature, index) => (
+                    <div key={index} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-gray-400" />
+                      <span className="text-gray-500 text-sm">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              </div>
+
+              {/* Annual Plan */}
+              <div className="bg-white rounded-2xl p-6 border-2 shadow-lg hover:shadow-xl transition-shadow relative" style={{borderColor: '#10B981'}}>
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">Best Value - Save ₦30,000</span>
+                </div>
+                <div className="text-center mb-6">
+                  <div className="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-4" style={{backgroundColor: '#D1FAE5'}}>
+                    <Zap className="w-6 h-6 text-green-600" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-1">Annual Plan</h2>
+                  <p className="text-gray-600 text-sm mb-4">Best value - Full year coverage</p>
+
+                  <div className="mb-6">
+                    <div className="flex items-baseline justify-center gap-2">
+                      <span className="text-4xl font-bold text-gray-900">{formatPrice(plans.yearly.price)}</span>
+                      <span className="text-lg text-gray-600">/ year</span>
+                    </div>
+                    <div className="mt-2">
+                      <p className="text-gray-500 text-sm">
+                        <span className="line-through text-gray-400">{formatPrice(plans.monthly.price * 12)}</span>
+                        <span className="ml-2 text-green-600 font-semibold">Save {formatPrice(plans.yearly.savings)}/year</span>
+                      </p>
+                      <p className="text-gray-500 text-xs mt-1">Only {formatPrice(plans.yearly.perMonth)}/month • Billed annually</p>
+                    </div>
+                  </div>
+
+                  <Link
+                    to="/register"
+                    className="inline-block w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 hover:shadow-xl transition-all font-bold text-base"
+                  >
+                    Start Free Trial
+                  </Link>
+                </div>
+
+              <div className="border-t border-gray-200 pt-6 mt-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4 text-center">All Features Included</h3>
+                <div className="flex flex-wrap gap-x-4 gap-y-2">
+                  {[
+                    'Unlimited students',
+                    'Unlimited teacher accounts',
+                    'Report card generation',
+                    'Student management',
+                    'Attendance tracking',
+                    'Performance analytics',
+                    'Real-time dashboard',
+                    'School branding & logo',
+                    'Grade management',
+                    'Class management',
+                    'Student profiles',
+                    'PDF export',
+                    'Mobile access',
+                    'Cloud storage',
+                    'Daily backups',
+                    'Email support',
+                    'Subscription management',
+                    'Computer-Based Testing (CBT)',
+                    'Online exams & grading',
+                    'Guardian/Parent app'
                   ].map((feature, index) => (
                     <div key={index} className="flex items-start gap-2">
                       <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{color: '#1791C8'}} />
@@ -275,9 +371,7 @@ export default function Pricing() {
                 <div className="grid grid-cols-1 gap-2">
                   {[
                     'School accounting',
-                    'Fee management',
-                    'Computer-Based Testing (CBT)',
-                    'Online exams'
+                    'Fee management'
                   ].map((feature, index) => (
                     <div key={index} className="flex items-start gap-2">
                       <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-gray-400" />
@@ -313,7 +407,7 @@ export default function Pricing() {
                 },
                 {
                   question: 'Are there any setup fees or hidden charges?',
-                  answer: 'No! The price you see is what you pay. There are no setup fees, no hidden charges, and no surprise costs. Just ₦5,000 per month.'
+                  answer: 'No! The price you see is what you pay. There are no setup fees, no hidden charges, and no surprise costs. Choose from our flexible plans: Monthly (₦15,000), Per Term (₦40,000), or Yearly (₦150,000).'
                 },
                 {
                   question: 'What happens after the free trial?',
@@ -324,8 +418,8 @@ export default function Pricing() {
                   answer: 'Yes, you can cancel your subscription at any time. Your account will remain active until the end of your current billing period. You can export your data for 30 days after cancellation.'
                 },
                 {
-                  question: 'Do you offer discounts for annual payments?',
-                  answer: 'Yes! Pay annually and get 2 months free (only pay for 10 months). Contact our sales team for annual pricing.'
+                  question: 'Do you offer discounts for longer-term plans?',
+                  answer: 'Yes! Save ₦5,000 with our Per Term plan (₦40,000 for 3 months) or save ₦30,000 with our Annual plan (₦150,000 for 12 months) compared to paying monthly.'
                 },
                 {
                   question: 'Is there a student limit?',

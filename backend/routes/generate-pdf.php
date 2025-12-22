@@ -113,7 +113,25 @@ $dataFile = __DIR__ . '/../temp/report_data_' . $timestamp . '.json';
 file_put_contents($dataFile, json_encode($fullReportData));
 
 // Call Node.js script to generate PDF with data file path
-$nodePath = 'node';
+// Try multiple node paths for production compatibility
+$possibleNodePaths = [
+    '/usr/bin/node',
+    '/usr/local/bin/node',
+    'node',
+    '/opt/node/bin/node',
+    '/home/*/nvm/versions/node/*/bin/node'
+];
+
+$nodePath = 'node'; // default
+foreach ($possibleNodePaths as $path) {
+    if (file_exists($path) || $path === 'node') {
+        $nodePath = $path;
+        if ($path !== 'node' && file_exists($path)) {
+            break; // Use first found absolute path
+        }
+    }
+}
+
 $scriptPath = __DIR__ . '/../pdf-service.js';
 $command = escapeshellcmd($nodePath) . ' ' . escapeshellarg($scriptPath) . ' ' .
            escapeshellarg($reportId) . ' ' .
@@ -127,7 +145,16 @@ register_shutdown_function(function() use ($dataFile) {
     }
 });
 
+// Log the command for debugging (only in development)
+if (defined('ENVIRONMENT') && ENVIRONMENT === 'development') {
+    error_log('PDF Generation Command: ' . $command);
+}
+
 exec($command, $output, $returnCode);
+
+// Log output for debugging
+error_log('PDF Generation Output: ' . implode("\n", $output));
+error_log('PDF Generation Return Code: ' . $returnCode);
 
 // Parse output
 $result = @json_decode(implode("\n", $output), true);

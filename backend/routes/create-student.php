@@ -74,8 +74,8 @@ try {
 
     // Insert new student
     $query = "INSERT INTO students
-              (school_id, name, admission_no, class, session, term, gender, height, weight, club_society, fav_col, photo)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+              (school_id, name, admission_no, class, session, term, gender, guardian_email, height, weight, club_society, fav_col, photo)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $db->prepare($query);
     $success = $stmt->execute([
@@ -86,6 +86,7 @@ try {
         $data['session'],
         $data['term'],
         $data['gender'],
+        $data['guardian_email'] ?? null,
         $data['height'] ?? null,
         $data['weight'] ?? null,
         $data['club_society'] ?? null,

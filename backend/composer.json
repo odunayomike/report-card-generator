@@ -1,0 +1,14 @@
+{
+    "name": "schoolhub/backend",
+    "description": "SchoolHub Backend Dependencies",
+    "type": "project",
+    "require": {
+        "php": ">=7.4",
+        "tecnickcom/tcpdf": "^6.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "SchoolHub\\": "src/"
+        }
+    }
+}

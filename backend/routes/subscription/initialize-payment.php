@@ -21,7 +21,7 @@ if (!isset($_SESSION['school_id'])) {
 try {
     $data = json_decode(file_get_contents('php://input'), true);
     $plan_id = $data['plan_id'] ?? null;
-    $plan_type = $data['plan_type'] ?? 'monthly'; // monthly or yearly
+    $plan_type = $data['plan_type'] ?? 'monthly'; // monthly, term, or yearly
 
     $school_id = $_SESSION['school_id'];
 
@@ -47,7 +47,8 @@ try {
         $plan = $stmt->fetch(PDO::FETCH_ASSOC);
     } else {
         // Lookup plan by type
-        $plan_name = $plan_type === 'yearly' ? 'Yearly Plan' : 'Monthly Plan';
+        $plan_name = $plan_type === 'yearly' ? 'Yearly Plan'
+            : ($plan_type === 'term' ? 'Per Term Plan' : 'Monthly Plan');
         $stmt = $db->prepare("SELECT * FROM subscription_plans WHERE plan_name = ? AND is_active = TRUE");
         $stmt->execute([$plan_name]);
         $plan = $stmt->fetch(PDO::FETCH_ASSOC);

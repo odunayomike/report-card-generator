@@ -18,6 +18,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
     admissionNo: '',
     term: '',
     gender: '',
+    guardianEmail: '',
     height: '',
     weight: '',
     clubSociety: '',
@@ -367,6 +368,24 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 <option value="MALE">MALE</option>
                 <option value="FEMALE">FEMALE</option>
               </select>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Guardian Email <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                name="guardianEmail"
+                value={formData.guardianEmail}
+                onChange={handleInputChange}
+                placeholder="parent@example.com or parent1@example.com, parent2@example.com"
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
+              />
+              <p className="text-[10px] text-gray-500 mt-1">
+                Enter parent/guardian email. You can enter multiple emails separated by commas.
+              </p>
             </div>
 
             <div>

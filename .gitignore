@@ -30,3 +30,7 @@ dist-ssr
 
 # Backend temporary files
 backend/temp/
+
+# PHP Composer dependencies
+backend/vendor/
+vendor/

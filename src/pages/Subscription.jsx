@@ -5,19 +5,39 @@ import { API_BASE_URL } from '../config/env';
 import { ToastContainer } from '../components/Toast';
 import { useToast } from '../hooks/useToast';
 import ConfirmDialog from '../components/ConfirmDialog';
+import CurrencySelector from '../components/CurrencySelector';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 export default function Subscription() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [subscriptionData, setSubscriptionData] = useState(null);
   const [processingPayment, setProcessingPayment] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState('monthly'); // 'monthly' or 'yearly'
+  const [selectedPlan, setSelectedPlan] = useState('monthly'); // 'monthly', 'term', or 'yearly'
+  const [plans, setPlans] = useState([]);
   const { toasts, removeToast, toast } = useToast();
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, message: '', onConfirm: null });
+  const { formatPrice } = useCurrency();
 
   useEffect(() => {
     loadSubscriptionStatus();
+    loadPlans();
   }, []);
+
+  const loadPlans = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/subscription/get-plans`, {
+        credentials: 'include'
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setPlans(data.plans || []);
+      }
+    } catch (error) {
+      console.error('Error loading plans:', error);
+    }
+  };
 
   const loadSubscriptionStatus = async () => {
     try {
@@ -111,9 +131,11 @@ export default function Subscription() {
   const daysRemaining = subscriptionData?.days_remaining || getDaysRemaining(subscriptionData?.end_date);
 
   // Determine current plan type
-  const currentPlanType = subscriptionData?.plan_name?.includes('Yearly') ? 'yearly' : 'monthly';
-  const canUpgrade = isActive && currentPlanType === 'monthly';
-  const canDowngrade = isActive && currentPlanType === 'yearly';
+  const currentPlanType = subscriptionData?.plan_name?.toLowerCase().includes('yearly') ? 'yearly'
+    : subscriptionData?.plan_name?.toLowerCase().includes('term') ? 'term'
+    : 'monthly';
+  const canUpgrade = isActive && (currentPlanType === 'monthly' || currentPlanType === 'term');
+  const canChangePlan = isActive;
 
   const handleChangePlan = async (newPlanType) => {
     try {
@@ -178,9 +200,12 @@ export default function Subscription() {
         type={confirmDialog.type}
       />
       <div className="max-w-4xl mx-auto">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Subscription Management</h2>
-          <p className="text-sm text-gray-600 mt-1">Manage your SchoolHub subscription and billing</p>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Subscription Management</h2>
+            <p className="text-sm text-gray-600 mt-1">Manage your SchoolHub subscription and billing</p>
+          </div>
+          <CurrencySelector />
         </div>
 
       {/* Current Status Card */}
@@ -268,53 +293,75 @@ export default function Subscription() {
         <div className="mb-6">
           <div className="bg-white rounded-lg shadow-lg p-4">
             <h3 className="text-lg font-bold text-gray-900 mb-4 text-center">Choose Your Plan</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {/* Monthly Plan */}
-              <button
-                onClick={() => setSelectedPlan('monthly')}
-                className={`p-6 rounded-lg border-2 transition-all ${
-                  selectedPlan === 'monthly'
-                    ? 'border-blue-600 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-900">₦5,000</div>
-                  <div className="text-sm text-gray-600 mt-1">per month</div>
-                  <div className="mt-3 text-xs text-gray-500">Billed monthly</div>
-                  {selectedPlan === 'monthly' && (
-                    <div className="mt-3">
-                      <Check className="w-5 h-5 text-blue-600 mx-auto" />
-                    </div>
-                  )}
-                </div>
-              </button>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {plans.map((plan, index) => {
+                const planKey = plan.plan_name.toLowerCase().includes('yearly') ? 'yearly'
+                  : plan.plan_name.toLowerCase().includes('term') ? 'term'
+                  : 'monthly';
+                const isPopular = planKey === 'term';
+                const savingsAmount = planKey === 'term' ? 5000
+                  : planKey === 'yearly' ? 30000
+                  : 0;
+                const savings = savingsAmount > 0 ? formatPrice(savingsAmount) : null;
+                const perMonthPrice = planKey === 'term' ? Math.round(plan.amount / 3)
+                  : planKey === 'yearly' ? Math.round(plan.amount / 12)
+                  : null;
 
-              {/* Yearly Plan */}
-              <button
-                onClick={() => setSelectedPlan('yearly')}
-                className={`p-6 rounded-lg border-2 transition-all relative ${
-                  selectedPlan === 'yearly'
-                    ? 'border-green-600 bg-green-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                    Save ₦10,000
-                  </span>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-900">₦50,000</div>
-                  <div className="text-sm text-gray-600 mt-1">per year</div>
-                  <div className="mt-3 text-xs text-gray-500">₦4,167/month when billed yearly</div>
-                  {selectedPlan === 'yearly' && (
-                    <div className="mt-3">
-                      <Check className="w-5 h-5 text-green-600 mx-auto" />
+                return (
+                  <button
+                    key={plan.id}
+                    onClick={() => setSelectedPlan(planKey)}
+                    className={`p-6 rounded-lg border-2 transition-all relative ${
+                      selectedPlan === planKey
+                        ? index === 0 ? 'border-blue-600 bg-blue-50'
+                        : index === 1 ? 'border-indigo-600 bg-indigo-50'
+                        : 'border-green-600 bg-green-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    {isPopular && (
+                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                        <span className="bg-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                          POPULAR
+                        </span>
+                      </div>
+                    )}
+                    {savings && !isPopular && (
+                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                        <span className="bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                          Save {savings}
+                        </span>
+                      </div>
+                    )}
+                    <div className="text-center">
+                      <div className="text-sm font-semibold text-gray-700 mb-2">{plan.plan_name}</div>
+                      <div className="text-3xl font-bold text-gray-900">
+                        {formatPrice(plan.amount)}
+                      </div>
+                      <div className="text-sm text-gray-600 mt-1">
+                        for {plan.duration_days} days
+                      </div>
+                      {perMonthPrice && (
+                        <div className="mt-2 text-xs text-gray-500">
+                          {formatPrice(perMonthPrice)}/month
+                        </div>
+                      )}
+                      <div className="mt-3 text-xs text-gray-500 min-h-[2.5rem]">
+                        {plan.description?.split('.')[0]}
+                      </div>
+                      {selectedPlan === planKey && (
+                        <div className="mt-3">
+                          <Check className={`w-5 h-5 mx-auto ${
+                            index === 0 ? 'text-blue-600'
+                            : index === 1 ? 'text-indigo-600'
+                            : 'text-green-600'
+                          }`} />
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </button>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -326,16 +373,26 @@ export default function Subscription() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-xl font-bold text-gray-900">
-                {selectedPlan === 'yearly' ? 'Yearly Plan' : 'Monthly Plan'}
+                {plans.find(p => {
+                  const key = p.plan_name.toLowerCase().includes('yearly') ? 'yearly'
+                    : p.plan_name.toLowerCase().includes('term') ? 'term'
+                    : 'monthly';
+                  return key === selectedPlan;
+                })?.plan_name || 'Selected Plan'}
               </h3>
               <p className="text-sm text-gray-600">All features included</p>
             </div>
             <div className="text-right">
               <div className="text-3xl font-bold text-gray-900">
-                {selectedPlan === 'yearly' ? '₦50,000' : '₦5,000'}
+                {formatPrice(plans.find(p => {
+                  const key = p.plan_name.toLowerCase().includes('yearly') ? 'yearly'
+                    : p.plan_name.toLowerCase().includes('term') ? 'term'
+                    : 'monthly';
+                  return key === selectedPlan;
+                })?.amount || 0)}
               </div>
               <div className="text-sm text-gray-600">
-                {selectedPlan === 'yearly' ? 'per year' : 'per month'}
+                {selectedPlan === 'yearly' ? 'per year' : selectedPlan === 'term' ? 'per term' : 'per month'}
               </div>
             </div>
           </div>
@@ -384,48 +441,62 @@ export default function Subscription() {
                   <Check className="w-5 h-5 text-green-600" />
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-green-900">
-                      Active {currentPlanType === 'yearly' ? 'Yearly' : 'Monthly'} Subscription
+                      Active {currentPlanType === 'yearly' ? 'Yearly' : currentPlanType === 'term' ? 'Per Term' : 'Monthly'} Subscription
                     </p>
                     <p className="text-xs text-green-700">Your subscription will renew automatically</p>
                   </div>
                 </div>
               </div>
 
-              {/* Upgrade/Downgrade Options */}
-              {(canUpgrade || canDowngrade) && (
+              {/* Change Plan Options */}
+              {canChangePlan && (
                 <div className="border-t border-gray-200 pt-4 mt-4">
                   <h4 className="text-sm font-semibold text-gray-900 mb-3">Change Plan</h4>
-                  {canUpgrade && (
-                    <button
-                      onClick={() => handleChangePlan('yearly')}
-                      disabled={processingPayment}
-                      className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:shadow-lg transition-all font-semibold flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed mb-2"
-                    >
-                      <div className="text-left">
-                        <div className="font-bold">Upgrade to Yearly Plan</div>
-                        <div className="text-xs text-green-100">Save ₦10,000 per year</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-bold">₦50,000/year</div>
-                        <div className="text-xs text-green-100">₦4,167/month</div>
-                      </div>
-                    </button>
-                  )}
-                  {canDowngrade && (
-                    <button
-                      onClick={() => handleChangePlan('monthly')}
-                      disabled={processingPayment}
-                      className="w-full px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all font-semibold flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <div className="text-left">
-                        <div className="font-bold">Switch to Monthly Plan</div>
-                        <div className="text-xs text-gray-200">More flexibility, pay monthly</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-bold">₦5,000/month</div>
-                      </div>
-                    </button>
-                  )}
+                  <div className="space-y-2">
+                    {plans.filter(plan => {
+                      const planKey = plan.plan_name.toLowerCase().includes('yearly') ? 'yearly'
+                        : plan.plan_name.toLowerCase().includes('term') ? 'term'
+                        : 'monthly';
+                      return planKey !== currentPlanType;
+                    }).map((plan) => {
+                      const planKey = plan.plan_name.toLowerCase().includes('yearly') ? 'yearly'
+                        : plan.plan_name.toLowerCase().includes('term') ? 'term'
+                        : 'monthly';
+                      const isUpgrade = (currentPlanType === 'monthly' && (planKey === 'term' || planKey === 'yearly'))
+                        || (currentPlanType === 'term' && planKey === 'yearly');
+                      const perMonth = planKey === 'term' ? Math.round(plan.amount / 3)
+                        : planKey === 'yearly' ? Math.round(plan.amount / 12)
+                        : null;
+
+                      return (
+                        <button
+                          key={plan.id}
+                          onClick={() => handleChangePlan(planKey)}
+                          disabled={processingPayment}
+                          className={`w-full px-4 py-3 text-white rounded-lg hover:shadow-lg transition-all font-semibold flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed ${
+                            isUpgrade
+                              ? 'bg-gradient-to-r from-green-600 to-green-700'
+                              : 'bg-gray-600 hover:bg-gray-700'
+                          }`}
+                        >
+                          <div className="text-left">
+                            <div className="font-bold">{isUpgrade ? 'Upgrade' : 'Switch'} to {plan.plan_name}</div>
+                            <div className={`text-xs ${isUpgrade ? 'text-green-100' : 'text-gray-200'}`}>
+                              {plan.description?.split('.')[0]}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold">{formatPrice(plan.amount)}/{planKey === 'yearly' ? 'year' : planKey === 'term' ? 'term' : 'month'}</div>
+                            {perMonth && (
+                              <div className={`text-xs ${isUpgrade ? 'text-green-100' : 'text-gray-200'}`}>
+                                {formatPrice(perMonth)}/month
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>

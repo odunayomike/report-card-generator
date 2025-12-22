@@ -743,10 +743,19 @@ async function generatePDF(reportId, dataFilePath, outputPath) {
     // Generate HTML content
     const html = generateReportHTML(reportData);
 
-    // Launch headless browser
+    // Launch headless browser with production-friendly settings
     browser = await puppeteer.launch({
       headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-gpu'
+      ],
+      timeout: 60000
     });
 
     const page = await browser.newPage();

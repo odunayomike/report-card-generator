@@ -78,6 +78,7 @@ try {
 
         $query = "UPDATE students
                   SET name = :name, class = :class, gender = :gender,
+                      guardian_email = :guardian_email,
                       height = :height, weight = :weight,
                       club_society = :club_society, fav_col = :fav_col,
                       photo = :photo, updated_at = CURRENT_TIMESTAMP
@@ -89,6 +90,7 @@ try {
             ':name' => $data['name'] ?? '',
             ':class' => $data['class'] ?? '',
             ':gender' => $data['gender'] ?? '',
+            ':guardian_email' => $data['guardianEmail'] ?? null,
             ':height' => $data['height'] ?? '',
             ':weight' => $data['weight'] ?? '',
             ':club_society' => $data['clubSociety'] ?? '',
@@ -105,8 +107,8 @@ try {
 
     } else {
         // INSERT new report
-        $query = "INSERT INTO students (school_id, name, class, session, admission_no, term, gender, height, weight, club_society, fav_col, photo)
-                  VALUES (:school_id, :name, :class, :session, :admission_no, :term, :gender, :height, :weight, :club_society, :fav_col, :photo)";
+        $query = "INSERT INTO students (school_id, name, class, session, admission_no, term, gender, guardian_email, height, weight, club_society, fav_col, photo)
+                  VALUES (:school_id, :name, :class, :session, :admission_no, :term, :gender, :guardian_email, :height, :weight, :club_society, :fav_col, :photo)";
 
         $stmt = $db->prepare($query);
         $stmt->execute([
@@ -117,6 +119,7 @@ try {
             ':admission_no' => $data['admissionNo'] ?? '',
             ':term' => $data['term'] ?? '',
             ':gender' => $data['gender'] ?? '',
+            ':guardian_email' => $data['guardianEmail'] ?? null,
             ':height' => $data['height'] ?? '',
             ':weight' => $data['weight'] ?? '',
             ':club_society' => $data['clubSociety'] ?? '',

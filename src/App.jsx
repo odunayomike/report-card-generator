@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
+import { CurrencyProvider } from './contexts/CurrencyContext';
 import { API_BASE_URL } from './config/env';
 import LandingPage from './components/LandingPage';
 import Login from './components/Login';
@@ -44,6 +45,7 @@ import ExamResults from './pages/cbt/ExamResults';
 import StudentLogin from './pages/StudentLogin';
 import StudentDashboardLayout from './components/StudentDashboardLayout';
 import StudentDashboardHome from './pages/StudentDashboardHome';
+import ParentAPIDocs from './pages/ParentAPIDocs';
 
 function App() {
   const [school, setSchool] = useState(null);
@@ -177,8 +179,9 @@ function App() {
 
   return (
     <HelmetProvider>
-      <Router>
-      <Routes>
+      <CurrencyProvider>
+        <Router>
+          <Routes>
         <Route
           path="/"
           element={school ? <Navigate to="/dashboard" /> : <LandingPage />}
@@ -197,6 +200,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/faq" element={<FAQ />} />
+        <Route path="/parent-api-docs" element={<ParentAPIDocs />} />
 
         {/* Super Admin Routes */}
         <Route
@@ -294,8 +298,9 @@ function App() {
           path="*"
           element={<Navigate to="/" />}
         />
-      </Routes>
-    </Router>
+          </Routes>
+        </Router>
+      </CurrencyProvider>
     </HelmetProvider>
   );
 }

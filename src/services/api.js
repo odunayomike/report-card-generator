@@ -287,19 +287,45 @@ export const changeSchoolPassword = async (passwordData) => {
 };
 
 /**
- * Generate PDF for a report card using Puppeteer
+ * Generate PDF for a report card with automatic fallback
+ * Tries Puppeteer first (high quality), falls back to TCPDF (pure PHP) if it fails
  * @param {number} reportId - The report ID
- * @returns {Promise} - API response with PDF URL
+ * @returns {Promise} - API response with PDF URL and method used
  */
 export const generateReportPDF = async (reportId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/generate-pdf?id=${reportId}`, {
+    // First attempt: Try Puppeteer (high quality, requires exec())
+    console.log('Attempting PDF generation with Puppeteer...');
+    const puppeteerResponse = await fetch(`${API_BASE_URL}/generate-pdf?id=${reportId}`, {
       method: 'GET',
       credentials: 'include'
     });
 
-    const data = await response.json();
-    return data;
+    const puppeteerData = await puppeteerResponse.json();
+
+    // If Puppeteer succeeds, return the result
+    if (puppeteerData.success) {
+      console.log('PDF generated successfully with Puppeteer');
+      return puppeteerData;
+    }
+
+    // If Puppeteer fails, fall back to TCPDF
+    console.log('Puppeteer failed, attempting fallback to TCPDF...');
+    const tcpdfResponse = await fetch(`${API_BASE_URL}/generate-pdf-tcpdf?id=${reportId}`, {
+      method: 'GET',
+      credentials: 'include'
+    });
+
+    const tcpdfData = await tcpdfResponse.json();
+
+    if (tcpdfData.success) {
+      console.log('PDF generated successfully with TCPDF (fallback)');
+      return tcpdfData;
+    }
+
+    // Both methods failed
+    throw new Error(tcpdfData.message || 'Both PDF generation methods failed');
+
   } catch (error) {
     console.error('Error generating PDF:', error);
     throw error;
@@ -779,6 +805,144 @@ export const getAllStudentsAdmin = async (params = {}) => {
     return data;
   } catch (error) {
     console.error('Error fetching all students:', error);
+    throw error;
+  }
+};
+
+// ============================
+// PARENT/GUARDIAN API FUNCTIONS
+// ============================
+
+/**
+ * Parent Login (Email-only authentication)
+ * @param {string} email - Parent email address
+ * @returns {Promise} - API response with parent data and children list
+ */
+export const parentLogin = async (email) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/parent/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ email })
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error logging in parent:', error);
+    throw error;
+  }
+};
+
+/**
+ * Check Parent Session
+ * @returns {Promise} - API response with session status
+ */
+export const checkParentSession = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/parent/check-session`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error checking parent session:', error);
+    throw error;
+  }
+};
+
+/**
+ * Parent Logout
+ * @returns {Promise} - API response
+ */
+export const parentLogout = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/parent/logout`, {
+      method: 'POST',
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error logging out parent:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get All Children for Logged-in Parent
+ * @returns {Promise} - API response with children list
+ */
+export const getParentChildren = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/parent/get-children`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching parent children:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get Child Analytics (Current Term)
+ * @param {number} studentId - Student ID
+ * @returns {Promise} - API response with comprehensive analytics
+ */
+export const getChildAnalytics = async (studentId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/parent/get-child-analytics?student_id=${studentId}`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching child analytics:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get Child Performance History (All Terms)
+ * @param {string} admissionNo - Student admission number
+ * @returns {Promise} - API response with performance history and trends
+ */
+export const getChildHistory = async (admissionNo) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/parent/get-child-history?admission_no=${encodeURIComponent(admissionNo)}`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching child history:', error);
+    throw error;
+  }
+};
+
+/**
+ * Add Parent-Student Relationship (School Admin Only)
+ * @param {Object} relationshipData - Parent and student information
+ * @returns {Promise} - API response
+ */
+export const addParentStudent = async (relationshipData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/parent/add-parent-student`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(relationshipData)
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error adding parent-student relationship:', error);
     throw error;
   }
 };

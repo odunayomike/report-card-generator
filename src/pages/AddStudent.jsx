@@ -20,6 +20,7 @@ const AddStudent = () => {
     session: '',
     term: '',
     gender: '',
+    guardian_email: '',
     height: '',
     weight: '',
     club_society: '',
@@ -195,6 +196,24 @@ const AddStudent = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="e.g., Primary 1A, JSS 2B"
                 />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Guardian Email <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  name="guardian_email"
+                  value={formData.guardian_email}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="parent@example.com or parent1@example.com, parent2@example.com"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Enter parent/guardian email address. You can enter multiple emails separated by commas.
+                </p>
               </div>
 
               <div>

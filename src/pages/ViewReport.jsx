@@ -44,7 +44,7 @@ export default function ViewReport({ school }) {
     try {
       setIsGeneratingPDF(true);
 
-      // Call backend API to generate PDF using Puppeteer
+      // Call backend API to generate PDF (with automatic fallback)
       const response = await generateReportPDF(id);
 
       if (response.success && response.url) {
@@ -55,7 +55,10 @@ export default function ViewReport({ school }) {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        toast.success('PDF downloaded successfully!');
+
+        // Show success message with method used
+        const method = response.method === 'tcpdf' ? 'TCPDF (Pure PHP)' : 'Puppeteer';
+        toast.success(`PDF downloaded successfully using ${method}!`);
       } else {
         throw new Error(response.message || 'Failed to generate PDF');
       }
