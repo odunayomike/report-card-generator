@@ -68,6 +68,23 @@ try {
         $params[':available_subjects'] = json_encode($input['available_subjects']);
     }
 
+    // Handle assessment_types (JSON array)
+    if (isset($input['assessment_types'])) {
+        $updateFields[] = "assessment_types = :assessment_types";
+        $params[':assessment_types'] = json_encode($input['assessment_types']);
+    }
+
+    // Handle assessment configuration (ca_max_marks and exam_max_marks)
+    if (isset($input['ca_max_marks'])) {
+        $updateFields[] = "ca_max_marks = :ca_max_marks";
+        $params[':ca_max_marks'] = intval($input['ca_max_marks']);
+    }
+
+    if (isset($input['exam_max_marks'])) {
+        $updateFields[] = "exam_max_marks = :exam_max_marks";
+        $params[':exam_max_marks'] = intval($input['exam_max_marks']);
+    }
+
     // Handle report customization
     if (isset($input['report_template'])) {
         $updateFields[] = "report_template = :report_template";
@@ -120,6 +137,9 @@ try {
                         academic_year_end,
                         term_structure,
                         available_subjects,
+                        assessment_types,
+                        ca_max_marks,
+                        exam_max_marks,
                         report_template,
                         show_logo_on_report,
                         show_motto_on_report,
@@ -141,6 +161,9 @@ try {
         }
         if ($updatedSettings['available_subjects']) {
             $updatedSettings['available_subjects'] = json_decode($updatedSettings['available_subjects'], true);
+        }
+        if ($updatedSettings['assessment_types']) {
+            $updatedSettings['assessment_types'] = json_decode($updatedSettings['assessment_types'], true);
         }
 
         echo json_encode([

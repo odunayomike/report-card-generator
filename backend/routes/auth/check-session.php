@@ -16,7 +16,8 @@ if (isset($_SESSION['user_type'])) {
     if ($userType === 'school' && isset($_SESSION['school_id'])) {
         // Fetch complete school data from database
         $query = "SELECT id, school_name, email, phone, address, logo, motto, primary_color, secondary_color,
-                         subscription_status, subscription_end_date, trial_end_date
+                         subscription_status, subscription_end_date, trial_end_date, assessment_types, available_subjects,
+                         ca_max_marks, exam_max_marks
                   FROM schools WHERE id = :id";
         $stmt = $db->prepare($query);
         $stmt->execute([':id' => $_SESSION['school_id']]);
@@ -25,6 +26,24 @@ if (isset($_SESSION['user_type'])) {
         if ($school) {
             // Check subscription status
             $subscriptionCheck = checkSubscription($school['id'], $db);
+
+            // Parse assessment_types JSON
+            $assessmentTypes = ['CA', 'Exam']; // Default
+            if (!empty($school['assessment_types'])) {
+                $decoded = json_decode($school['assessment_types'], true);
+                if (is_array($decoded)) {
+                    $assessmentTypes = $decoded;
+                }
+            }
+
+            // Parse available_subjects JSON
+            $availableSubjects = [];
+            if (!empty($school['available_subjects'])) {
+                $decoded = json_decode($school['available_subjects'], true);
+                if (is_array($decoded)) {
+                    $availableSubjects = $decoded;
+                }
+            }
 
             http_response_code(200);
             echo json_encode([
@@ -41,6 +60,10 @@ if (isset($_SESSION['user_type'])) {
                     'motto' => $school['motto'],
                     'primary_color' => $school['primary_color'],
                     'secondary_color' => $school['secondary_color'],
+                    'assessment_types' => $assessmentTypes,
+                    'available_subjects' => $availableSubjects,
+                    'ca_max_marks' => $school['ca_max_marks'] ?? 40,
+                    'exam_max_marks' => $school['exam_max_marks'] ?? 60,
                     'subscription_status' => $subscriptionCheck['status'],
                     'subscription_end_date' => $subscriptionCheck['end_date'] ?? null,
                     'trial_end_date' => $school['trial_end_date'],

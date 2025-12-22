@@ -153,6 +153,14 @@
         height: 35px;
       }
 
+      /* Hide WhatsApp button on student, teacher, school, and admin portals */
+      body:has([data-portal="student"]) .whatsapp-float,
+      body:has([data-portal="teacher"]) .whatsapp-float,
+      body:has([data-portal="school"]) .whatsapp-float,
+      body:has([data-portal="admin"]) .whatsapp-float {
+        display: none !important;
+      }
+
       /* Responsive adjustments */
       @media screen and (max-width: 768px) {
         .whatsapp-float {

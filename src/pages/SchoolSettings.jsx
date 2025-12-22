@@ -20,6 +20,14 @@ export default function SchoolSettings() {
   const [subjects, setSubjects] = useState([]);
   const [newSubject, setNewSubject] = useState('');
 
+  const [assessmentTypes, setAssessmentTypes] = useState(['CA', 'Exam']);
+  const [newAssessmentType, setNewAssessmentType] = useState('');
+
+  const [assessmentConfig, setAssessmentConfig] = useState({
+    ca_max_marks: 40,
+    exam_max_marks: 60
+  });
+
   const [academicYear, setAcademicYear] = useState({
     start: '',
     end: ''
@@ -48,7 +56,20 @@ export default function SchoolSettings() {
         }
 
         if (response.data.available_subjects) {
-          setSubjects(response.data.available_subjects);
+          // Convert all subjects to uppercase
+          const uppercaseSubjects = response.data.available_subjects.map(s => s.toUpperCase());
+          setSubjects(uppercaseSubjects);
+        }
+
+        if (response.data.assessment_types) {
+          setAssessmentTypes(response.data.assessment_types);
+        }
+
+        if (response.data.ca_max_marks !== undefined || response.data.exam_max_marks !== undefined) {
+          setAssessmentConfig({
+            ca_max_marks: response.data.ca_max_marks || 40,
+            exam_max_marks: response.data.exam_max_marks || 60
+          });
         }
 
         if (response.data.academic_year_start && response.data.academic_year_end) {
@@ -147,8 +168,9 @@ export default function SchoolSettings() {
   };
 
   const handleAddSubject = () => {
-    if (newSubject.trim() && !subjects.includes(newSubject.trim())) {
-      setSubjects(prev => [...prev, newSubject.trim()]);
+    const uppercaseSubject = newSubject.trim().toUpperCase();
+    if (uppercaseSubject && !subjects.includes(uppercaseSubject)) {
+      setSubjects(prev => [...prev, uppercaseSubject]);
       setNewSubject('');
     }
   };
@@ -169,6 +191,92 @@ export default function SchoolSettings() {
     } catch (error) {
       console.error('Error:', error);
       toast.error('Failed to save subjects.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAddAssessmentType = () => {
+    if (newAssessmentType.trim() && !assessmentTypes.includes(newAssessmentType.trim())) {
+      setAssessmentTypes(prev => [...prev, newAssessmentType.trim()]);
+      setNewAssessmentType('');
+    }
+  };
+
+  const handleRemoveAssessmentType = (index) => {
+    const typeToRemove = assessmentTypes[index];
+    if (typeToRemove === 'CA' || typeToRemove === 'Exam') {
+      toast.warning('Cannot remove default assessment types (CA and Exam)');
+      return;
+    }
+    setAssessmentTypes(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSaveAssessmentTypes = async () => {
+    setSaving(true);
+    try {
+      const response = await updateSchoolSettings({ assessment_types: assessmentTypes });
+      if (response.success) {
+        toast.success('Assessment types updated successfully!');
+      } else {
+        toast.error('Error: ' + response.message);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Failed to save assessment types.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAssessmentConfigChange = (field, value) => {
+    const numValue = parseInt(value) || 0;
+    setAssessmentConfig(prev => ({
+      ...prev,
+      [field]: numValue
+    }));
+  };
+
+  const validateAssessmentConfig = () => {
+    const errors = [];
+
+    if (assessmentConfig.ca_max_marks > 40) {
+      errors.push('CA maximum marks cannot exceed 40');
+    }
+    if (assessmentConfig.exam_max_marks > 60) {
+      errors.push('Exam maximum marks cannot exceed 60');
+    }
+    if (assessmentConfig.ca_max_marks < 0) {
+      errors.push('CA maximum marks cannot be negative');
+    }
+    if (assessmentConfig.exam_max_marks < 0) {
+      errors.push('Exam maximum marks cannot be negative');
+    }
+    if (assessmentConfig.ca_max_marks + assessmentConfig.exam_max_marks !== 100) {
+      errors.push(`Total marks must equal 100 (currently: ${assessmentConfig.ca_max_marks + assessmentConfig.exam_max_marks})`);
+    }
+
+    return errors;
+  };
+
+  const handleSaveAssessmentConfig = async () => {
+    const errors = validateAssessmentConfig();
+    if (errors.length > 0) {
+      toast.error('Please fix the following errors:\n\n' + errors.join('\n'), 8000);
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const response = await updateSchoolSettings(assessmentConfig);
+      if (response.success) {
+        toast.success('Assessment configuration updated successfully!');
+      } else {
+        toast.error('Error: ' + response.message);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Failed to save assessment configuration.');
     } finally {
       setSaving(false);
     }
@@ -251,6 +359,16 @@ export default function SchoolSettings() {
               }`}
             >
               Subjects
+            </button>
+            <button
+              onClick={() => setActiveSection('assessments')}
+              className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                activeSection === 'assessments'
+                  ? 'border-indigo-600 text-indigo-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Assessment Configuration
             </button>
             <button
               onClick={() => setActiveSection('calendar')}
@@ -377,6 +495,176 @@ export default function SchoolSettings() {
                 className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors disabled:bg-gray-400"
               >
                 {saving ? 'Saving...' : 'Save Subjects'}
+              </button>
+            </div>
+          )}
+
+          {/* Assessment Configuration Section */}
+          {activeSection === 'assessments' && (
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Assessment Configuration</h3>
+              <p className="text-sm text-gray-600 mb-6">
+                Manage assessment types and configure scoring limits.
+              </p>
+
+              {/* Assessment Types Management */}
+              <div className="mb-8 p-6 bg-gray-50 rounded-lg">
+                <h4 className="text-md font-semibold text-gray-900 mb-3">Assessment Types</h4>
+                <p className="text-sm text-gray-600 mb-4">
+                  CA and Exam are default types. Add custom types like "Quiz", "Project", "Mid-Term", etc.
+                </p>
+
+                {/* Add Assessment Type */}
+                <div className="flex gap-3 mb-4 max-w-md">
+                  <input
+                    type="text"
+                    value={newAssessmentType}
+                    onChange={(e) => setNewAssessmentType(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleAddAssessmentType()}
+                    placeholder="Enter assessment type name"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <button
+                    onClick={handleAddAssessmentType}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                  >
+                    Add
+                  </button>
+                </div>
+
+                {/* Assessment Type List */}
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
+                  {assessmentTypes.map((type, index) => {
+                    const isDefault = type === 'CA' || type === 'Exam';
+                    return (
+                      <div
+                        key={index}
+                        className={`flex items-center justify-between p-3 rounded-lg ${
+                          isDefault ? 'bg-indigo-100 border border-indigo-300' : 'bg-white border border-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-900 font-medium">{type}</span>
+                          {isDefault && (
+                            <span className="px-2 py-0.5 bg-indigo-600 text-white text-xs rounded-full">
+                              Default
+                            </span>
+                          )}
+                        </div>
+                        {!isDefault && (
+                          <button
+                            onClick={() => handleRemoveAssessmentType(index)}
+                            className="text-red-600 hover:text-red-700 transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={handleSaveAssessmentTypes}
+                  disabled={saving}
+                  className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors disabled:bg-gray-400"
+                >
+                  {saving ? 'Saving...' : 'Save Assessment Types'}
+                </button>
+              </div>
+
+              {/* Scoring Configuration */}
+              <div className="mb-6">
+                <h4 className="text-md font-semibold text-gray-900 mb-3">Scoring Limits for CA and Exam</h4>
+                <p className="text-sm text-gray-600 mb-4">
+                  Configure the maximum marks for CA and Exam. CA cannot exceed 40 marks and Exam cannot exceed 60 marks. Total must equal 100.
+                </p>
+              </div>
+
+              <div className="max-w-2xl space-y-6">
+                {/* CA Maximum Marks */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-indigo-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-900">Continuous Assessment (CA)</h4>
+                      <p className="text-sm text-gray-600 mt-1">Maximum: 40 marks</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        value={assessmentConfig.ca_max_marks}
+                        onChange={(e) => handleAssessmentConfigChange('ca_max_marks', e.target.value)}
+                        min="0"
+                        max="40"
+                        className="w-24 px-4 py-2 text-2xl font-bold text-center border-2 border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                      />
+                      <span className="text-2xl font-bold text-gray-600">marks</span>
+                    </div>
+                  </div>
+                  {assessmentConfig.ca_max_marks > 40 && (
+                    <p className="text-sm text-red-600 mt-2">⚠ CA marks cannot exceed 40</p>
+                  )}
+                </div>
+
+                {/* Exam Maximum Marks */}
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border border-green-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-900">End of Term Exam</h4>
+                      <p className="text-sm text-gray-600 mt-1">Maximum: 60 marks</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        value={assessmentConfig.exam_max_marks}
+                        onChange={(e) => handleAssessmentConfigChange('exam_max_marks', e.target.value)}
+                        min="0"
+                        max="60"
+                        className="w-24 px-4 py-2 text-2xl font-bold text-center border-2 border-green-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      />
+                      <span className="text-2xl font-bold text-gray-600">marks</span>
+                    </div>
+                  </div>
+                  {assessmentConfig.exam_max_marks > 60 && (
+                    <p className="text-sm text-red-600 mt-2">⚠ Exam marks cannot exceed 60</p>
+                  )}
+                </div>
+
+                {/* Total Display */}
+                <div className={`p-6 rounded-lg border-2 ${
+                  assessmentConfig.ca_max_marks + assessmentConfig.exam_max_marks === 100
+                    ? 'bg-green-50 border-green-500'
+                    : 'bg-red-50 border-red-500'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-semibold text-gray-900">Total Marks</span>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-3xl font-bold ${
+                        assessmentConfig.ca_max_marks + assessmentConfig.exam_max_marks === 100
+                          ? 'text-green-600'
+                          : 'text-red-600'
+                      }`}>
+                        {assessmentConfig.ca_max_marks + assessmentConfig.exam_max_marks}
+                      </span>
+                      <span className="text-2xl text-gray-600">/ 100</span>
+                    </div>
+                  </div>
+                  {assessmentConfig.ca_max_marks + assessmentConfig.exam_max_marks !== 100 && (
+                    <p className="text-sm text-red-600 mt-2">
+                      ⚠ Total must equal 100. Adjust CA or Exam marks.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <button
+                onClick={handleSaveAssessmentConfig}
+                disabled={saving}
+                className="mt-6 px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors disabled:bg-gray-400"
+              >
+                {saving ? 'Saving...' : 'Save Assessment Configuration'}
               </button>
             </div>
           )}

@@ -101,6 +101,13 @@ export default function LandingPage() {
                     >
                       Teacher Login
                     </Link>
+                    <Link
+                      to="/student/login"
+                      className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#1791C8] transition-colors font-medium"
+                      onClick={() => setShowLoginDropdown(false)}
+                    >
+                      Student Portal
+                    </Link>
                   </div>
                 )}
               </div>

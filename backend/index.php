@@ -77,6 +77,10 @@ try {
             require __DIR__ . '/routes/auth/register.php';
             break;
 
+        case '/auth/student-login':
+            require __DIR__ . '/routes/auth/student-login.php';
+            break;
+
         // Teacher Auth routes
         case '/auth/teacher-login':
             require __DIR__ . '/routes/auth/teacher-login.php';
@@ -212,6 +216,10 @@ try {
             require __DIR__ . '/routes/school/change-password.php';
             break;
 
+        case '/school/get-classes':
+            require __DIR__ . '/routes/school/get-classes.php';
+            break;
+
         // PDF generation route
         case '/generate-pdf':
             require __DIR__ . '/routes/generate-pdf.php';
@@ -264,6 +272,39 @@ try {
 
         case '/process-auto-debit':
             require __DIR__ . '/routes/process-auto-debit.php';
+            break;
+
+        // CBT routes
+        case '/cbt/questions':
+            require __DIR__ . '/routes/cbt/questions.php';
+            break;
+
+        case '/cbt/import-questions':
+            require __DIR__ . '/routes/cbt/import-questions.php';
+            break;
+
+        case '/cbt/exams':
+            require __DIR__ . '/routes/cbt/exams.php';
+            break;
+
+        case '/cbt/student-exams':
+            require __DIR__ . '/routes/cbt/student-exams.php';
+            break;
+
+        case '/cbt/get-students':
+            require __DIR__ . '/routes/cbt/get-students.php';
+            break;
+
+        case '/cbt/grading':
+            require __DIR__ . '/routes/cbt/grading.php';
+            break;
+
+        case '/cbt/analytics':
+            require __DIR__ . '/routes/cbt/analytics.php';
+            break;
+
+        case '/cbt/results':
+            require __DIR__ . '/routes/cbt/results.php';
             break;
 
         // Default - 404

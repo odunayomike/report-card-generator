@@ -34,10 +34,21 @@ import SuperAdminLayout from './components/SuperAdminLayout';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import ManageSchools from './pages/ManageSchools';
 import AllStudentsAdmin from './pages/AllStudentsAdmin';
+import CBTDashboard from './pages/cbt/CBTDashboard';
+import QuestionBank from './pages/cbt/QuestionBank';
+import ExamManagement from './pages/cbt/ExamManagement';
+import ExamResultsList from './pages/cbt/ExamResultsList';
+import StudentExams from './pages/cbt/StudentExams';
+import TakeExam from './pages/cbt/TakeExam';
+import ExamResults from './pages/cbt/ExamResults';
+import StudentLogin from './pages/StudentLogin';
+import StudentDashboardLayout from './components/StudentDashboardLayout';
+import StudentDashboardHome from './pages/StudentDashboardHome';
 
 function App() {
   const [school, setSchool] = useState(null);
   const [teacher, setTeacher] = useState(null);
+  const [student, setStudent] = useState(null);
   const [superAdmin, setSuperAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -48,6 +59,18 @@ function App() {
 
   const checkSession = async () => {
     try {
+      // Check for stored session in localStorage
+      const userType = localStorage.getItem('userType');
+
+      if (userType === 'student') {
+        const studentData = localStorage.getItem('studentData');
+        if (studentData) {
+          setStudent(JSON.parse(studentData));
+          setLoading(false);
+          return;
+        }
+      }
+
       // Check super admin session first
       const superAdminResponse = await fetch(`${API_BASE_URL}/super-admin/check-session`, {
         credentials: 'include'
@@ -114,6 +137,16 @@ function App() {
     setSuperAdmin(null);
     localStorage.removeItem('userType');
     localStorage.removeItem('superAdminData');
+  };
+
+  const handleStudentLogin = (studentData) => {
+    console.log('App: handleStudentLogin called with:', studentData);
+    setStudent(studentData);
+    console.log('App: student state updated');
+  };
+
+  const handleStudentLogout = () => {
+    setStudent(null);
   };
 
   const refreshSchool = async () => {
@@ -199,7 +232,10 @@ function App() {
           <Route path="attendance" element={<ViewAttendance />} />
           <Route path="manage-teachers" element={<ManageTeachers />} />
           <Route path="accounting" element={<ComingSoon feature="School Accounting & Fee Management" />} />
-          <Route path="cbt" element={<ComingSoon feature="Computer-Based Testing (CBT)" />} />
+          <Route path="cbt" element={<CBTDashboard />} />
+          <Route path="cbt/questions" element={<QuestionBank />} />
+          <Route path="cbt/exams" element={<ExamManagement />} />
+          <Route path="cbt/results" element={<ExamResultsList />} />
           <Route path="subscription" element={<Subscription />} />
         </Route>
 
@@ -226,9 +262,27 @@ function App() {
           <Route path="create-report" element={<CreateReport school={teacher?.school_id ? { id: teacher.school_id } : school} />} />
           <Route path="reports/:id" element={<ViewReport school={teacher?.school_id ? { id: teacher.school_id } : school} />} />
           <Route path="reports/:id/edit" element={<EditReport school={teacher?.school_id ? { id: teacher.school_id } : school} />} />
-          <Route path="cbt" element={<ComingSoon feature="Computer-Based Testing (CBT)" />} />
+          <Route path="cbt" element={<CBTDashboard />} />
+          <Route path="cbt/questions" element={<QuestionBank />} />
+          <Route path="cbt/exams" element={<ExamManagement />} />
+          <Route path="cbt/results" element={<ExamResultsList />} />
         </Route>
 
+
+        {/* Student Routes */}
+        <Route
+          path="/student/login"
+          element={student ? <Navigate to="/student/dashboard" /> : <StudentLogin onLogin={handleStudentLogin} />}
+        />
+        <Route
+          path="/student"
+          element={student ? <StudentDashboardLayout student={student} onLogout={handleStudentLogout} /> : <Navigate to="/student/login" />}
+        >
+          <Route path="dashboard" element={<StudentDashboardHome />} />
+          <Route path="exams" element={<StudentExams />} />
+          <Route path="take-exam/:examId" element={<TakeExam />} />
+          <Route path="results/:examId" element={<ExamResults />} />
+        </Route>
 
         {/* StudentForm for school admin */}
         <Route

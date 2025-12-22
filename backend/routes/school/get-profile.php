@@ -39,6 +39,9 @@ try {
                 academic_year_end,
                 term_structure,
                 available_subjects,
+                assessment_types,
+                ca_max_marks,
+                exam_max_marks,
                 report_template,
                 show_logo_on_report,
                 show_motto_on_report,
@@ -72,6 +75,12 @@ try {
     }
     if ($school['available_subjects']) {
         $school['available_subjects'] = json_decode($school['available_subjects'], true);
+    }
+    if ($school['assessment_types']) {
+        $school['assessment_types'] = json_decode($school['assessment_types'], true);
+    } else {
+        // Provide default if not set
+        $school['assessment_types'] = ['CA', 'Exam'];
     }
 
     // Get some stats for the profile
