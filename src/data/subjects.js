@@ -37,7 +37,6 @@ export const affectiveDomains = [
   'Attentiveness',
   'Perseverance',
   'Sense of Responsibility',
-  'Relationship With Others',
 ];
 
 export const psychomotorDomains = [
@@ -45,6 +44,5 @@ export const psychomotorDomains = [
   'Drawing/ Painting',
   'Verbal Fluency',
   'Games/ Sports',
-  'Speech Fluency',
   'Handling of Tools',
 ];

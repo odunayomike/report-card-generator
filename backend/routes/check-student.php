@@ -25,7 +25,7 @@ if (!$school_id) {
 
 try {
     // Get the most recent student record with this admission number
-    $query = "SELECT name, class, gender, admission_no, height, weight, club_society, fav_col, photo
+    $query = "SELECT id, name, class, gender, admission_no, height, weight, club_society, fav_col, photo
               FROM students
               WHERE school_id = :school_id
               AND admission_no = :admission_no
@@ -41,6 +41,27 @@ try {
     $student = $stmt->fetch();
 
     if ($student) {
+        // Get subjects from the most recent report
+        $subjectsQuery = "SELECT subject_name, ca, exam, total
+                          FROM subjects
+                          WHERE student_id = :student_id
+                          ORDER BY id";
+
+        $subjectsStmt = $db->prepare($subjectsQuery);
+        $subjectsStmt->execute([':student_id' => $student['id']]);
+        $subjects = $subjectsStmt->fetchAll();
+
+        // Format subjects for frontend
+        $formattedSubjects = [];
+        foreach ($subjects as $subject) {
+            $formattedSubjects[] = [
+                'name' => $subject['subject_name'],
+                'ca' => $subject['ca'],
+                'exam' => $subject['exam'],
+                'total' => $subject['total']
+            ];
+        }
+
         http_response_code(200);
         echo json_encode([
             'success' => true,
@@ -54,7 +75,8 @@ try {
                 'weight' => $student['weight'],
                 'clubSociety' => $student['club_society'],
                 'favCol' => $student['fav_col'],
-                'photo' => $student['photo']
+                'photo' => $student['photo'],
+                'subjects' => $formattedSubjects
             ]
         ]);
     } else {

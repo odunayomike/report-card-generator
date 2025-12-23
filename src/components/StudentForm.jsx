@@ -81,8 +81,14 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
             weight: response.student.weight || '',
             clubSociety: response.student.clubSociety || '',
             favCol: response.student.favCol || '',
-            photo: response.student.photo || null
+            photo: response.student.photo || null,
+            subjects: response.student.subjects || []
           }));
+
+          // Auto-populate active subjects from previous report
+          if (response.student.subjects && response.student.subjects.length > 0) {
+            setActiveSubjects(response.student.subjects.map(s => s.name));
+          }
         }
       } else {
         setStudentExists(false);
@@ -380,7 +386,7 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 value={formData.guardianEmail}
                 onChange={handleInputChange}
                 placeholder="parent@example.com or parent1@example.com, parent2@example.com"
-                required
+                
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
               />
               <p className="text-[10px] text-gray-500 mt-1">
