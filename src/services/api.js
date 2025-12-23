@@ -105,6 +105,23 @@ export const getAllStudents = async () => {
 };
 
 /**
+ * Get all students with IDs (for parent management)
+ * @returns {Promise} - API response with list of students including IDs
+ */
+export const getStudentsWithIds = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/get-students-with-ids`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching students with IDs:', error);
+    throw error;
+  }
+};
+
+/**
  * Delete a report card
  * @param {number} studentId - The student ID to delete
  * @returns {Promise} - API response
@@ -943,6 +960,65 @@ export const addParentStudent = async (relationshipData) => {
     return data;
   } catch (error) {
     console.error('Error adding parent-student relationship:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get all parents in the school (School Admin Only)
+ * @returns {Promise} - API response with all parents
+ */
+export const getAllParents = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/parent/get-all-parents`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching all parents:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get all parents linked to a student (School Admin Only)
+ * @param {number} studentId - The student ID
+ * @returns {Promise} - API response with parents list
+ */
+export const getStudentParents = async (studentId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/parent/get-student-parents?student_id=${studentId}`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching student parents:', error);
+    throw error;
+  }
+};
+
+/**
+ * Remove/unlink a parent from a student (School Admin Only)
+ * @param {number} studentId - The student ID
+ * @param {number} parentId - The parent ID
+ * @returns {Promise} - API response
+ */
+export const removeParentStudent = async (studentId, parentId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/parent/remove-parent-student`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ student_id: studentId, parent_id: parentId })
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error removing parent-student relationship:', error);
     throw error;
   }
 };

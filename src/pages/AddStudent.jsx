@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { createStudent, generateAdmissionNumber } from '../services/api';
+import { createStudent, generateAdmissionNumber, addParentStudent } from '../services/api';
 
 const AddStudent = () => {
   const navigate = useNavigate();
@@ -20,12 +20,16 @@ const AddStudent = () => {
     session: '',
     term: '',
     gender: '',
-    guardian_email: '',
     height: '',
     weight: '',
     club_society: '',
     fav_col: '',
-    photo: ''
+    photo: '',
+    // Parent/Guardian Info
+    parent_name: '',
+    parent_email: '',
+    parent_phone: '',
+    parent_relationship: 'guardian'
   });
 
   // Auto-generate admission number on component mount
@@ -80,10 +84,30 @@ const AddStudent = () => {
     setSuccess('');
 
     try {
+      // Step 1: Create the student
       const response = await createStudent(formData);
 
       if (response.success) {
-        setSuccess('Student profile created successfully!');
+        // Step 2: Link parent to student if parent info is provided
+        if (formData.parent_email && formData.parent_name && response.student?.id) {
+          try {
+            await addParentStudent({
+              student_id: response.student.id,
+              parent_email: formData.parent_email,
+              parent_name: formData.parent_name,
+              parent_phone: formData.parent_phone || '',
+              relationship: formData.parent_relationship,
+              is_primary: true
+            });
+            setSuccess('Student profile created and parent account linked successfully!');
+          } catch (parentError) {
+            console.error('Error linking parent:', parentError);
+            setSuccess('Student created, but there was an issue linking the parent account. You can add parent details later.');
+          }
+        } else {
+          setSuccess('Student profile created successfully!');
+        }
+
         setTimeout(() => {
           navigate(isTeacher ? '/teacher/students' : '/dashboard/students');
         }, 2000);
@@ -198,21 +222,74 @@ const AddStudent = () => {
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Guardian Email <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="email"
-                  name="guardian_email"
-                  value={formData.guardian_email}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="parent@example.com or parent1@example.com, parent2@example.com"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Enter parent/guardian email address. You can enter multiple emails separated by commas.
+              {/* Parent/Guardian Information */}
+              <div className="md:col-span-2 border-t pt-4 mt-4">
+                <h3 className="text-md font-semibold text-gray-700 mb-3">Parent/Guardian Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Parent/Guardian Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="parent_name"
+                      value={formData.parent_name}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="e.g., John Doe"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Parent/Guardian Email <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      name="parent_email"
+                      value={formData.parent_email}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="parent@example.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      name="parent_phone"
+                      value={formData.parent_phone}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="+234812345678"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Relationship <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      name="parent_relationship"
+                      value={formData.parent_relationship}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="father">Father</option>
+                      <option value="mother">Mother</option>
+                      <option value="guardian">Guardian</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  This information will be used to create a parent account for accessing student reports online.
                 </p>
               </div>
 

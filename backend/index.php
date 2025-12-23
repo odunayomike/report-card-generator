@@ -307,6 +307,52 @@ try {
             require __DIR__ . '/routes/cbt/results.php';
             break;
 
+        // Get students with IDs (for parent management)
+        case '/get-students-with-ids':
+            require __DIR__ . '/routes/get-students-with-ids.php';
+            break;
+
+        // Parent routes
+        case '/parent/login':
+            require __DIR__ . '/routes/parent/login.php';
+            break;
+
+        case '/parent/logout':
+            require __DIR__ . '/routes/parent/logout.php';
+            break;
+
+        case '/parent/check-session':
+            require __DIR__ . '/routes/parent/check-session.php';
+            break;
+
+        case '/parent/get-children':
+            require __DIR__ . '/routes/parent/get-children.php';
+            break;
+
+        case '/parent/get-child-analytics':
+            require __DIR__ . '/routes/parent/get-child-analytics.php';
+            break;
+
+        case '/parent/get-child-history':
+            require __DIR__ . '/routes/parent/get-child-history.php';
+            break;
+
+        case '/parent/add-parent-student':
+            require __DIR__ . '/routes/parent/add-parent-student.php';
+            break;
+
+        case '/parent/get-all-parents':
+            require __DIR__ . '/routes/parent/get-all-parents.php';
+            break;
+
+        case '/parent/get-student-parents':
+            require __DIR__ . '/routes/parent/get-student-parents.php';
+            break;
+
+        case '/parent/remove-parent-student':
+            require __DIR__ . '/routes/parent/remove-parent-student.php';
+            break;
+
         // Default - 404
         default:
             // Check if it's a request for a temp PDF file

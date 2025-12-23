@@ -25,6 +25,8 @@ import ViewAttendance from './pages/ViewAttendance';
 import ComingSoon from './pages/ComingSoon';
 import VerifyPayment from './pages/VerifyPayment';
 import AddStudent from './pages/AddStudent';
+import ManageParents from './pages/ManageParents';
+import ViewParents from './pages/ViewParents';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Pricing from './pages/Pricing';
@@ -228,6 +230,8 @@ function App() {
           <Route path="add-student" element={<AddStudent />} />
           <Route path="students" element={<AllStudents />} />
           <Route path="students/:admissionNo" element={<StudentProfile />} />
+          <Route path="manage-parents" element={<ManageParents />} />
+          <Route path="view-parents" element={<ViewParents />} />
           <Route path="reports/:id" element={<ViewReport school={school} />} />
           <Route path="reports/:id/edit" element={<EditReport school={school} />} />
           <Route path="profile" element={<SchoolProfile />} />

@@ -9,6 +9,7 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
   const [classes, setClasses] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showCBTSubmenu, setShowCBTSubmenu] = useState(false);
+  const [showParentSubmenu, setShowParentSubmenu] = useState(false);
   const navigate = useNavigate();
 
   // Check if school has access (active or trial subscription)
@@ -244,6 +245,65 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
               </svg>
               Manage Teachers
             </NavLink>
+
+            {/* Parent Menu with Submenu */}
+            <div>
+              <button
+                onClick={() => setShowParentSubmenu(!showParentSubmenu)}
+                className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
+              >
+                <div className="flex items-center gap-3">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  Parents
+                </div>
+                <svg
+                  className={`w-4 h-4 transition-transform ${showParentSubmenu ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {showParentSubmenu && (
+                <div className="ml-8 mt-1 space-y-1">
+                  <NavLink
+                    to="/dashboard/manage-parents"
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-4 py-2 text-sm rounded-lg transition-colors ${
+                        isActive
+                          ? 'bg-primary-50 text-primary-600 font-medium'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      }`
+                    }
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Manage Parents
+                  </NavLink>
+
+                  <NavLink
+                    to="/dashboard/view-parents"
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-4 py-2 text-sm rounded-lg transition-colors ${
+                        isActive
+                          ? 'bg-primary-50 text-primary-600 font-medium'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      }`
+                    }
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                    </svg>
+                    View All Parents
+                  </NavLink>
+                </div>
+              )}
+            </div>
 
             <NavLink
               to="/dashboard/attendance"

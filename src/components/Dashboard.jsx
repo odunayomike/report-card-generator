@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import StudentForm from './StudentForm';
 import ReportCard from './ReportCard';
-import { saveReportCard, getAllStudents, getReportCard, getStudentProfile, getAnalytics } from '../services/api';
+import { saveReportCard, getAllStudents, getReportCard, getStudentProfile, getAnalytics, addParentStudent } from '../services/api';
 import { API_BASE_URL } from '../config/env';
 import { useToastContext } from '../context/ToastContext';
 
@@ -70,7 +70,26 @@ export default function Dashboard({ school, onLogout }) {
       const response = await saveReportCard(dataWithSchool);
 
       if (response.success) {
-        toast.success('Report card saved successfully!');
+        // Link parent to student if parent info is provided
+        if (data.parentEmail && data.parentName && response.student_id) {
+          try {
+            await addParentStudent({
+              student_id: response.student_id,
+              parent_email: data.parentEmail,
+              parent_name: data.parentName,
+              parent_phone: data.parentPhone || '',
+              relationship: data.parentRelationship || 'guardian',
+              is_primary: true
+            });
+            toast.success('Report card saved and parent account linked successfully!');
+          } catch (parentError) {
+            console.error('Error linking parent:', parentError);
+            toast.success('Report card saved, but there was an issue linking the parent account.');
+          }
+        } else {
+          toast.success('Report card saved successfully!');
+        }
+
         const dataWithId = { ...data, id: response.student_id };
         setReportData(dataWithId);
         setCurrentView('view-report');

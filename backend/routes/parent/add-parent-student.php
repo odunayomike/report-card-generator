@@ -4,22 +4,7 @@
  * Creates parent account if doesn't exist and links to student
  */
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
-header('Content-Type: application/json');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
-require_once __DIR__ . '/../../config/database.php';
-
-// Start session
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+// CORS is already handled by backend/config/cors.php loaded in index.php
 
 // Check if school is authenticated
 if (!isset($_SESSION['school_id'])) {
