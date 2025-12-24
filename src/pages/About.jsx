@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Target, Award, Heart, CheckCircle, TrendingUp, ChevronDown } from 'lucide-react';
+import { Users, Target, Award, Heart, CheckCircle, TrendingUp, ChevronDown, Shield, Cloud, Lock, Database, Globe, Smartphone } from 'lucide-react';
 import schoolLogo from '../assets/schoolhub.png';
 import SEO from '../components/SEO';
+import GoogleCloudLogo from '../components/GoogleCloudLogo';
 
 export default function About() {
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
@@ -141,7 +142,7 @@ export default function About() {
                     more time to focus on what matters most - teaching and nurturing students.
                   </p>
                   <p>
-                    Today, SchoolHub serves over 500 schools across Nigeria, managing more than 50,000
+                    Today, SchoolHub serves over 100 schools across Nigeria, managing more than 10,000
                     students and helping educators save thousands of hours every month. But we're just
                     getting started.
                   </p>
@@ -210,10 +211,10 @@ export default function About() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {[
-                { number: '500+', label: 'Schools Using SchoolHub', icon: Users },
-                { number: '50K+', label: 'Students Managed', icon: TrendingUp },
-                { number: '2K+', label: 'Teachers Empowered', icon: Award },
-                { number: '100K+', label: 'Report Cards Generated', icon: CheckCircle }
+                { number: '100+', label: 'Schools Using SchoolHub', icon: Users },
+                { number: '10K+', label: 'Students Managed', icon: TrendingUp },
+                { number: '500+', label: 'Teachers Empowered', icon: Award },
+                { number: '20K+', label: 'Report Cards Generated', icon: CheckCircle }
               ].map((stat, index) => {
                 const IconComponent = stat.icon;
                 return (
@@ -226,6 +227,123 @@ export default function About() {
                   </div>
                 );
               })}
+            </div>
+          </div>
+        </section>
+
+        {/* Security & Infrastructure */}
+        <section className="py-20 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full mb-6" style={{backgroundColor: '#CCE7F7'}}>
+                <Shield className="w-10 h-10" style={{color: '#1791C8'}} />
+              </div>
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                Enterprise-Grade Security & Infrastructure
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Your school's data is our top priority. We've partnered with Google Cloud to ensure
+                your information is secure, accessible, and always available.
+              </p>
+            </div>
+
+            {/* Google Cloud Partnership Banner */}
+            <div className="bg-white rounded-2xl shadow-lg p-8 mb-12 border-2" style={{borderColor: '#1791C8'}}>
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-6">
+                  <GoogleCloudLogo className="h-16 w-auto flex-shrink-0" />
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="text-2xl font-bold text-gray-900">Powered by Google Cloud</h3>
+                      <span className="px-3 py-1 bg-green-100 text-green-700 text-sm font-semibold rounded-full">
+                        Trusted Partner
+                      </span>
+                    </div>
+                    <p className="text-gray-600">
+                      SchoolHub runs on Google Cloud Platform, the same infrastructure trusted by millions worldwide.
+                      This partnership ensures world-class reliability, security, and performance for your school.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Security Features Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[
+                {
+                  icon: Shield,
+                  title: 'Bank-Level Security',
+                  description: 'Your data is protected with 256-bit SSL encryption, the same security standard used by banks and financial institutions worldwide.',
+                  color: '#1791C8'
+                },
+                {
+                  icon: Cloud,
+                  title: 'Cloud Storage & Backup',
+                  description: 'All school data is securely stored in the cloud with automatic daily backups. Your information is safe from hardware failures and disasters.',
+                  color: '#34A853'
+                },
+                {
+                  icon: Globe,
+                  title: 'Access Anywhere, Anytime',
+                  description: 'Access your school data from any device, anywhere in the world. Whether you\'re at school, home, or on the go, your data is always available.',
+                  color: '#4285F4'
+                },
+                {
+                  icon: Lock,
+                  title: 'Data Privacy & Compliance',
+                  description: 'We comply with international data protection standards. Your school data is never shared with third parties and remains completely private.',
+                  color: '#EA4335'
+                },
+                {
+                  icon: Database,
+                  title: 'Redundant Storage',
+                  description: 'Your data is stored in multiple secure locations across Google Cloud\'s global infrastructure, ensuring it\'s never lost.',
+                  color: '#FBBC04'
+                },
+                {
+                  icon: Smartphone,
+                  title: 'Multi-Device Sync',
+                  description: 'Seamlessly access and manage your school data across desktop, tablet, and mobile devices with real-time synchronization.',
+                  color: '#1791C8'
+                }
+              ].map((feature, index) => (
+                <div key={index} className="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all border border-gray-100">
+                  <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-4" style={{backgroundColor: `${feature.color}15`}}>
+                    <feature.icon className="w-7 h-7" style={{color: feature.color}} />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-3">{feature.title}</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Security Stats */}
+            <div className="mt-16 bg-white rounded-2xl p-8 shadow-lg">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+                {[
+                  { value: '99.9%', label: 'Uptime Guarantee', sublabel: 'Always accessible' },
+                  { value: '256-bit', label: 'SSL Encryption', sublabel: 'Bank-level security' },
+                  { value: '24/7', label: 'Monitoring', sublabel: 'Continuous protection' },
+                  { value: 'Daily', label: 'Automatic Backups', sublabel: 'Never lose data' }
+                ].map((stat, index) => (
+                  <div key={index}>
+                    <div className="text-3xl font-bold mb-2" style={{color: '#1791C8'}}>{stat.value}</div>
+                    <div className="text-gray-900 font-semibold mb-1">{stat.label}</div>
+                    <div className="text-sm text-gray-500">{stat.sublabel}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Trust Badge */}
+            <div className="mt-12 text-center">
+              <div className="inline-flex items-center gap-2 px-6 py-3 bg-green-50 border-2 border-green-200 rounded-full">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span className="text-green-800 font-semibold">
+                  Trusted by 100+ Schools • Secured by Google Cloud • 10,000+ Students Protected
+                </span>
+              </div>
             </div>
           </div>
         </section>
@@ -245,13 +363,16 @@ export default function About() {
               {[
                 'Easy to use - no technical expertise required',
                 'Affordable pricing designed for Nigerian schools',
-                'Reliable cloud-based infrastructure',
+                'Powered by Google Cloud infrastructure',
                 'Local customer support in Nigeria',
                 'Regular updates and new features',
-                'Secure data storage and backup',
-                'Mobile-friendly for on-the-go access',
+                'Bank-level security with 256-bit encryption',
+                'Access from anywhere, on any device',
+                'Automatic daily backups - never lose data',
                 'Comprehensive training and onboarding',
-                'Dedicated account managers'
+                '99.9% uptime guarantee',
+                'Dedicated account managers',
+                'Your data stored in multiple secure locations'
               ].map((feature, index) => (
                 <div key={index} className="flex items-start gap-3 bg-white p-6 rounded-xl shadow-sm">
                   <CheckCircle className="w-6 h-6 flex-shrink-0 mt-1" style={{color: '#1791C8'}} />

@@ -1,7 +1,7 @@
 <?php
 /**
- * Environment Configuration
- * Contains all environment-specific settings
+ * Environment Configuration - EXAMPLE
+ * Copy this file to env.php and update with your actual settings
  */
 
 // Detect if we're running locally or in production
@@ -14,8 +14,8 @@ if ($isLocalhost) {
     define('FRONTEND_URL', 'http://localhost:5173');
 } else {
     // Production - set your production URLs here
-    define('BACKEND_URL', 'https://' . $_SERVER['HTTP_HOST']);
-    define('FRONTEND_URL', 'https://' . $_SERVER['HTTP_HOST']);
+    define('BACKEND_URL', 'https://your-domain.com');
+    define('FRONTEND_URL', 'https://your-domain.com');
 }
 
 // API Base URL

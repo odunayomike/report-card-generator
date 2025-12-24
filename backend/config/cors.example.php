@@ -1,6 +1,7 @@
 <?php
 /**
- * CORS Configuration
+ * CORS Configuration - EXAMPLE
+ * Copy this file to cors.php
  * Allows frontend to communicate with backend API
  */
 
@@ -23,4 +24,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 header('Content-Type: application/json');
-?>

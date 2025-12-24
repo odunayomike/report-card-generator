@@ -194,6 +194,7 @@ try {
                             'duration_minutes' => $assignment['duration_minutes'],
                             'shuffle_questions' => $assignment['shuffle_questions'],
                             'shuffle_options' => $assignment['shuffle_options'],
+                            'show_results_immediately' => $assignment['show_results_immediately'],
                             'started_at' => date('Y-m-d H:i:s') // Current time as start time
                         ],
                         'questions' => array_values($questions),

@@ -1,6 +1,7 @@
 <?php
 /**
- * Database Configuration
+ * Database Configuration - EXAMPLE
+ * Copy this file to database.php and update with your actual database credentials
  */
 
 // Load environment variables from .env file
@@ -38,10 +39,11 @@ class Database {
     private $conn;
 
     public function __construct() {
+        // Update these with your database credentials
         $this->host = getenv('DB_HOST') ?: 'localhost';
-        $this->db_name = getenv('DB_NAME') ?: 'report_card_db';
-        $this->username = getenv('DB_USER') ?: 'root';
-        $this->password = getenv('DB_PASSWORD') ?: '';
+        $this->db_name = getenv('DB_NAME') ?: 'your_database_name';
+        $this->username = getenv('DB_USER') ?: 'your_username';
+        $this->password = getenv('DB_PASSWORD') ?: 'your_password';
     }
 
     /**
@@ -56,18 +58,12 @@ class Database {
                 $this->username,
                 $this->password
             );
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             $this->conn->exec("set names utf8");
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch(PDOException $exception) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Connection error: ' . $exception->getMessage()
-            ]);
-            exit();
+            echo "Connection error: " . $exception->getMessage();
         }
 
         return $this->conn;
     }
 }
-?>

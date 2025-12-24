@@ -323,12 +323,20 @@ export default function AllStudents() {
                       {new Date(student.latest_report_date).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button
-                        onClick={() => handleViewReports(student.admission_no)}
-                        className="text-primary-600 hover:text-primary-900"
-                      >
-                        View Reports
-                      </button>
+                      <div className="flex justify-end gap-3">
+                        <button
+                          onClick={() => navigate(`${isTeacher ? '/teacher' : '/dashboard'}/student-details/${student.admission_no}`)}
+                          className="text-blue-600 hover:text-blue-900 font-medium"
+                        >
+                          View Details
+                        </button>
+                        <button
+                          onClick={() => handleViewReports(student.admission_no)}
+                          className="text-primary-600 hover:text-primary-900"
+                        >
+                          Reports
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -1,6 +1,6 @@
 <?php
 /**
- * Parent Login API (Email-only authentication)
+ * Parent Login API (Email and Password authentication)
  * For mobile application use
  */
 
@@ -38,7 +38,14 @@ if (!isset($data['email']) || empty(trim($data['email']))) {
     exit;
 }
 
+if (!isset($data['password']) || empty(trim($data['password']))) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Password is required']);
+    exit;
+}
+
 $email = trim(strtolower($data['email']));
+$password = $data['password'];
 
 // Validate email format
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -67,7 +74,17 @@ try {
         http_response_code(401);
         echo json_encode([
             'success' => false,
-            'message' => 'No account found with this email address. Please contact your child\'s school to register.'
+            'message' => 'Invalid email or password'
+        ]);
+        exit;
+    }
+
+    // Verify password
+    if (!password_verify($password, $parent['password'])) {
+        http_response_code(401);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Invalid email or password'
         ]);
         exit;
     }

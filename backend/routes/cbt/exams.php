@@ -318,39 +318,48 @@ try {
 
                     $db->beginTransaction();
 
+                    // Get exam's total_score to distribute across questions
+                    $examScoreQuery = "SELECT total_score FROM cbt_exams WHERE id = ?";
+                    $examScoreStmt = $db->prepare($examScoreQuery);
+                    $examScoreStmt->execute([$examId]);
+                    $examScore = $examScoreStmt->fetchColumn();
+
                     // Remove existing questions
                     $deleteQuery = "DELETE FROM cbt_exam_questions WHERE exam_id = ?";
                     $deleteStmt = $db->prepare($deleteQuery);
                     $deleteStmt->execute([$examId]);
 
-                    // Add new questions
+                    // Calculate marks per question based on exam's total_score
+                    // Use floor to round down, then add remainder to last question
+                    $questionCount = count($questions);
+                    $perQuestionMarks = floor(($examScore / $questionCount) * 100) / 100; // Round down to 2 decimals
+                    $remainder = $examScore - ($perQuestionMarks * $questionCount);
+
+                    // Add new questions with distributed marks
                     $questionQuery = "INSERT INTO cbt_exam_questions (exam_id, question_id, question_order, marks)
-                                      SELECT ?, ?, ?, marks FROM cbt_questions WHERE id = ?";
+                                      VALUES (?, ?, ?, ?)";
                     $questionStmt = $db->prepare($questionQuery);
 
                     foreach ($questions as $index => $questionId) {
-                        $questionStmt->execute([$examId, $questionId, $index + 1, $questionId]);
+                        // Add remainder to last question to ensure total equals exactly total_score
+                        $marks = ($index === $questionCount - 1)
+                            ? $perQuestionMarks + $remainder
+                            : $perQuestionMarks;
+                        $questionStmt->execute([$examId, $questionId, $index + 1, $marks]);
                     }
 
-                    // Update total marks based on questions
-                    $marksQuery = "SELECT SUM(q.marks) as total_marks
-                                   FROM cbt_exam_questions eq
-                                   JOIN cbt_questions q ON eq.question_id = q.id
-                                   WHERE eq.exam_id = ?";
-                    $marksStmt = $db->prepare($marksQuery);
-                    $marksStmt->execute([$examId]);
-                    $marksResult = $marksStmt->fetch(PDO::FETCH_ASSOC);
-
-                    $updateMarksQuery = "UPDATE cbt_exams SET total_marks = ? WHERE id = ?";
+                    // Update total_marks to match total_score (honor user's setting)
+                    $updateMarksQuery = "UPDATE cbt_exams SET total_marks = total_score WHERE id = ?";
                     $updateMarksStmt = $db->prepare($updateMarksQuery);
-                    $updateMarksStmt->execute([$marksResult['total_marks'], $examId]);
+                    $updateMarksStmt->execute([$examId]);
 
                     $db->commit();
 
                     echo json_encode([
                         'success' => true,
                         'message' => 'Questions added successfully',
-                        'total_marks' => $marksResult['total_marks']
+                        'total_marks' => $examScore,
+                        'marks_per_question' => $perQuestionMarks
                     ]);
                     break;
 

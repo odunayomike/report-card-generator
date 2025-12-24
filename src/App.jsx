@@ -27,6 +27,7 @@ import VerifyPayment from './pages/VerifyPayment';
 import AddStudent from './pages/AddStudent';
 import ManageParents from './pages/ManageParents';
 import ViewParents from './pages/ViewParents';
+import AddParent from './pages/AddParent';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Pricing from './pages/Pricing';
@@ -48,6 +49,8 @@ import StudentLogin from './pages/StudentLogin';
 import StudentDashboardLayout from './components/StudentDashboardLayout';
 import StudentDashboardHome from './pages/StudentDashboardHome';
 import ParentAPIDocs from './pages/ParentAPIDocs';
+import AccountingDashboard from './pages/accounting/AccountingDashboard';
+import StudentDetails from './pages/StudentDetails';
 
 function App() {
   const [school, setSchool] = useState(null);
@@ -230,8 +233,10 @@ function App() {
           <Route path="add-student" element={<AddStudent />} />
           <Route path="students" element={<AllStudents />} />
           <Route path="students/:admissionNo" element={<StudentProfile />} />
+          <Route path="student-details/:admissionNo" element={<StudentDetails />} />
           <Route path="manage-parents" element={<ManageParents />} />
           <Route path="view-parents" element={<ViewParents />} />
+          <Route path="add-parent" element={<AddParent />} />
           <Route path="reports/:id" element={<ViewReport school={school} />} />
           <Route path="reports/:id/edit" element={<EditReport school={school} />} />
           <Route path="profile" element={<SchoolProfile />} />
@@ -239,7 +244,7 @@ function App() {
           <Route path="settings" element={<SchoolSettings />} />
           <Route path="attendance" element={<ViewAttendance />} />
           <Route path="manage-teachers" element={<ManageTeachers />} />
-          <Route path="accounting" element={<ComingSoon feature="School Accounting & Fee Management" />} />
+          <Route path="accounting/*" element={<AccountingDashboard />} />
           <Route path="cbt" element={<CBTDashboard />} />
           <Route path="cbt/questions" element={<QuestionBank />} />
           <Route path="cbt/exams" element={<ExamManagement />} />
@@ -267,6 +272,7 @@ function App() {
           <Route path="add-student" element={<AddStudent />} />
           <Route path="students" element={<AllStudents />} />
           <Route path="students/:admissionNo" element={<StudentProfile />} />
+          <Route path="student-details/:admissionNo" element={<StudentDetails />} />
           <Route path="create-report" element={<CreateReport school={teacher?.school_id ? { id: teacher.school_id } : school} />} />
           <Route path="reports/:id" element={<ViewReport school={teacher?.school_id ? { id: teacher.school_id } : school} />} />
           <Route path="reports/:id/edit" element={<EditReport school={teacher?.school_id ? { id: teacher.school_id } : school} />} />

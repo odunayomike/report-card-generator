@@ -36,11 +36,12 @@ const ParentAPIDocs = () => {
         {/* Navigation */}
         <nav style={{ backgroundColor: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', position: 'sticky', top: 0, zIndex: 100 }}>
           <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <a href="#overview" style={{ color: '#667eea', textDecoration: 'none', fontWeight: '500', transition: 'color 0.3s' }}>Overview</a>
-            <a href="#authentication" style={{ color: '#667eea', textDecoration: 'none', fontWeight: '500', transition: 'color 0.3s' }}>Authentication</a>
-            <a href="#endpoints" style={{ color: '#667eea', textDecoration: 'none', fontWeight: '500', transition: 'color 0.3s' }}>Endpoints</a>
-            <a href="#errors" style={{ color: '#667eea', textDecoration: 'none', fontWeight: '500', transition: 'color 0.3s' }}>Error Codes</a>
-            <a href="#examples" style={{ color: '#667eea', textDecoration: 'none', fontWeight: '500', transition: 'color 0.3s' }}>Examples</a>
+            <a href="#overview" style={{ color: '#667eea', textDecoration: 'none', fontWeight: '500', transition: 'color 0.3s' }}>📖 Overview</a>
+            <a href="#auth-endpoints" style={{ color: '#667eea', textDecoration: 'none', fontWeight: '500', transition: 'color 0.3s' }}>🔐 Authentication</a>
+            <a href="#parent-endpoints" style={{ color: '#667eea', textDecoration: 'none', fontWeight: '500', transition: 'color 0.3s' }}>👨‍👩‍👧 Parent & Children</a>
+            <a href="#accounting-endpoints" style={{ color: '#ed8936', textDecoration: 'none', fontWeight: '600', transition: 'color 0.3s' }}>💰 Accounting & Payments</a>
+            <a href="#errors" style={{ color: '#667eea', textDecoration: 'none', fontWeight: '500', transition: 'color 0.3s' }}>⚠️ Error Codes</a>
+            <a href="#examples" style={{ color: '#667eea', textDecoration: 'none', fontWeight: '500', transition: 'color 0.3s' }}>📝 Code Examples</a>
           </div>
         </nav>
 
@@ -56,7 +57,7 @@ const ParentAPIDocs = () => {
 
             <p style={{ marginBottom: '1rem' }}>The Parent Mobile API allows parents and guardians to:</p>
             <ul style={{ marginLeft: '1.5rem', marginBottom: '1rem' }}>
-              <li>Login using only their email address (passwordless authentication)</li>
+              <li>Login securely using their email address and password</li>
               <li>View all their children's information</li>
               <li>Access comprehensive academic analytics for each child</li>
               <li>Track performance history across multiple terms</li>
@@ -68,29 +69,15 @@ const ParentAPIDocs = () => {
             </div>
           </section>
 
-          {/* Authentication Section */}
-          <section id="authentication" style={{ backgroundColor: 'white', borderRadius: '0.5rem', padding: '2rem', marginBottom: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-            <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1a202c', marginBottom: '1rem', borderBottom: '3px solid #667eea', paddingBottom: '0.5rem' }}>Authentication</h2>
+          {/* Authentication Endpoints Section */}
+          <section id="auth-endpoints" style={{ backgroundColor: 'white', borderRadius: '0.5rem', padding: '2rem', marginBottom: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1a202c', marginBottom: '1rem', borderBottom: '3px solid #667eea', paddingBottom: '0.5rem' }}>🔐 Authentication Endpoints</h2>
 
-            <p>The API uses <strong>email-only authentication</strong> with PHP sessions. No password is required.</p>
+            <p style={{ marginBottom: '1.5rem' }}>The API uses <strong>email and password authentication</strong> with PHP sessions for secure access.</p>
 
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginTop: '1.5rem', marginBottom: '0.75rem' }}>Login Flow</h3>
-            <ol style={{ marginLeft: '1.5rem' }}>
-              <li>Parent submits email address to <code>/parent/login.php</code></li>
-              <li>Server validates email and checks if parent exists</li>
-              <li>Server creates PHP session and returns session cookie</li>
-              <li>Mobile app stores session cookie for subsequent requests</li>
-              <li>All future requests include the session cookie automatically</li>
-            </ol>
-
-            <div style={{ backgroundColor: '#f0fff4', padding: '1rem', borderRadius: '0.5rem', marginTop: '1rem', borderLeft: '4px solid #48bb78' }}>
+            <div style={{ backgroundColor: '#f0fff4', padding: '1rem', borderRadius: '0.5rem', marginBottom: '2rem', borderLeft: '4px solid #48bb78' }}>
               <p style={{ margin: 0 }}><strong>Security Note:</strong> Sessions expire after inactivity. Always check session status using <code>/parent/check-session.php</code> before making API calls.</p>
             </div>
-          </section>
-
-          {/* Endpoints Section */}
-          <section id="endpoints" style={{ backgroundColor: 'white', borderRadius: '0.5rem', padding: '2rem', marginBottom: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-            <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1a202c', marginBottom: '1.5rem', borderBottom: '3px solid #667eea', paddingBottom: '0.5rem' }}>API Endpoints</h2>
 
             {/* Login Endpoint */}
             <div style={{ marginBottom: '2rem', borderLeft: '4px solid #48bb78', paddingLeft: '1rem' }}>
@@ -99,27 +86,73 @@ const ParentAPIDocs = () => {
                 <code style={{ fontSize: '1.125rem', color: '#2d3748' }}>/parent/login.php</code>
               </div>
 
-              <p style={{ marginBottom: '1rem' }}>Authenticate parent using email address only.</p>
+              <p style={{ marginBottom: '1rem' }}>Authenticate parent using email address and password.</p>
 
               <h4 style={{ fontSize: '1rem', fontWeight: '600', marginTop: '1rem', marginBottom: '0.5rem' }}>Request Body</h4>
               <div style={{ backgroundColor: '#2d3748', color: '#e2e8f0', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto', position: 'relative' }}>
-                <button onClick={() => copyToClipboard('{"email": "parent@example.com"}')} style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', backgroundColor: '#4a5568', color: 'white', border: 'none', padding: '0.25rem 0.75rem', borderRadius: '0.25rem', cursor: 'pointer', fontSize: '0.75rem' }}>Copy</button>
+                <button onClick={() => copyToClipboard('{"email": "parent@example.com", "password": "your_password"}')} style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', backgroundColor: '#4a5568', color: 'white', border: 'none', padding: '0.25rem 0.75rem', borderRadius: '0.25rem', cursor: 'pointer', fontSize: '0.75rem' }}>Copy</button>
                 <pre style={{ margin: 0, fontSize: '0.875rem' }}><code>{`{
-  "email": "parent@example.com"
+  "email": "parent@example.com",
+  "password": "your_password"
 }`}</code></pre>
               </div>
 
               <h4 style={{ fontSize: '1rem', fontWeight: '600', marginTop: '1rem', marginBottom: '0.5rem' }}>Success Response (200)</h4>
               <div style={{ backgroundColor: '#2d3748', color: '#e2e8f0', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto', position: 'relative' }}>
-                <button onClick={() => copyToClipboard('{"success": true, "message": "Login successful", "parent": {"id": 1, "email": "parent@example.com", "name": "John Doe", "children_count": 2}}')} style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', backgroundColor: '#4a5568', color: 'white', border: 'none', padding: '0.25rem 0.75rem', borderRadius: '0.25rem', cursor: 'pointer', fontSize: '0.75rem' }}>Copy</button>
+                <button onClick={() => copyToClipboard(`{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "parent": {
+      "id": 1,
+      "name": "John Doe",
+      "email": "parent@example.com",
+      "phone": "08012345678",
+      "children_count": 2
+    },
+    "children": [
+      {
+        "id": 123,
+        "name": "Jane Doe",
+        "class": "JSS 1",
+        "admission_no": "2024001",
+        "gender": "Female",
+        "photo": "uploads/students/jane.jpg",
+        "school_name": "ABC Secondary School",
+        "school_id": 5,
+        "relationship": "mother",
+        "is_primary": true
+      }
+    ],
+    "session_token": "abc123xyz"
+  }
+}`)} style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', backgroundColor: '#4a5568', color: 'white', border: 'none', padding: '0.25rem 0.75rem', borderRadius: '0.25rem', cursor: 'pointer', fontSize: '0.75rem' }}>Copy</button>
                 <pre style={{ margin: 0, fontSize: '0.875rem' }}><code>{`{
   "success": true,
   "message": "Login successful",
-  "parent": {
-    "id": 1,
-    "email": "parent@example.com",
-    "name": "John Doe",
-    "children_count": 2
+  "data": {
+    "parent": {
+      "id": 1,
+      "name": "John Doe",
+      "email": "parent@example.com",
+      "phone": "08012345678",
+      "children_count": 2
+    },
+    "children": [
+      {
+        "id": 123,
+        "name": "Jane Doe",
+        "class": "JSS 1",
+        "admission_no": "2024001",
+        "gender": "Female",
+        "photo": "uploads/students/jane.jpg",
+        "school_name": "ABC Secondary School",
+        "school_id": 5,
+        "relationship": "mother",
+        "is_primary": true
+      }
+    ],
+    "session_token": "abc123xyz"
   }
 }`}</code></pre>
               </div>
@@ -137,10 +170,14 @@ const ParentAPIDocs = () => {
               <h4 style={{ fontSize: '1rem', fontWeight: '600', marginTop: '1rem', marginBottom: '0.5rem' }}>Success Response (200)</h4>
               <div style={{ backgroundColor: '#2d3748', color: '#e2e8f0', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto' }}>
                 <pre style={{ margin: 0, fontSize: '0.875rem' }}><code>{`{
+  "success": true,
   "authenticated": true,
-  "parent": {
+  "data": {
     "id": 1,
-    "email": "parent@example.com"
+    "name": "John Doe",
+    "email": "parent@example.com",
+    "phone": "08012345678",
+    "children_count": 2
   }
 }`}</code></pre>
               </div>
@@ -159,10 +196,15 @@ const ParentAPIDocs = () => {
               <div style={{ backgroundColor: '#2d3748', color: '#e2e8f0', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto' }}>
                 <pre style={{ margin: 0, fontSize: '0.875rem' }}><code>{`{
   "success": true,
-  "message": "Logged out successfully"
+  "message": "Logout successful"
 }`}</code></pre>
               </div>
             </div>
+          </section>
+
+          {/* Parent & Children Endpoints Section */}
+          <section id="parent-endpoints" style={{ backgroundColor: 'white', borderRadius: '0.5rem', padding: '2rem', marginBottom: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1a202c', marginBottom: '1.5rem', borderBottom: '3px solid #667eea', paddingBottom: '0.5rem' }}>👨‍👩‍👧 Parent & Children Endpoints</h2>
 
             {/* Get Children Endpoint */}
             <div style={{ marginBottom: '2rem', borderLeft: '4px solid #4299e1', paddingLeft: '1rem' }}>
@@ -177,18 +219,31 @@ const ParentAPIDocs = () => {
               <div style={{ backgroundColor: '#2d3748', color: '#e2e8f0', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto' }}>
                 <pre style={{ margin: 0, fontSize: '0.875rem' }}><code>{`{
   "success": true,
-  "children": [
+  "data": [
     {
-      "student_id": 123,
+      "id": 123,
       "name": "Jane Doe",
       "class": "JSS 1",
+      "session": "2023/2024",
+      "term": "First Term",
       "admission_no": "2024001",
+      "gender": "Female",
+      "photo": "uploads/students/jane.jpg",
+      "height": "150cm",
+      "weight": "45kg",
       "relationship": "mother",
       "is_primary": true,
-      "school_name": "ABC Secondary School",
-      "photo": "uploads/students/jane.jpg"
+      "school": {
+        "id": 5,
+        "name": "ABC Secondary School",
+        "address": "123 Main Street, Lagos",
+        "phone": "08012345678",
+        "email": "info@abcschool.com",
+        "logo": "uploads/schools/abc_logo.png"
+      }
     }
-  ]
+  ],
+  "count": 1
 }`}</code></pre>
               </div>
             </div>
@@ -224,22 +279,104 @@ const ParentAPIDocs = () => {
               <div style={{ backgroundColor: '#2d3748', color: '#e2e8f0', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto' }}>
                 <pre style={{ margin: 0, fontSize: '0.875rem' }}><code>{`{
   "success": true,
-  "analytics": {
-    "student_info": {
+  "data": {
+    "student": {
+      "id": 123,
       "name": "Jane Doe",
       "class": "JSS 1",
-      "admission_no": "2024001"
+      "session": "2023/2024",
+      "term": "First Term",
+      "admission_no": "2024001",
+      "gender": "Female",
+      "photo": "uploads/students/jane.jpg",
+      "age": 12,
+      "school_name": "ABC Secondary School",
+      "school_logo": "uploads/schools/logo.png"
     },
     "academic_performance": {
-      "average_score": 78.5,
-      "total_subjects": 12,
-      "subjects_passed": 11,
-      "grade_distribution": {...}
+      "overall": {
+        "total_obtained": 847,
+        "total_obtainable": 1200,
+        "average": 70.58,
+        "percentage": 70.58,
+        "grade": "B",
+        "remark": "VERY GOOD"
+      },
+      "subjects": [
+        {
+          "name": "Mathematics",
+          "ca": 25,
+          "exam": 68,
+          "total": 93,
+          "grade": "A",
+          "remark": "EXCELLENT"
+        }
+      ],
+      "subjects_count": 12,
+      "grade_distribution": {
+        "A": 3,
+        "B": 5,
+        "C": 3,
+        "D": 1,
+        "F": 0
+      },
+      "strongest_subject": {
+        "name": "Mathematics",
+        "score": 93
+      },
+      "weakest_subject": {
+        "name": "Physical Education",
+        "score": 52
+      }
     },
     "attendance": {
-      "total_days": 180,
-      "days_present": 172,
+      "school_opened": 90,
+      "present": 86,
+      "absent": 4,
       "attendance_rate": 95.56
+    },
+    "behavior": {
+      "traits": [
+        {
+          "trait": "Punctuality",
+          "rating": 4
+        },
+        {
+          "trait": "Neatness",
+          "rating": 5
+        }
+      ],
+      "average_rating": 4.5
+    },
+    "skills": {
+      "psychomotor": [
+        {
+          "skill": "Handwriting",
+          "rating": 4
+        },
+        {
+          "skill": "Sports",
+          "rating": 3
+        }
+      ]
+    },
+    "remarks": {
+      "teacher": {
+        "name": "Mr. Johnson",
+        "remark": "Jane is a hardworking student."
+      },
+      "principal": {
+        "name": "Dr. Smith",
+        "remark": "Keep up the excellent work!"
+      },
+      "next_term_begins": "2024-01-08"
+    },
+    "grading_scale": {
+      "A": [75, 100],
+      "B": [65, 74],
+      "C": [55, 64],
+      "D": [45, 54],
+      "F": [0, 44]
     }
   }
 }`}</code></pre>
@@ -272,12 +409,385 @@ const ParentAPIDocs = () => {
                   </tr>
                 </tbody>
               </table>
+
+              <h4 style={{ fontSize: '1rem', fontWeight: '600', marginTop: '1rem', marginBottom: '0.5rem' }}>Success Response (200)</h4>
+              <div style={{ backgroundColor: '#2d3748', color: '#e2e8f0', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto' }}>
+                <pre style={{ margin: 0, fontSize: '0.875rem' }}><code>{`{
+  "success": true,
+  "data": {
+    "student": {
+      "name": "Jane Doe",
+      "admission_no": "2024001",
+      "current_class": "JSS 1",
+      "school_name": "ABC Secondary School"
+    },
+    "history": [
+      {
+        "report_id": 145,
+        "session": "2023/2024",
+        "term": "First Term",
+        "class": "JSS 1",
+        "average_score": 70.58,
+        "grade": "B",
+        "total_obtained": 847,
+        "subjects_count": 12,
+        "attendance_rate": 95.56,
+        "date": "2024-01-15 10:30:00"
+      },
+      {
+        "report_id": 123,
+        "session": "2022/2023",
+        "term": "Third Term",
+        "class": "Primary 6",
+        "average_score": 68.25,
+        "grade": "B",
+        "total_obtained": 819,
+        "subjects_count": 12,
+        "attendance_rate": 92.30,
+        "date": "2023-07-20 14:20:00"
+      }
+    ],
+    "trends": {
+      "improving": true,
+      "declining": false,
+      "stable": false,
+      "message": "Performance improved by 2.3 points"
+    },
+    "total_reports": 2
+  }
+}`}</code></pre>
+              </div>
+            </div>
+          </section>
+
+          {/* Accounting & Payment Endpoints Section */}
+          <section id="accounting-endpoints" style={{ backgroundColor: 'white', borderRadius: '0.5rem', padding: '2rem', marginBottom: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1a202c', marginBottom: '1.5rem', borderBottom: '3px solid #ed8936', paddingBottom: '0.5rem' }}>💰 Accounting & Payment Endpoints</h2>
+
+            <div style={{ backgroundColor: '#fffaf0', padding: '1rem', borderRadius: '0.5rem', marginBottom: '2rem', borderLeft: '4px solid #ed8936' }}>
+              <p style={{ margin: 0 }}><strong>Important:</strong> These endpoints handle fee management and payment processing. Bank transfer payments require verification by school admin, while Paystack payments are auto-verified. All payment endpoints are located at <code>/backend/routes/accounting/parent/</code></p>
+            </div>
+
+            {/* Get Fees Endpoint */}
+            <div style={{ marginBottom: '2rem', borderLeft: '4px solid #ed8936', paddingLeft: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <span style={{ backgroundColor: '#4299e1', color: 'white', padding: '0.25rem 0.75rem', borderRadius: '0.25rem', fontWeight: 'bold', fontSize: '0.875rem' }}>GET</span>
+                <code style={{ fontSize: '1.125rem', color: '#2d3748' }}>/accounting/parent/get-fees.php</code>
+              </div>
+
+              <p style={{ marginBottom: '1rem' }}>Get all outstanding fees for a specific child (pending, partial, paid, overdue).</p>
+
+              <h4 style={{ fontSize: '1rem', fontWeight: '600', marginTop: '1rem', marginBottom: '0.5rem' }}>Query Parameters</h4>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '1rem' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#edf2f7' }}>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e0' }}>Parameter</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e0' }}>Type</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e0' }}>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}><code>student_id</code></td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>integer</td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>Required. The student's ID</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h4 style={{ fontSize: '1rem', fontWeight: '600', marginTop: '1rem', marginBottom: '0.5rem' }}>Success Response (200)</h4>
+              <pre style={{ backgroundColor: '#2d3748', color: '#48bb78', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto', fontSize: '0.875rem' }}>
+{`{
+  "success": true,
+  "data": {
+    "student": {
+      "id": 123,
+      "name": "John Doe",
+      "class": "JSS 1A",
+      "admission_no": "2024001",
+      "session": "2023/2024",
+      "term": "First Term"
+    },
+    "fees": [
+      {
+        "id": 45,
+        "category": "Tuition Fee",
+        "description": "School tuition for the term",
+        "amount_due": 50000.00,
+        "amount_paid": 20000.00,
+        "balance": 30000.00,
+        "due_date": "2024-02-28",
+        "status": "partial",
+        "session": "2023/2024",
+        "term": "First Term",
+        "frequency": "termly",
+        "is_overdue": false,
+        "notes": null
+      }
+    ],
+    "summary": {
+      "total_due": 50000.00,
+      "total_paid": 20000.00,
+      "total_balance": 30000.00,
+      "overdue_count": 0,
+      "total_fees": 1
+    }
+  }
+}`}
+              </pre>
+            </div>
+
+            {/* Get Bank Accounts Endpoint */}
+            <div style={{ marginBottom: '2rem', borderLeft: '4px solid #ed8936', paddingLeft: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <span style={{ backgroundColor: '#4299e1', color: 'white', padding: '0.25rem 0.75rem', borderRadius: '0.25rem', fontWeight: 'bold', fontSize: '0.875rem' }}>GET</span>
+                <code style={{ fontSize: '1.125rem', color: '#2d3748' }}>/accounting/parent/get-bank-accounts.php</code>
+              </div>
+
+              <p style={{ marginBottom: '1rem' }}>Get school's bank account details for making bank transfers.</p>
+
+              <h4 style={{ fontSize: '1rem', fontWeight: '600', marginTop: '1rem', marginBottom: '0.5rem' }}>Query Parameters</h4>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '1rem' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#edf2f7' }}>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e0' }}>Parameter</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e0' }}>Type</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e0' }}>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}><code>student_id</code></td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>integer</td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>Required. The student's ID</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h4 style={{ fontSize: '1rem', fontWeight: '600', marginTop: '1rem', marginBottom: '0.5rem' }}>Success Response (200)</h4>
+              <pre style={{ backgroundColor: '#2d3748', color: '#48bb78', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto', fontSize: '0.875rem' }}>
+{`{
+  "success": true,
+  "data": {
+    "school_name": "ABC Secondary School",
+    "accounts": [
+      {
+        "id": 1,
+        "bank_name": "First Bank",
+        "account_number": "1234567890",
+        "account_name": "ABC Secondary School",
+        "account_type": "Current",
+        "is_primary": true
+      }
+    ],
+    "instruction": "Please make your transfer to any of the accounts below and upload your payment receipt."
+  }
+}`}
+              </pre>
+            </div>
+
+            {/* Submit Payment Endpoint */}
+            <div style={{ marginBottom: '2rem', borderLeft: '4px solid #ed8936', paddingLeft: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <span style={{ backgroundColor: '#48bb78', color: 'white', padding: '0.25rem 0.75rem', borderRadius: '0.25rem', fontWeight: 'bold', fontSize: '0.875rem' }}>POST</span>
+                <code style={{ fontSize: '1.125rem', color: '#2d3748' }}>/accounting/parent/submit-payment.php</code>
+              </div>
+
+              <p style={{ marginBottom: '1rem' }}>Submit payment proof for bank transfer with receipt upload.</p>
+
+              <h4 style={{ fontSize: '1rem', fontWeight: '600', marginTop: '1rem', marginBottom: '0.5rem' }}>Request Body (Bank Transfer)</h4>
+              <pre style={{ backgroundColor: '#2d3748', color: '#48bb78', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto', fontSize: '0.875rem' }}>
+{`{
+  "student_id": 123,
+  "student_fee_id": 45,
+  "amount": 30000.00,
+  "payment_method": "bank_transfer",
+  "payment_date": "2024-01-20",
+  "transfer_receipt_image": "data:image/jpeg;base64,...",
+  "bank_name": "First Bank",
+  "account_number": "1234567890",
+  "notes": "Payment for tuition"
+}`}
+              </pre>
+
+              <h4 style={{ fontSize: '1rem', fontWeight: '600', marginTop: '1rem', marginBottom: '0.5rem' }}>Success Response (201)</h4>
+              <pre style={{ backgroundColor: '#2d3748', color: '#48bb78', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto', fontSize: '0.875rem' }}>
+{`{
+  "success": true,
+  "message": "Payment submitted successfully. Awaiting verification by school.",
+  "data": {
+    "payment_id": 89,
+    "receipt_no": "RCT/2024/00045",
+    "amount": 30000.00,
+    "payment_method": "bank_transfer",
+    "verification_status": "pending",
+    "student_name": "John Doe",
+    "fee_category": "Tuition Fee"
+  }
+}`}
+              </pre>
+
+              <div style={{ backgroundColor: '#fffbeb', padding: '1rem', borderRadius: '0.5rem', marginTop: '1rem', borderLeft: '4px solid #f59e0b' }}>
+                <p style={{ margin: 0 }}><strong>Note:</strong> Bank transfer payments are marked as "pending" and require school verification. Paystack payments are auto-verified.</p>
+              </div>
+            </div>
+
+            {/* Get Payment History Endpoint */}
+            <div style={{ marginBottom: '2rem', borderLeft: '4px solid #ed8936', paddingLeft: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <span style={{ backgroundColor: '#4299e1', color: 'white', padding: '0.25rem 0.75rem', borderRadius: '0.25rem', fontWeight: 'bold', fontSize: '0.875rem' }}>GET</span>
+                <code style={{ fontSize: '1.125rem', color: '#2d3748' }}>/accounting/parent/get-payment-history.php</code>
+              </div>
+
+              <p style={{ marginBottom: '1rem' }}>Get all payment records for a child with verification status.</p>
+
+              <h4 style={{ fontSize: '1rem', fontWeight: '600', marginTop: '1rem', marginBottom: '0.5rem' }}>Query Parameters</h4>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '1rem' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#edf2f7' }}>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e0' }}>Parameter</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e0' }}>Type</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e0' }}>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}><code>student_id</code></td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>integer</td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>Required. The student's ID</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h4 style={{ fontSize: '1rem', fontWeight: '600', marginTop: '1rem', marginBottom: '0.5rem' }}>Success Response (200)</h4>
+              <pre style={{ backgroundColor: '#2d3748', color: '#48bb78', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto', fontSize: '0.875rem' }}>
+{`{
+  "success": true,
+  "data": {
+    "student_name": "John Doe",
+    "payments": [
+      {
+        "id": 89,
+        "receipt_no": "RCT/2024/00045",
+        "amount": 30000.00,
+        "payment_method": "bank_transfer",
+        "payment_date": "2024-01-20",
+        "fee_category": "Tuition Fee",
+        "session": "2023/2024",
+        "term": "First Term",
+        "verification_status": "verified",
+        "status_text": "Verified",
+        "verified_at": "2024-01-21 10:30:00",
+        "rejection_reason": null,
+        "bank_name": "First Bank",
+        "transaction_reference": null,
+        "paystack_reference": null,
+        "notes": null,
+        "submitted_at": "2024-01-20 14:25:00"
+      }
+    ],
+    "summary": {
+      "total_payments": 1,
+      "total_amount_paid": 30000.00,
+      "verified_count": 1,
+      "pending_count": 0,
+      "rejected_count": 0
+    }
+  }
+}`}
+              </pre>
+
+              <h4 style={{ fontSize: '1rem', fontWeight: '600', marginTop: '1rem', marginBottom: '0.5rem' }}>Verification Status Values</h4>
+              <ul style={{ marginLeft: '1.5rem', marginBottom: '1rem' }}>
+                <li><code>pending</code> - Awaiting school verification (bank transfers)</li>
+                <li><code>verified</code> - Payment confirmed</li>
+                <li><code>rejected</code> - Payment rejected by school</li>
+              </ul>
+            </div>
+
+            {/* Initialize Paystack Payment Endpoint */}
+            <div style={{ marginBottom: '2rem', borderLeft: '4px solid #ed8936', paddingLeft: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <span style={{ backgroundColor: '#48bb78', color: 'white', padding: '0.25rem 0.75rem', borderRadius: '0.25rem', fontWeight: 'bold', fontSize: '0.875rem' }}>POST</span>
+                <code style={{ fontSize: '1.125rem', color: '#2d3748' }}>/accounting/parent/initialize-paystack-payment.php</code>
+              </div>
+
+              <p style={{ marginBottom: '1rem' }}>Initialize Paystack online payment and get authorization URL. Includes ₦200 platform fee + Paystack transaction charges (paid by parent).</p>
+
+              <h4 style={{ fontSize: '1rem', fontWeight: '600', marginTop: '1rem', marginBottom: '0.5rem' }}>Request Body</h4>
+              <pre style={{ backgroundColor: '#2d3748', color: '#48bb78', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto', fontSize: '0.875rem' }}>
+{`{
+  "student_id": 123,
+  "student_fee_id": 45,
+  "amount": 30000.00,
+  "email": "parent@example.com",
+  "callback_url": "myapp://payment-callback"
+}`}
+              </pre>
+
+              <h4 style={{ fontSize: '1rem', fontWeight: '600', marginTop: '1rem', marginBottom: '0.5rem' }}>Success Response (200)</h4>
+              <pre style={{ backgroundColor: '#2d3748', color: '#48bb78', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto', fontSize: '0.875rem' }}>
+{`{
+  "success": true,
+  "message": "Payment initialized successfully",
+  "data": {
+    "authorization_url": "https://checkout.paystack.com/abc123xyz",
+    "access_code": "abc123xyz",
+    "reference": "FEE_123_45_1705756800",
+    "amount": 30000.00,
+    "fee_category": "Tuition Fee",
+    "student_name": "John Doe"
+  }
+}`}
+              </pre>
+
+              <div style={{ backgroundColor: '#fffbeb', padding: '1rem', borderRadius: '0.5rem', marginTop: '1rem', borderLeft: '4px solid #f59e0b' }}>
+                <p style={{ margin: 0 }}><strong>Fee Structure:</strong> Parent pays: School Fee + ₦200 Platform Fee + Paystack Charges. School receives the fee amount directly via subaccount settlement.</p>
+              </div>
+            </div>
+
+            {/* Verify Paystack Payment Endpoint */}
+            <div style={{ marginBottom: '2rem', borderLeft: '4px solid #ed8936', paddingLeft: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <span style={{ backgroundColor: '#48bb78', color: 'white', padding: '0.25rem 0.75rem', borderRadius: '0.25rem', fontWeight: 'bold', fontSize: '0.875rem' }}>POST</span>
+                <code style={{ fontSize: '1.125rem', color: '#2d3748' }}>/accounting/parent/verify-paystack-payment.php</code>
+              </div>
+
+              <p style={{ marginBottom: '1rem' }}>Verify Paystack payment and record it automatically.</p>
+
+              <h4 style={{ fontSize: '1rem', fontWeight: '600', marginTop: '1rem', marginBottom: '0.5rem' }}>Request Body</h4>
+              <pre style={{ backgroundColor: '#2d3748', color: '#48bb78', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto', fontSize: '0.875rem' }}>
+{`{
+  "reference": "FEE_123_45_1705756800"
+}`}
+              </pre>
+
+              <h4 style={{ fontSize: '1rem', fontWeight: '600', marginTop: '1rem', marginBottom: '0.5rem' }}>Success Response (200)</h4>
+              <pre style={{ backgroundColor: '#2d3748', color: '#48bb78', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto', fontSize: '0.875rem' }}>
+{`{
+  "success": true,
+  "message": "Payment verified and recorded successfully",
+  "data": {
+    "payment_id": 92,
+    "receipt_no": "RCT/2024/00046",
+    "amount": 30000.00,
+    "payment_date": "2024-01-20",
+    "student_name": "John Doe",
+    "paystack_reference": "FEE_123_45_1705756800",
+    "verification_status": "verified"
+  }
+}`}
+              </pre>
+
+              <div style={{ backgroundColor: '#f0fff4', padding: '1rem', borderRadius: '0.5rem', marginTop: '1rem', borderLeft: '4px solid #48bb78' }}>
+                <p style={{ margin: 0 }}><strong>Auto-Verification:</strong> Paystack payments are automatically verified and the student's fee status is updated immediately.</p>
+              </div>
             </div>
           </section>
 
           {/* Error Codes Section */}
           <section id="errors" style={{ backgroundColor: 'white', borderRadius: '0.5rem', padding: '2rem', marginBottom: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-            <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1a202c', marginBottom: '1.5rem', borderBottom: '3px solid #667eea', paddingBottom: '0.5rem' }}>HTTP Status Codes</h2>
+            <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1a202c', marginBottom: '1.5rem', borderBottom: '3px solid #f56565', paddingBottom: '0.5rem' }}>⚠️ HTTP Status Codes</h2>
 
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
@@ -317,7 +827,7 @@ const ParentAPIDocs = () => {
 
           {/* Code Examples Section */}
           <section id="examples" style={{ backgroundColor: 'white', borderRadius: '0.5rem', padding: '2rem', marginBottom: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-            <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1a202c', marginBottom: '1.5rem', borderBottom: '3px solid #667eea', paddingBottom: '0.5rem' }}>Code Examples</h2>
+            <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1a202c', marginBottom: '1.5rem', borderBottom: '3px solid #48bb78', paddingBottom: '0.5rem' }}>📝 Code Examples</h2>
 
             <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginTop: '1.5rem', marginBottom: '1rem' }}>JavaScript/React Native</h3>
             <div style={{ backgroundColor: '#2d3748', color: '#e2e8f0', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto', position: 'relative' }}>
@@ -326,7 +836,10 @@ const response = await fetch('https://schoolhub.tech/backend/routes/parent/login
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   credentials: 'include',
-  body: JSON.stringify({ email: 'parent@example.com' })
+  body: JSON.stringify({
+    email: 'parent@example.com',
+    password: 'your_password'
+  })
 });
 
 // Get children
@@ -338,7 +851,10 @@ const response = await fetch('https://schoolhub.tech/backend/routes/parent/login
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   credentials: 'include',
-  body: JSON.stringify({ email: 'parent@example.com' })
+  body: JSON.stringify({
+    email: 'parent@example.com',
+    password: 'your_password'
+  })
 });
 
 // Get children
@@ -351,14 +867,14 @@ const childrenResponse = await fetch('https://schoolhub.tech/backend/routes/pare
             <div style={{ backgroundColor: '#2d3748', color: '#e2e8f0', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto', position: 'relative' }}>
               <button onClick={() => copyToClipboard(`curl -X POST https://schoolhub.tech/backend/routes/parent/login.php \\
   -H "Content-Type: application/json" \\
-  -d '{"email": "parent@example.com"}' \\
+  -d '{"email": "parent@example.com", "password": "your_password"}' \\
   -c cookies.txt
 
 curl -X GET https://schoolhub.tech/backend/routes/parent/get-children.php \\
   -b cookies.txt`)} style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', backgroundColor: '#4a5568', color: 'white', border: 'none', padding: '0.25rem 0.75rem', borderRadius: '0.25rem', cursor: 'pointer', fontSize: '0.75rem' }}>Copy</button>
               <pre style={{ margin: 0, fontSize: '0.875rem' }}><code>{`curl -X POST https://schoolhub.tech/backend/routes/parent/login.php \\
   -H "Content-Type: application/json" \\
-  -d '{"email": "parent@example.com"}' \\
+  -d '{"email": "parent@example.com", "password": "your_password"}' \\
   -c cookies.txt
 
 curl -X GET https://schoolhub.tech/backend/routes/parent/get-children.php \\

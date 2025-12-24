@@ -5,6 +5,7 @@ import schoolLogo from '../assets/schoolhub.png';
 import SEO from '../components/SEO';
 import CurrencySelector from '../components/CurrencySelector';
 import { useCurrency } from '../contexts/CurrencyContext';
+import PaystackLogo from '../components/PaystackLogo';
 
 export default function Pricing() {
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
@@ -190,7 +191,9 @@ export default function Pricing() {
                     'Subscription management',
                     'Computer-Based Testing (CBT)',
                     'Online exams & grading',
-                    'Guardian/Parent app'
+                    'Guardian/Parent app',
+                    'School accounting & finance',
+                    'Fee management & payments'
                   ].map((feature, index) => (
                     <div key={index} className="flex items-start gap-2">
                       <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{color: '#1791C8'}} />
@@ -200,20 +203,6 @@ export default function Pricing() {
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 pt-4 mt-4">
-                <h3 className="text-base font-bold text-gray-900 mb-3 text-center">Coming Soon</h3>
-                <div className="grid grid-cols-1 gap-2">
-                  {[
-                    'School accounting',
-                    'Fee management'
-                  ].map((feature, index) => (
-                    <div key={index} className="flex items-start gap-2">
-                      <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-gray-400" />
-                      <span className="text-gray-500 text-sm">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
               </div>
 
               {/* Per Term Plan */}
@@ -273,7 +262,9 @@ export default function Pricing() {
                     'Subscription management',
                     'Computer-Based Testing (CBT)',
                     'Online exams & grading',
-                    'Guardian/Parent app'
+                    'Guardian/Parent app',
+                    'School accounting & finance',
+                    'Fee management & payments'
                   ].map((feature, index) => (
                     <div key={index} className="flex items-start gap-2">
                       <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-indigo-600" />
@@ -283,20 +274,6 @@ export default function Pricing() {
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 pt-4 mt-4">
-                <h3 className="text-base font-bold text-gray-900 mb-3 text-center">Coming Soon</h3>
-                <div className="grid grid-cols-1 gap-2">
-                  {[
-                    'School accounting',
-                    'Fee management'
-                  ].map((feature, index) => (
-                    <div key={index} className="flex items-start gap-2">
-                      <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-gray-400" />
-                      <span className="text-gray-500 text-sm">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
               </div>
 
               {/* Annual Plan */}
@@ -356,7 +333,9 @@ export default function Pricing() {
                     'Subscription management',
                     'Computer-Based Testing (CBT)',
                     'Online exams & grading',
-                    'Guardian/Parent app'
+                    'Guardian/Parent app',
+                    'School accounting & finance',
+                    'Fee management & payments'
                   ].map((feature, index) => (
                     <div key={index} className="flex items-start gap-2">
                       <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{color: '#1791C8'}} />
@@ -366,20 +345,6 @@ export default function Pricing() {
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 pt-4 mt-4">
-                <h3 className="text-base font-bold text-gray-900 mb-3 text-center">Coming Soon</h3>
-                <div className="grid grid-cols-1 gap-2">
-                  {[
-                    'School accounting',
-                    'Fee management'
-                  ].map((feature, index) => (
-                    <div key={index} className="flex items-start gap-2">
-                      <Check className="w-4 h-4 flex-shrink-0 mt-0.5 text-gray-400" />
-                      <span className="text-gray-500 text-sm">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
               </div>
 
             </div>
@@ -487,6 +452,42 @@ export default function Pricing() {
                 <div className="text-4xl font-bold mb-2" style={{color: '#1791C8'}}>100%</div>
                 <div className="text-gray-900 font-semibold mb-2">Cloud-Based</div>
                 <p className="text-gray-600 text-sm">Access from anywhere, automatic updates, and daily backups included at no extra cost</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Payment Security Badge */}
+        <section className="py-12 bg-gray-50 border-y border-gray-200">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-8 text-center">
+              <div className="flex flex-col items-center justify-center gap-3 mb-4">
+                <div className="bg-white px-6 py-3 rounded-lg">
+                  <PaystackLogo className="w-40 h-auto" />
+                </div>
+                <h3 className="text-2xl font-bold text-white">Secure Payments by Paystack</h3>
+              </div>
+              <p className="text-gray-300 text-base mb-6 max-w-3xl mx-auto">
+                All subscription payments are processed securely through Paystack's PCI-DSS compliant infrastructure.
+                Your payment information is encrypted and protected with bank-level security.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400">
+                <div className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-green-400" />
+                  <span>256-bit SSL Encryption</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-green-400" />
+                  <span>PCI-DSS Certified</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-green-400" />
+                  <span>Fraud Protection</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-green-400" />
+                  <span>Trusted by 200,000+ Businesses</span>
+                </div>
               </div>
             </div>
           </div>

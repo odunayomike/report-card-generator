@@ -143,9 +143,9 @@ const TakeExam = () => {
         if (autoSaveTimeout.current) clearTimeout(autoSaveTimeout.current);
 
         // Check if results should be shown immediately
-        // show_results_immediately = 1 means HIDE results (checkbox checked)
-        // show_results_immediately = 0 means SHOW results (checkbox unchecked - default)
-        if (exam.show_results_immediately === 1) {
+        // show_results_immediately = 1 means SHOW results immediately
+        // show_results_immediately = 0 means HIDE results
+        if (exam.show_results_immediately === 0) {
           // Hide results - navigate back to exams list with success message
           navigate('/student/exams', {
             state: {

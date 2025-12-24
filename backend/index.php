@@ -191,6 +191,10 @@ try {
             require __DIR__ . '/routes/get-student-profile.php';
             break;
 
+        case '/get-student-details':
+            require __DIR__ . '/routes/get-student-details.php';
+            break;
+
         case '/get-analytics':
             require __DIR__ . '/routes/get-analytics.php';
             break;
@@ -351,6 +355,134 @@ try {
 
         case '/parent/remove-parent-student':
             require __DIR__ . '/routes/parent/remove-parent-student.php';
+            break;
+
+        // Parent Accounting/Payment routes
+        case '/parent/get-fees':
+            require __DIR__ . '/routes/accounting/parent/get-fees.php';
+            break;
+
+        case '/parent/get-bank-accounts':
+            require __DIR__ . '/routes/accounting/parent/get-bank-accounts.php';
+            break;
+
+        case '/parent/submit-payment':
+            require __DIR__ . '/routes/accounting/parent/submit-payment.php';
+            break;
+
+        case '/parent/get-payment-history':
+            require __DIR__ . '/routes/accounting/parent/get-payment-history.php';
+            break;
+
+        case '/parent/initialize-paystack-payment':
+            require __DIR__ . '/routes/accounting/parent/initialize-paystack-payment.php';
+            break;
+
+        case '/parent/verify-paystack-payment':
+            require __DIR__ . '/routes/accounting/parent/verify-paystack-payment.php';
+            break;
+
+        // Accounting Fee Categories routes
+        case '/accounting/fee-categories':
+            require __DIR__ . '/routes/accounting/fee-categories/get-all.php';
+            break;
+
+        case '/accounting/fee-categories/create':
+            require __DIR__ . '/routes/accounting/fee-categories/create.php';
+            break;
+
+        case '/accounting/admin/update-fee-category':
+            require __DIR__ . '/routes/accounting/admin/update-fee-category.php';
+            break;
+
+        // Accounting Fee Structure routes
+        case '/accounting/admin/get-fee-structure':
+            require __DIR__ . '/routes/accounting/admin/get-fee-structure.php';
+            break;
+
+        case '/accounting/admin/create-fee-structure':
+            require __DIR__ . '/routes/accounting/admin/create-fee-structure.php';
+            break;
+
+        case '/accounting/admin/update-fee-structure':
+            require __DIR__ . '/routes/accounting/admin/update-fee-structure.php';
+            break;
+
+        case '/accounting/admin/delete-fee-structure':
+            require __DIR__ . '/routes/accounting/admin/delete-fee-structure.php';
+            break;
+
+        case '/accounting/admin/assign-fees-to-students':
+            require __DIR__ . '/routes/accounting/admin/assign-fees-to-students.php';
+            break;
+
+        // Accounting Admin routes (Payment Verification)
+        case '/accounting/admin/get-pending-payments':
+            require __DIR__ . '/routes/accounting/admin/get-pending-payments.php';
+            break;
+
+        case '/accounting/admin/verify-payment':
+            require __DIR__ . '/routes/accounting/admin/verify-payment.php';
+            break;
+
+        case '/accounting/admin/reject-payment':
+            require __DIR__ . '/routes/accounting/admin/reject-payment.php';
+            break;
+
+        // Accounting Admin routes (Bank Account Management)
+        case '/accounting/admin/get-bank-accounts':
+            require __DIR__ . '/routes/accounting/admin/get-bank-accounts.php';
+            break;
+
+        case '/accounting/admin/create-bank-account':
+            require __DIR__ . '/routes/accounting/admin/create-bank-account.php';
+            break;
+
+        case '/accounting/admin/update-bank-account':
+            require __DIR__ . '/routes/accounting/admin/update-bank-account.php';
+            break;
+
+        case '/accounting/admin/delete-bank-account':
+            require __DIR__ . '/routes/accounting/admin/delete-bank-account.php';
+            break;
+
+        // Accounting Expense Tracking routes
+        case '/accounting/admin/get-expenses':
+            require __DIR__ . '/routes/accounting/admin/get-expenses.php';
+            break;
+
+        case '/accounting/admin/create-expense':
+            require __DIR__ . '/routes/accounting/admin/create-expense.php';
+            break;
+
+        // Accounting Financial Reports routes
+        case '/accounting/admin/get-financial-report':
+            require __DIR__ . '/routes/accounting/admin/get-financial-report.php';
+            break;
+
+        // Accounting Settlement/Subaccount routes
+        case '/accounting/admin/get-banks':
+            require __DIR__ . '/routes/accounting/admin/get-banks.php';
+            break;
+
+        case '/accounting/admin/verify-bank-account':
+            require __DIR__ . '/routes/accounting/admin/verify-bank-account.php';
+            break;
+
+        case '/accounting/admin/create-subaccount':
+            require __DIR__ . '/routes/accounting/admin/create-subaccount.php';
+            break;
+
+        case '/accounting/admin/get-settlement-info':
+            require __DIR__ . '/routes/accounting/admin/get-settlement-info.php';
+            break;
+
+        case '/accounting/admin/delete-subaccount':
+            require __DIR__ . '/routes/accounting/admin/delete-subaccount.php';
+            break;
+
+        case '/accounting/admin/verify-subaccount':
+            require __DIR__ . '/routes/accounting/admin/verify-subaccount.php';
             break;
 
         // Default - 404
