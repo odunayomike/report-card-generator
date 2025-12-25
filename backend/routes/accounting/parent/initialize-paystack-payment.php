@@ -67,7 +67,7 @@ try {
     $verifyQuery = "SELECT ps.student_id, s.name as student_name, s.school_id,
                            p.name as parent_name,
                            sch.paystack_subaccount_code,
-                           sch.name as school_name
+                           sch.school_name
                     FROM parent_students ps
                     INNER JOIN students s ON ps.student_id = s.id
                     INNER JOIN parents p ON ps.parent_id = p.id

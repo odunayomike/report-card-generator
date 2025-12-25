@@ -87,11 +87,29 @@ try {
     $paymentData = $response['data'];
     $metadata = $paymentData['metadata'];
 
-    // Extract metadata
-    $studentId = $metadata['student_id'];
-    $studentFeeId = $metadata['student_fee_id'];
-    $amount = $paymentData['amount'] / 100; // Convert from kobo to naira
+    // Log for debugging
+    error_log("Payment verification - Reference: " . $reference);
+    error_log("Metadata: " . json_encode($metadata));
+
+    // Extract metadata with validation
+    if (!isset($metadata['student_id']) || !isset($metadata['student_fee_id']) || !isset($metadata['fee_amount'])) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Invalid payment metadata',
+            'metadata' => $metadata
+        ]);
+        exit;
+    }
+
+    $studentId = intval($metadata['student_id']);
+    $studentFeeId = intval($metadata['student_fee_id']);
+    // Use fee_amount from metadata (excludes platform fee)
+    $amount = floatval($metadata['fee_amount']);
+    $totalAmountPaid = $paymentData['amount'] / 100; // Total including platform fee
     $paymentDate = date('Y-m-d', strtotime($paymentData['paid_at']));
+
+    error_log("Extracted - Student ID: $studentId, Fee ID: $studentFeeId, Amount: $amount");
 
     $database = new Database();
     $db = $database->getConnection();
@@ -145,7 +163,14 @@ try {
                      verification_status, verified_at, notes)
                     VALUES (?, ?, ?, ?, ?, 'paystack', ?, ?, 'verified', NOW(), ?)";
 
-    $notes = "Paid via Paystack - " . $paymentData['channel'];
+    $platformFee = 200; // Fixed platform fee
+    $notes = sprintf(
+        "Paid via Paystack (%s) - Fee: ₦%s, Platform Fee: ₦%s, Total: ₦%s",
+        $paymentData['channel'],
+        number_format($amount, 2),
+        number_format($platformFee, 2),
+        number_format($totalAmountPaid, 2)
+    );
 
     $insertStmt = $db->prepare($insertQuery);
     $insertStmt->execute([
@@ -174,8 +199,16 @@ try {
     $updateFeeStmt = $db->prepare($updateFeeQuery);
     $updateFeeStmt->execute([$amount, $amount, $amount, $studentFeeId]);
 
+    $rowsAffected = $updateFeeStmt->rowCount();
+    error_log("Student fee update - Fee ID: $studentFeeId, Amount added: $amount, Rows affected: $rowsAffected");
+
+    if ($rowsAffected === 0) {
+        error_log("WARNING: No rows updated for student_fee_id: $studentFeeId");
+    }
+
     // Commit transaction
     $db->commit();
+    error_log("Transaction committed successfully for payment ID: $paymentId");
 
     http_response_code(200);
     echo json_encode([

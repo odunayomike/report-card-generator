@@ -36,23 +36,72 @@ export default function FAQ() {
       questions: [
         {
           question: 'How much does SchoolHub cost?',
-          answer: 'We have three plans: Basic (₦5,000/term), Professional (₦15,000/term), and Enterprise (₦35,000/term). Each plan is billed per academic term. Annual payments receive a 2-month discount.'
+          answer: 'We have simple, transparent pricing with three flexible plans: Monthly (₦15,000/month), Per Term (₦40,000 for 3 months - save ₦5,000), and Annual (₦150,000/year - save ₦30,000). All plans include unlimited students, unlimited teachers, and all features with no hidden fees.'
         },
         {
-          question: 'What payment methods do you accept?',
-          answer: 'We accept card payments (Visa, Mastercard, Verve), bank transfers, and mobile money through our secure payment partner, Paystack. All payments are processed securely with bank-level encryption.'
+          question: 'What payment methods do you accept for school subscriptions?',
+          answer: 'We accept all major payment methods including card payments (Visa, Mastercard, Verve), bank transfers, and mobile money through our secure payment partner, Paystack. All payments are PCI-DSS compliant with bank-level 256-bit SSL encryption.'
         },
         {
-          question: 'Can I change my plan later?',
-          answer: 'Absolutely! You can upgrade or downgrade your plan at any time from your account settings. Plan changes take effect at the start of your next billing cycle.'
+          question: 'Is there a setup fee or hidden charges?',
+          answer: 'No setup fees or hidden charges for school subscriptions! The price you see is what you pay. However, when parents pay school fees through the platform, a ₦200 platform fee is charged per transaction to the parent (not the school).'
+        },
+        {
+          question: 'How does the parent payment platform fee work?',
+          answer: 'When parents pay school fees online via our parent app, they pay a ₦200 platform fee per transaction. The school receives 100% of the fee amount. This platform fee helps us maintain secure payment infrastructure and provide ongoing support. If parents pay by bank transfer through Paystack, they only pay ₦200. If they pay by card, Paystack adds their standard 1.5% + ₦100 fee.'
+        },
+        {
+          question: 'Can I change my subscription plan?',
+          answer: 'Yes! You can upgrade or switch plans at any time from your account settings. When upgrading mid-cycle, you only pay the prorated difference. Downgrades take effect at the start of your next billing period.'
         },
         {
           question: 'Do you offer refunds?',
-          answer: 'Yes, if you\'re not satisfied within the first 7 days of your paid subscription, we offer a full refund. Contact our support team to process your refund request.'
+          answer: 'Yes, we offer a full refund if you\'re not satisfied within the first 7 days of your paid subscription. Contact our support team within this period to process your refund request.'
         },
         {
           question: 'What happens when my free trial ends?',
-          answer: 'After your 7-day trial, you\'ll need to select a paid plan to continue using SchoolHub. Your data is safely stored for 30 days, giving you time to make a decision without losing any information.'
+          answer: 'After your 7-day free trial, you\'ll need to subscribe to a paid plan to continue using SchoolHub. Your data is safely stored for 30 days, giving you time to decide. No credit card is required to start the trial.'
+        },
+        {
+          question: 'What happens if I don\'t renew my subscription?',
+          answer: 'If your subscription expires, you\'ll have read-only access to your data for 30 days. You can export all your data during this period. After 30 days, your account will be deactivated, but data remains securely stored for 90 days if you decide to return.'
+        },
+        {
+          question: 'Do you offer discounts for multiple schools?',
+          answer: 'Yes! Educational groups managing 3 or more schools qualify for special volume discounts. Contact our sales team for custom pricing tailored to your needs.'
+        },
+        {
+          question: 'Is there a student or teacher limit?',
+          answer: 'No limits! All plans include unlimited students and unlimited teacher accounts. Add as many students and teachers as your school needs at no extra cost.'
+        }
+      ]
+    },
+    {
+      category: 'Parent Fee Payment',
+      questions: [
+        {
+          question: 'How can parents pay school fees online?',
+          answer: 'Parents can pay school fees directly through our parent mobile app using Paystack. They can pay with debit/credit cards or bank transfer. All payments are secure and instantly verified.'
+        },
+        {
+          question: 'Are there any additional fees when parents pay online?',
+          answer: 'Yes, there is a platform fee of ₦200 per transaction. If parents pay with a card, Paystack charges their standard transaction fee (1.5% + ₦100). Bank transfer payments have no Paystack fees - just the ₦200 platform fee.'
+        },
+        {
+          question: 'Can parents pay in installments?',
+          answer: 'Yes! Parents can make partial payments toward any fee. The system tracks all payments and outstanding balances automatically. Schools can set due dates for each installment.'
+        },
+        {
+          question: 'How do parents know their payment was received?',
+          answer: 'Parents receive instant payment confirmation with a receipt number. Payments made via card or bank transfer are automatically verified. Schools can also see real-time payment notifications in their dashboard.'
+        },
+        {
+          question: 'What if a parent uploads a fake bank transfer receipt?',
+          answer: 'All bank transfer receipts require manual verification by the school before the payment is marked as complete. Only Paystack card/transfer payments are auto-verified. This protects schools from fraudulent receipts.'
+        },
+        {
+          question: 'Can parents view their payment history?',
+          answer: 'Yes! Parents can view complete payment history for each child through the mobile app, including receipt numbers, amounts paid, payment methods, and verification status.'
         }
       ]
     },
@@ -86,11 +135,15 @@ export default function FAQ() {
       questions: [
         {
           question: 'Is my school data secure?',
-          answer: 'Absolutely. We use bank-level 256-bit SSL encryption to protect all data. Your information is stored on secure cloud servers with daily backups. We comply with international data protection standards.'
+          answer: 'Absolutely. We use bank-level 256-bit SSL encryption to protect all data. Your information is stored on Google Cloud servers with 99.9% uptime guarantee. We perform daily automated backups and comply with international data protection standards.'
+        },
+        {
+          question: 'Where is my school data stored?',
+          answer: 'All school data is securely stored on Google Cloud infrastructure. As a Google Cloud partner, we leverage their world-class security, reliability, and global network. Your data is accessible anytime, anywhere with an internet connection.'
         },
         {
           question: 'Can I access SchoolHub on my phone?',
-          answer: 'Yes! SchoolHub is fully responsive and works on all devices - smartphones, tablets, and computers. Teachers can mark attendance and perform other tasks directly from their mobile phones.'
+          answer: 'Yes! SchoolHub is fully responsive and works on all devices - smartphones, tablets, and computers. We also have a dedicated Parent Mobile App for iOS and Android where parents can view fees, make payments, and track their children\'s progress.'
         },
         {
           question: 'What if I forget my password?',
@@ -98,11 +151,15 @@ export default function FAQ() {
         },
         {
           question: 'Do you provide data backups?',
-          answer: 'Yes, we perform automatic daily backups of all school data. In the unlikely event of data loss, we can restore your information from our backup systems.'
+          answer: 'Yes, we perform automatic daily backups of all school data on Google Cloud. In the unlikely event of data loss, we can restore your information from our backup systems within hours.'
         },
         {
           question: 'Can I export my data?',
-          answer: 'Yes, you can export student lists, report cards, and attendance records as CSV or PDF files at any time. Your data belongs to you, and you have full access to export it whenever needed.'
+          answer: 'Yes, you can export student lists, report cards, attendance records, and fee payment history as CSV or PDF files at any time. Your data belongs to you, and you have full access to export it whenever needed.'
+        },
+        {
+          question: 'What happens if there is a server downtime?',
+          answer: 'Our Google Cloud infrastructure provides 99.9% uptime guarantee. In the rare case of downtime, our team is immediately notified and works to restore service. All data remains safe and will be accessible once service is restored.'
         }
       ]
     },
@@ -132,19 +189,35 @@ export default function FAQ() {
       questions: [
         {
           question: 'How many user accounts can I create?',
-          answer: 'Basic plan includes 2 teacher accounts. Professional and Enterprise plans offer unlimited teacher accounts. Each school gets one admin account with full system access.'
+          answer: 'All plans include unlimited teacher accounts and unlimited student accounts! Each school gets one admin account with full system access. You can create as many teacher accounts as needed and assign specific permissions to each teacher.'
         },
         {
           question: 'Can I cancel my subscription anytime?',
-          answer: 'Yes, you can cancel your subscription at any time. Your account will remain active until the end of your current billing period. After cancellation, you can still export your data for 30 days.'
+          answer: 'Yes, you can cancel your subscription at any time with no penalties. Your account remains active until the end of your current billing period. After cancellation, you have 30 days of read-only access to export your data.'
         },
         {
-          question: 'What happens if I exceed my student limit?',
-          answer: 'We\'ll notify you when you\'re approaching your student limit. If you exceed it, we\'ll help you upgrade to a higher plan. Your service won\'t be interrupted - we\'ll work with you to find the right solution.'
+          question: 'How do I add or remove teachers?',
+          answer: 'You can add or remove teacher accounts anytime from your admin dashboard under "Teacher Management". Simply enter their email, name, and assign permissions. Teachers receive login credentials via email and can immediately access the system.'
         },
         {
           question: 'Can I have multiple schools on one account?',
-          answer: 'Each school requires its own separate account and subscription. However, if you manage multiple schools, contact our sales team - we offer special multi-school discounts for educational groups.'
+          answer: 'Each school requires its own separate account and subscription for data security and organization. However, if you manage multiple schools (3+), contact our sales team for special volume discounts and multi-school management features.'
+        },
+        {
+          question: 'What happens to my data if I cancel?',
+          answer: 'Your data remains safe! After cancellation, you have 30 days to export all data (students, grades, reports, payments). Data is then securely archived for 90 days. You can reactivate anytime within 90 days and pick up where you left off.'
+        },
+        {
+          question: 'Can I transfer my account to someone else?',
+          answer: 'Yes! You can transfer ownership of your school account to another administrator (like a new principal). Contact our support team to securely transfer account ownership while maintaining all your school data and settings.'
+        },
+        {
+          question: 'How do I reset my password?',
+          answer: 'Click "Forgot Password" on the login page, enter your email, and you\'ll receive a password reset link. For security, the link expires after 1 hour. If you need additional help, contact our support team.'
+        },
+        {
+          question: 'Can I change my school information?',
+          answer: 'Yes! You can update your school name, address, contact details, logo, and branding from the School Settings page. Changes are reflected immediately across all report cards and documents.'
         }
       ]
     }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { School, Mail, Lock, Phone, MapPin, CheckCircle, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import schoolLogo from '../assets/schoolhub.png';
 import { API_BASE_URL } from '../config/env';
 
@@ -14,6 +15,8 @@ export default function Register({ onRegister }) {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -71,128 +74,271 @@ export default function Register({ onRegister }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-primary-900 via-primary-500 to-primary-300">
-      <div className="max-w-2xl w-full">
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <img 
-              src={schoolLogo} 
-              alt="SchoolHub Logo" 
-              className="w-16 h-16 object-contain"
-            />
+    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link to="/" className="flex items-center gap-2">
+              <img
+                src={schoolLogo}
+                alt="SchoolHub Logo"
+                className="w-12 h-12 object-contain"
+              />
+              <span className="text-xl font-bold" style={{color: '#1791C8'}}>SchoolHub</span>
+            </Link>
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium transition-colors text-sm"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Home
+            </Link>
           </div>
-          <h1 className="text-4xl font-bold text-white mb-2">Create School Account</h1>
-          <p className="text-gray-300">Get started with your free account today</p>
+        </div>
+      </div>
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left Side - Form */}
+        <div className="flex-1 flex items-center justify-center px-4 py-6 overflow-y-auto">
+          <div className="max-w-xl w-full">
+            <div className="mb-4">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Your School Account</h1>
+              <p className="text-base text-gray-600">Start your 7-day free trial. No credit card required.</p>
+            </div>
+
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-red-600 text-xs">!</span>
+                  </div>
+                  <p className="text-red-800 text-sm">{error}</p>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {/* School Name */}
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-semibold text-gray-900 mb-1">
+                      School Name <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <School className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="text"
+                        name="school_name"
+                        value={formData.school_name}
+                        onChange={handleChange}
+                        className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1791C8] focus:border-transparent text-gray-900 placeholder-gray-400"
+                        placeholder="e.g., Green Valley Secondary School"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Email */}
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-semibold text-gray-900 mb-1">
+                      Email Address <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1791C8] focus:border-transparent text-gray-900 placeholder-gray-400"
+                        placeholder="admin@greenvalley.edu"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-900 mb-1">
+                      Password <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <Lock className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        className="w-full pl-9 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1791C8] focus:border-transparent text-gray-900 placeholder-gray-400"
+                        placeholder="Min. 6 characters"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Confirm Password */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-900 mb-1">
+                      Confirm Password <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <Lock className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        className="w-full pl-9 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1791C8] focus:border-transparent text-gray-900 placeholder-gray-400"
+                        placeholder="Re-enter password"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Phone */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-900 mb-1">
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <Phone className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1791C8] focus:border-transparent text-gray-900 placeholder-gray-400"
+                        placeholder="08012345678"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Address */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-900 mb-1">
+                      School Address <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <MapPin className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="text"
+                        name="address"
+                        value={formData.address}
+                        onChange={handleChange}
+                        className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1791C8] focus:border-transparent text-gray-900 placeholder-gray-400"
+                        placeholder="Lagos, Nigeria"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 rounded-lg font-bold text-base text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg mt-4"
+                  style={{backgroundColor: '#1791C8'}}
+                >
+                  {loading ? 'Creating Your Account...' : 'Create Account'}
+                </button>
+
+                <p className="text-xs text-gray-500 text-center pt-2">
+                  By creating an account, you agree to our{' '}
+                  <Link to="/terms-of-service" className="text-[#1791C8] hover:underline">Terms</Link>
+                  {' '}&{' '}
+                  <Link to="/privacy-policy" className="text-[#1791C8] hover:underline">Privacy Policy</Link>
+                </p>
+              </form>
+
+              <div className="mt-4 pt-4 border-t border-gray-200 text-center">
+                <p className="text-sm text-gray-600">
+                  Already have an account?{' '}
+                  <Link to="/login" className="font-semibold text-[#1791C8] hover:underline">
+                    Sign in
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-8">
-          {error && (
-            <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-sm">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-white mb-2">School Name *</label>
-                <input
-                  type="text"
-                  name="school_name"
-                  value={formData.school_name}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent"
-                  placeholder="Enter your school name"
-                  required
-                />
+        {/* Right Side - Benefits */}
+        <div className="hidden lg:flex lg:w-2/5 bg-gradient-to-br from-[#1791C8] to-[#0d6eaa] p-8 items-center overflow-y-auto">
+          <div className="max-w-md w-full">
+            <h2 className="text-2xl font-bold text-white mb-5">Why Schools Love SchoolHub</h2>
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-sm mb-0.5">7-Day Free Trial</h3>
+                  <p className="text-blue-100 text-xs">Start using all features immediately. No credit card needed.</p>
+                </div>
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-white mb-2">Email Address *</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent"
-                  placeholder="school@example.com"
-                  required
-                />
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-sm mb-0.5">Unlimited Students & Teachers</h3>
+                  <p className="text-blue-100 text-xs">Add as many students and staff as you need at no extra cost.</p>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">Password *</label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent"
-                  placeholder="Min. 6 characters"
-                  required
-                />
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-sm mb-0.5">Secure Cloud Storage</h3>
+                  <p className="text-blue-100 text-xs">Your data is safe on Google Cloud with daily backups and 256-bit encryption.</p>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">Confirm Password *</label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent"
-                  placeholder="Re-enter password"
-                  required
-                />
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-sm mb-0.5">Everything You Need</h3>
+                  <p className="text-blue-100 text-xs">Report cards, attendance, CBT exams, parent portal, and fee management included.</p>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">Phone Number</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent"
-                  placeholder="08012345678"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">Address</label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-transparent"
-                  placeholder="School address"
-                />
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-sm mb-0.5">24/7 Support</h3>
+                  <p className="text-blue-100 text-xs">Get help whenever you need it via email, chat, and comprehensive guides.</p>
+                </div>
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-primary-500 hover:bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold shadow-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Creating Account...' : 'Create Account'}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-gray-300">
-              Already have an account?{' '}
-              <Link to="/login" className="font-semibold" style={{color: '#87CEEB'}} onMouseEnter={(e) => e.target.style.color = '#B8E0FF'} onMouseLeave={(e) => e.target.style.color = '#87CEEB'}>
-                Sign in
-              </Link>
-            </p>
-          </div>
-
-          <div className="mt-4 text-center">
-            <Link to="/" className="text-gray-400 hover:text-gray-300 text-sm">
-              ← Back to home
-            </Link>
+            <div className="mt-6 p-4 bg-white/10 rounded-xl backdrop-blur-sm">
+              <p className="text-white text-xs italic">
+                "SchoolHub has transformed how we manage our school. Report cards that used to take days now take minutes!"
+              </p>
+              <p className="text-blue-100 text-xs mt-2">— Mrs. Adeyemi, Principal, Lagos</p>
+            </div>
           </div>
         </div>
       </div>

@@ -96,19 +96,36 @@ try {
 
     // Format fees
     $formattedFees = array_map(function($fee) {
+        // Recalculate status based on actual balance
+        $balance = (float)$fee['balance'];
+        $actualStatus = $fee['status'];
+
+        if ($balance <= 0) {
+            $actualStatus = 'paid';
+        } elseif ($balance > 0 && $balance < (float)$fee['amount_due']) {
+            $actualStatus = 'partial';
+        } elseif ($balance >= (float)$fee['amount_due']) {
+            // Check if overdue
+            if (!empty($fee['due_date']) && strtotime($fee['due_date']) < time()) {
+                $actualStatus = 'overdue';
+            } else {
+                $actualStatus = 'pending';
+            }
+        }
+
         return [
             'id' => (int)$fee['id'],
             'category' => $fee['category_name'],
             'description' => $fee['category_description'],
             'amount_due' => (float)$fee['amount_due'],
             'amount_paid' => (float)$fee['amount_paid'],
-            'balance' => (float)$fee['balance'],
+            'balance' => $balance,
             'due_date' => $fee['due_date'],
-            'status' => $fee['status'],
+            'status' => $actualStatus,
             'session' => $fee['session'],
             'term' => $fee['term'],
             'frequency' => $fee['frequency'],
-            'is_overdue' => $fee['status'] === 'overdue',
+            'is_overdue' => $actualStatus === 'overdue',
             'notes' => $fee['notes']
         ];
     }, $fees);

@@ -33,7 +33,24 @@ $accountNumber = trim($data['account_number']);
 $bankCode = trim($data['bank_code']);
 
 try {
-    // Resolve account with Paystack
+    // In test mode, use test bank code 001 and return mock account name
+    $isTestMode = strpos(PAYSTACK_SECRET_KEY, 'sk_test_') === 0;
+
+    if ($isTestMode) {
+        // For test mode, return a mock successful response without calling Paystack
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'data' => [
+                'account_number' => $accountNumber,
+                'account_name' => 'Test Account Name',
+                'bank_code' => '001'
+            ]
+        ]);
+        exit;
+    }
+
+    // Resolve account with Paystack (only in live mode)
     $paystackResponse = resolvePaystackBankAccount($accountNumber, $bankCode);
 
     if (!$paystackResponse['status']) {

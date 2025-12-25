@@ -32,6 +32,8 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Pricing from './pages/Pricing';
 import FAQ from './pages/FAQ';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 import Subscription from './pages/Subscription';
 import SuperAdminLogin from './pages/SuperAdminLogin';
 import SuperAdminLayout from './components/SuperAdminLayout';
@@ -205,6 +207,8 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/faq" element={<FAQ />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
         <Route path="/parent-api-docs" element={<ParentAPIDocs />} />
 
         {/* Super Admin Routes */}
