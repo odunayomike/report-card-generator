@@ -145,7 +145,7 @@ const TakeExam = () => {
         // Check if results should be shown immediately
         // show_results_immediately = 1 means SHOW results immediately
         // show_results_immediately = 0 means HIDE results
-        if (exam.show_results_immediately === 0) {
+        if (exam.show_results_immediately == 0) {
           // Hide results - navigate back to exams list with success message
           navigate('/student/exams', {
             state: {

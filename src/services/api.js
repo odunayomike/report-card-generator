@@ -88,6 +88,29 @@ export const getReportCard = async (studentId) => {
 };
 
 /**
+ * Update student information
+ * @param {Object} studentData - Student data to update
+ * @returns {Promise} - API response with updated student data
+ */
+export const updateStudent = async (studentData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/update-student`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(studentData),
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error updating student:', error);
+    throw error;
+  }
+};
+
+/**
  * Get all students
  * @returns {Promise} - API response with list of students
  */
@@ -153,6 +176,22 @@ export const checkStudent = async (admissionNo) => {
     return data;
   } catch (error) {
     console.error('Error checking student:', error);
+    throw error;
+  }
+};
+
+/**
+ * Search students by name or admission number
+ */
+export const searchStudents = async (query) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/search-students?q=${encodeURIComponent(query)}`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error searching students:', error);
     throw error;
   }
 };

@@ -176,7 +176,7 @@ export default function FAQ() {
         },
         {
           question: 'Is customer support available on weekends?',
-          answer: 'Email support is available 24/7. Our live chat support operates Monday-Friday 8am-6pm and Saturday 9am-2pm (WAT). Enterprise customers have 24/7 priority support access.'
+          answer: 'Email support is available 24/7. Enterprise customers have 24/7 priority support access.'
         },
         {
           question: 'Can you help me migrate from another system?',
@@ -438,7 +438,7 @@ export default function FAQ() {
             <p className="text-xl text-gray-600 mb-8">
               Our support team is here to help. Get in touch and we'll respond as soon as possible.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex justify-center">
               <Link
                 to="/contact"
                 className="px-10 py-4 text-white rounded-xl hover:shadow-lg transition-all font-bold text-lg"
@@ -446,11 +446,6 @@ export default function FAQ() {
               >
                 Contact Support
               </Link>
-              <button
-                className="px-10 py-4 bg-white border-2 border-gray-300 text-gray-700 rounded-xl hover:border-[#1791C8] hover:text-[#1791C8] transition-all font-bold text-lg"
-              >
-                Start Live Chat
-              </button>
             </div>
           </div>
         </section>
@@ -487,8 +482,8 @@ export default function FAQ() {
               <div>
                 <h3 className="text-white font-bold mb-4">Legal</h3>
                 <ul className="space-y-2 text-sm">
-                  <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
-                  <li><a href="#" className="hover:text-white">Terms of Service</a></li>
+                  <li><Link to="/privacy-policy" className="hover:text-white">Privacy Policy</Link></li>
+                  <li><Link to="/terms-of-service" className="hover:text-white">Terms of Service</Link></li>
                 </ul>
               </div>
             </div>

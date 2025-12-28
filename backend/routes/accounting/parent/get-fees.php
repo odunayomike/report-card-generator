@@ -62,7 +62,7 @@ try {
         exit;
     }
 
-    // Get all fees for this student
+    // Get all fees for this student (exclude archived fee structures)
     $feesQuery = "SELECT
                     sf.id,
                     sf.amount_due,
@@ -77,7 +77,7 @@ try {
                     fc.description as category_description,
                     fs.frequency
                   FROM student_fees sf
-                  INNER JOIN fee_structure fs ON sf.fee_structure_id = fs.id
+                  INNER JOIN fee_structure fs ON sf.fee_structure_id = fs.id AND fs.is_active = TRUE
                   INNER JOIN fee_categories fc ON fs.fee_category_id = fc.id
                   WHERE sf.student_id = ?
                   ORDER BY

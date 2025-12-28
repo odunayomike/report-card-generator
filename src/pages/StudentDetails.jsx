@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { API_BASE_URL } from '../config/env';
+import { updateStudent } from '../services/api';
 
 export default function StudentDetails() {
   const { admissionNo } = useParams();
@@ -10,6 +11,10 @@ export default function StudentDetails() {
   const [data, setData] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [error, setError] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editFormData, setEditFormData] = useState({});
+  const [updating, setUpdating] = useState(false);
+  const [updateError, setUpdateError] = useState(null);
 
   const isTeacher = location.pathname.startsWith('/teacher');
 
@@ -53,6 +58,79 @@ export default function StudentDetails() {
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  const handleEditClick = () => {
+    setEditFormData({
+      student_id: data.student.id,
+      name: data.student.name,
+      class: data.student.current_class,
+      gender: data.student.gender,
+      height: data.student.height || '',
+      weight: data.student.weight || '',
+      club_society: data.student.club_society || '',
+      fav_col: data.student.fav_col || '',
+      photo: data.student.photo || ''
+    });
+    setShowEditModal(true);
+    setUpdateError(null);
+  };
+
+  const handleEditFormChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditFormData(prev => ({
+          ...prev,
+          photo: reader.result
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUpdateSubmit = async (e) => {
+    e.preventDefault();
+    setUpdating(true);
+    setUpdateError(null);
+
+    try {
+      const response = await updateStudent(editFormData);
+      if (response.success) {
+        // Update local data
+        setData(prev => ({
+          ...prev,
+          student: {
+            ...prev.student,
+            name: response.student.name,
+            current_class: response.student.class,
+            gender: response.student.gender,
+            height: response.student.height,
+            weight: response.student.weight,
+            club_society: response.student.club_society,
+            fav_col: response.student.fav_col,
+            photo: response.student.photo
+          }
+        }));
+        setShowEditModal(false);
+      } else {
+        setUpdateError(response.message || 'Failed to update student information');
+      }
+    } catch (error) {
+      console.error('Error updating student:', error);
+      setUpdateError('An error occurred while updating student information');
+    } finally {
+      setUpdating(false);
+    }
   };
 
   const getStatusBadge = (status) => {
@@ -109,54 +187,73 @@ export default function StudentDetails() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-8">
         <button
           onClick={() => navigate(-1)}
-          className="text-primary-600 hover:text-primary-800 mb-4 flex items-center"
+          className="text-primary-600 hover:text-primary-700 mb-4 flex items-center font-medium transition-colors"
         >
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
           Back to Students
         </button>
-        <h1 className="text-3xl font-bold text-gray-900">Student Details</h1>
       </div>
 
       {/* Student Overview Card */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div className="flex items-start space-x-6">
+      <div className="bg-white border border-gray-200 rounded-xl p-8 mb-6">
+        <div className="flex items-start space-x-8">
           {student.photo ? (
             <img
               src={student.photo}
               alt={student.name}
-              className="w-32 h-32 rounded-lg object-cover border-2 border-gray-200"
+              className="w-40 h-40 rounded-xl object-cover border-2 border-gray-300"
             />
           ) : (
-            <div className="w-32 h-32 rounded-lg bg-gray-200 flex items-center justify-center">
-              <svg className="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <div className="w-40 h-40 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center border-2 border-gray-300">
+              <svg className="w-20 h-20 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
               </svg>
             </div>
           )}
           <div className="flex-1">
-            <h2 className="text-2xl font-bold text-gray-900">{student.name}</h2>
-            <p className="text-gray-600 mt-1">Admission No: {student.admission_no}</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+            <div className="flex justify-between items-start mb-6">
               <div>
-                <p className="text-sm text-gray-500">Class</p>
-                <p className="font-semibold">{student.current_class}</p>
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">{student.name}</h2>
+                <div className="flex items-center space-x-4">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800">
+                    {student.admission_no}
+                  </span>
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                    {student.current_class}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={handleEditClick}
+                className="flex items-center px-5 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all duration-200 font-medium"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit Student
+              </button>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-6 border-t border-gray-200">
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Gender</p>
+                <p className="text-lg font-semibold text-gray-900 capitalize">{student.gender}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Gender</p>
-                <p className="font-semibold capitalize">{student.gender}</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Session</p>
+                <p className="text-lg font-semibold text-gray-900">{student.current_session}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Session</p>
-                <p className="font-semibold">{student.current_session}</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Term</p>
+                <p className="text-lg font-semibold text-gray-900">{student.current_term || 'N/A'}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Term</p>
-                <p className="font-semibold">{student.current_term || 'N/A'}</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Club/Society</p>
+                <p className="text-lg font-semibold text-gray-900">{student.club_society || 'N/A'}</p>
               </div>
             </div>
           </div>
@@ -164,57 +261,57 @@ export default function StudentDetails() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Reports</p>
-              <p className="text-2xl font-bold text-gray-900">{reports.length}</p>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-6 hover:border-blue-300 transition-all duration-200">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-2">Total Reports</p>
+              <p className="text-3xl font-bold text-blue-900">{reports.length}</p>
             </div>
-            <div className="bg-blue-100 rounded-full p-3">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-blue-500 rounded-lg p-3">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Fee Balance</p>
-              <p className="text-2xl font-bold text-red-600">{formatCurrency(fees.summary.total_balance)}</p>
+        <div className="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-xl p-6 hover:border-red-300 transition-all duration-200">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className="text-xs font-semibold text-red-600 uppercase tracking-wider mb-2">Fee Balance</p>
+              <p className="text-3xl font-bold text-red-900">{formatCurrency(fees.summary.total_balance)}</p>
             </div>
-            <div className="bg-red-100 rounded-full p-3">
-              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-red-500 rounded-lg p-3">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Attendance Rate</p>
-              <p className="text-2xl font-bold text-green-600">{attendance.summary.attendance_rate}%</p>
+        <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-6 hover:border-green-300 transition-all duration-200">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className="text-xs font-semibold text-green-600 uppercase tracking-wider mb-2">Attendance</p>
+              <p className="text-3xl font-bold text-green-900">{attendance.summary.attendance_rate}%</p>
             </div>
-            <div className="bg-green-100 rounded-full p-3">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-green-500 rounded-lg p-3">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Exam Average</p>
-              <p className="text-2xl font-bold text-purple-600">{exam_results.summary.average_percentage}%</p>
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-6 hover:border-purple-300 transition-all duration-200">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className="text-xs font-semibold text-purple-600 uppercase tracking-wider mb-2">Exam Average</p>
+              <p className="text-3xl font-bold text-purple-900">{exam_results.summary.average_percentage}%</p>
             </div>
-            <div className="bg-purple-100 rounded-full p-3">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-purple-500 rounded-lg p-3">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
@@ -223,9 +320,9 @@ export default function StudentDetails() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-lg shadow-md">
-        <div className="border-b border-gray-200">
-          <nav className="flex space-x-8 px-6" aria-label="Tabs">
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div className="border-b border-gray-200 bg-gray-50">
+          <nav className="flex space-x-1 px-4 py-2" aria-label="Tabs">
             {[
               { id: 'overview', name: 'Overview', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
               { id: 'reports', name: 'Reports', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
@@ -237,10 +334,10 @@ export default function StudentDetails() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center ${
+                className={`px-4 py-2.5 rounded-lg font-medium text-sm flex items-center transition-all duration-200 ${
                   activeTab === tab.id
-                    ? 'border-primary-500 text-primary-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'bg-white text-primary-600 border border-gray-200'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
                 }`}
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -612,6 +709,172 @@ export default function StudentDetails() {
           )}
         </div>
       </div>
+
+      {/* Edit Student Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Edit Student Information</h2>
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {updateError && (
+                <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-400 rounded">
+                  <p className="text-sm text-red-700">{updateError}</p>
+                </div>
+              )}
+
+              <form onSubmit={handleUpdateSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={editFormData.name || ''}
+                      onChange={handleEditFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Class <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="class"
+                      value={editFormData.class || ''}
+                      onChange={handleEditFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Gender <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      name="gender"
+                      value={editFormData.gender || ''}
+                      onChange={handleEditFormChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="MALE">Male</option>
+                      <option value="FEMALE">Female</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Height (cm)
+                    </label>
+                    <input
+                      type="text"
+                      name="height"
+                      value={editFormData.height || ''}
+                      onChange={handleEditFormChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Weight (kg)
+                    </label>
+                    <input
+                      type="text"
+                      name="weight"
+                      value={editFormData.weight || ''}
+                      onChange={handleEditFormChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Club/Society
+                    </label>
+                    <input
+                      type="text"
+                      name="club_society"
+                      value={editFormData.club_society || ''}
+                      onChange={handleEditFormChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Favorite Color
+                    </label>
+                    <input
+                      type="text"
+                      name="fav_col"
+                      value={editFormData.fav_col || ''}
+                      onChange={handleEditFormChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Student Photo
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    />
+                    {editFormData.photo && (
+                      <div className="mt-2">
+                        <img
+                          src={editFormData.photo}
+                          alt="Preview"
+                          className="w-24 h-24 object-cover rounded-lg"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="submit"
+                    disabled={updating}
+                    className="flex-1 bg-primary-600 hover:bg-primary-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {updating ? 'Updating...' : 'Update Student'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowEditModal(false)}
+                    className="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

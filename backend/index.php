@@ -7,15 +7,16 @@
 // Configure session cookie parameters before starting session
 ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);
-ini_set('session.cookie_lifetime', 86400); // 24 hours
-ini_set('session.gc_maxlifetime', 86400);
+ini_set('session.cookie_lifetime', 0); // Session cookie (until browser closes)
+ini_set('session.gc_maxlifetime', 86400); // 24 hours server-side
+ini_set('session.cookie_path', '/');
 
 // Set SameSite attribute for session cookie
 session_set_cookie_params([
-    'lifetime' => 86400,
+    'lifetime' => 0, // Session cookie
     'path' => '/',
     'domain' => '',
-    'secure' => false, // Set to true if using HTTPS
+    'secure' => false,
     'httponly' => true,
     'samesite' => 'Lax'
 ]);
@@ -187,12 +188,20 @@ try {
             require __DIR__ . '/routes/check-student.php';
             break;
 
+        case '/search-students':
+            require __DIR__ . '/routes/search-students.php';
+            break;
+
         case '/get-student-profile':
             require __DIR__ . '/routes/get-student-profile.php';
             break;
 
         case '/get-student-details':
             require __DIR__ . '/routes/get-student-details.php';
+            break;
+
+        case '/update-student':
+            require __DIR__ . '/routes/update-student.php';
             break;
 
         case '/get-analytics':
@@ -410,6 +419,10 @@ try {
 
         case '/accounting/admin/delete-fee-structure':
             require __DIR__ . '/routes/accounting/admin/delete-fee-structure.php';
+            break;
+
+        case '/accounting/admin/archive-fee-structure':
+            require __DIR__ . '/routes/accounting/admin/archive-fee-structure.php';
             break;
 
         case '/accounting/admin/assign-fees-to-students':

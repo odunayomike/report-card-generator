@@ -224,15 +224,7 @@ export default function ReportCard({ data, school, hideButtons = false }) {
             </div>
 
             {/* Row 3 */}
-            <div className="grid gap-2" style={{gridTemplateColumns: '0.5fr 0.5fr 1fr 1fr'}}>
-              <div className="flex gap-1">
-                <span className="font-bold">HT:</span>
-                <span className="flex-1 border-b border-black pb-1">{data.height}</span>
-              </div>
-              <div className="flex gap-1">
-                <span className="font-bold">WT:</span>
-                <span className="flex-1 border-b border-black pb-1">{data.weight}</span>
-              </div>
+            <div className="grid gap-2 grid-cols-2">
               <div className="flex gap-1">
                 <span className="font-bold">AGE:</span>
                 <span className="flex-1 border-b border-black pb-1">{data.age || 'N/A'}</span>

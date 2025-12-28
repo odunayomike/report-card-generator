@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { HelmetProvider } from 'react-helmet-async';
 import { CurrencyProvider } from './contexts/CurrencyContext';
 import { API_BASE_URL } from './config/env';
+import CookieBanner from './components/CookieBanner';
 import LandingPage from './components/LandingPage';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -40,6 +41,7 @@ import SuperAdminLayout from './components/SuperAdminLayout';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import ManageSchools from './pages/ManageSchools';
 import AllStudentsAdmin from './pages/AllStudentsAdmin';
+import ContactMessagesAdmin from './pages/ContactMessagesAdmin';
 import CBTDashboard from './pages/cbt/CBTDashboard';
 import QuestionBank from './pages/cbt/QuestionBank';
 import ExamManagement from './pages/cbt/ExamManagement';
@@ -188,6 +190,7 @@ function App() {
     <HelmetProvider>
       <CurrencyProvider>
         <Router>
+          <CookieBanner />
           <Routes>
         <Route
           path="/"
@@ -223,6 +226,7 @@ function App() {
           <Route path="dashboard" element={<SuperAdminDashboard />} />
           <Route path="schools" element={<ManageSchools />} />
           <Route path="students" element={<AllStudentsAdmin />} />
+          <Route path="contact-messages" element={<ContactMessagesAdmin />} />
           <Route path="analytics" element={<SuperAdminDashboard />} />
           <Route path="activity-log" element={<ComingSoon feature="Activity Log" />} />
         </Route>
@@ -271,6 +275,7 @@ function App() {
           path="/teacher"
           element={teacher ? <TeacherDashboardLayout teacher={teacher} onLogout={handleTeacherLogout} /> : <Navigate to="/teacher/login" />}
         >
+          <Route index element={<Navigate to="/teacher/dashboard" replace />} />
           <Route path="dashboard" element={<TeacherDashboard />} />
           <Route path="mark-attendance" element={<AttendanceMarker />} />
           <Route path="add-student" element={<AddStudent />} />

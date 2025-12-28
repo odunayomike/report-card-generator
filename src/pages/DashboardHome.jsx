@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { getAnalytics } from '../services/api';
 import { API_BASE_URL } from '../config/env';
 
@@ -105,7 +105,7 @@ export default function DashboardHome({ school }) {
 
       {/* Stats Cards - Overall School Analytics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
-        <div className="bg-white rounded-lg shadow p-4">
+        <Link to="/dashboard/students" className="bg-white rounded-lg shadow p-4 hover:shadow-lg transition-shadow cursor-pointer">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-gray-600">Total Students</p>
@@ -117,9 +117,9 @@ export default function DashboardHome({ school }) {
               </svg>
             </div>
           </div>
-        </div>
+        </Link>
 
-        <div className="bg-white rounded-lg shadow p-4">
+        <Link to="/dashboard/manage-teachers" className="bg-white rounded-lg shadow p-4 hover:shadow-lg transition-shadow cursor-pointer">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-gray-600">Total Teachers</p>
@@ -131,9 +131,9 @@ export default function DashboardHome({ school }) {
               </svg>
             </div>
           </div>
-        </div>
+        </Link>
 
-        <div className="bg-white rounded-lg shadow p-4">
+        <Link to="/dashboard/students" className="bg-white rounded-lg shadow p-4 hover:shadow-lg transition-shadow cursor-pointer">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-gray-600">Total Classes</p>
@@ -145,9 +145,9 @@ export default function DashboardHome({ school }) {
               </svg>
             </div>
           </div>
-        </div>
+        </Link>
 
-        <div className="bg-white rounded-lg shadow p-4">
+        <Link to="/dashboard/students" className="bg-white rounded-lg shadow p-4 hover:shadow-lg transition-shadow cursor-pointer">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-gray-600">Total Reports</p>
@@ -159,9 +159,9 @@ export default function DashboardHome({ school }) {
               </svg>
             </div>
           </div>
-        </div>
+        </Link>
 
-        <div className="bg-white rounded-lg shadow p-4">
+        <Link to="/dashboard/attendance" className="bg-white rounded-lg shadow p-4 hover:shadow-lg transition-shadow cursor-pointer">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-gray-600">Attendance Rate</p>
@@ -174,9 +174,9 @@ export default function DashboardHome({ school }) {
               </svg>
             </div>
           </div>
-        </div>
+        </Link>
 
-        <div className="bg-white rounded-lg shadow p-4">
+        <Link to="/dashboard/students" className="bg-white rounded-lg shadow p-4 hover:shadow-lg transition-shadow cursor-pointer">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-gray-600">Excellence Rate</p>
@@ -189,7 +189,7 @@ export default function DashboardHome({ school }) {
               </svg>
             </div>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Class Performance Overview */}

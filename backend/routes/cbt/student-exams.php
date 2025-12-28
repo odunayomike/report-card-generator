@@ -130,7 +130,7 @@ try {
                     }
 
                     // Get questions for this exam
-                    $questionsQuery = "SELECT q.id, q.question_text, q.question_type, q.marks,
+                    $questionsQuery = "SELECT q.id, q.question_text, q.question_type, eq.marks,
                                        qo.id as option_id, qo.option_text, qo.option_label
                                        FROM cbt_exam_questions eq
                                        JOIN cbt_questions q ON eq.question_id = q.id
@@ -150,7 +150,7 @@ try {
                                 'id' => $row['id'],
                                 'question_text' => $row['question_text'],
                                 'question_type' => $row['question_type'],
-                                'marks' => $row['marks'],
+                                'marks' => $row['marks'], // Using eq.marks from cbt_exam_questions
                                 'options' => []
                             ];
                         }
@@ -347,14 +347,15 @@ try {
 
                     $examId = $attemptData['exam_id'];
 
-                    // Get whether answer is correct and marks
+                    // Get whether answer is correct and marks from exam_questions table
                     if ($selectedOptionId > 0) {
-                        $checkQuery = "SELECT qo.is_correct, q.marks
+                        $checkQuery = "SELECT qo.is_correct, eq.marks
                                        FROM cbt_question_options qo
                                        JOIN cbt_questions q ON qo.question_id = q.id
+                                       JOIN cbt_exam_questions eq ON eq.question_id = q.id AND eq.exam_id = ?
                                        WHERE qo.id = ? AND q.id = ?";
                         $checkStmt = $db->prepare($checkQuery);
-                        $checkStmt->execute([$selectedOptionId, $questionId]);
+                        $checkStmt->execute([$examId, $selectedOptionId, $questionId]);
                         $option = $checkStmt->fetch(PDO::FETCH_ASSOC);
 
                         if (!$option) {
@@ -429,13 +430,14 @@ try {
 
                     // Save all answers if not already saved
                     foreach ($answers as $questionId => $optionId) {
-                        // Get whether answer is correct and marks
-                        $checkQuery = "SELECT qo.is_correct, q.marks
+                        // Get whether answer is correct and marks from exam_questions table
+                        $checkQuery = "SELECT qo.is_correct, eq.marks
                                        FROM cbt_question_options qo
                                        JOIN cbt_questions q ON qo.question_id = q.id
+                                       JOIN cbt_exam_questions eq ON eq.question_id = q.id AND eq.exam_id = ?
                                        WHERE qo.id = ? AND q.id = ?";
                         $checkStmt = $db->prepare($checkQuery);
-                        $checkStmt->execute([$optionId, $questionId]);
+                        $checkStmt->execute([$examId, $optionId, $questionId]);
                         $option = $checkStmt->fetch(PDO::FETCH_ASSOC);
 
                         $isCorrect = $option['is_correct'] ?? 0;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, Send, MessageCircle, Clock, CheckCircle, ChevronDown, AlertCircle } from 'lucide-react';
+import { Mail, Phone, Send, Clock, CheckCircle, ChevronDown, AlertCircle } from 'lucide-react';
 import schoolLogo from '../assets/schoolhub.png';
 import SEO from '../components/SEO';
 import { submitContactForm } from '../services/api';
@@ -358,37 +358,10 @@ export default function Contact() {
                     <Clock className="w-6 h-6" style={{color: '#1791C8'}} />
                     <h3 className="text-xl font-bold text-gray-900">Support Hours</h3>
                   </div>
-                  <div className="space-y-2 text-gray-600">
-                    <div className="flex justify-between">
-                      <span>Monday - Friday:</span>
-                      <span className="font-semibold">8:00 AM - 6:00 PM WAT</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Saturday:</span>
-                      <span className="font-semibold">9:00 AM - 2:00 PM WAT</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Sunday:</span>
-                      <span className="font-semibold">Closed</span>
-                    </div>
+                  <div className="text-center py-4">
+                    <p className="text-3xl font-bold" style={{color: '#1791C8'}}>24/7</p>
+                    <p className="text-gray-600 mt-2">Available around the clock</p>
                   </div>
-                </div>
-
-                {/* Live Chat */}
-                <div className="bg-[#E8F4FD] rounded-2xl p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <MessageCircle className="w-6 h-6" style={{color: '#1791C8'}} />
-                    <h3 className="text-xl font-bold text-gray-900">Need Instant Help?</h3>
-                  </div>
-                  <p className="text-gray-600 mb-4">
-                    Chat with our support team in real-time for quick answers to your questions.
-                  </p>
-                  <button
-                    className="w-full px-6 py-3 text-white rounded-lg hover:shadow-lg transition-all font-semibold"
-                    style={{backgroundColor: '#1791C8'}}
-                  >
-                    Start Live Chat
-                  </button>
                 </div>
 
                 {/* FAQ Link */}
@@ -444,8 +417,8 @@ export default function Contact() {
               <div>
                 <h3 className="text-white font-bold mb-4">Legal</h3>
                 <ul className="space-y-2 text-sm">
-                  <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
-                  <li><a href="#" className="hover:text-white">Terms of Service</a></li>
+                  <li><Link to="/privacy-policy" className="hover:text-white">Privacy Policy</Link></li>
+                  <li><Link to="/terms-of-service" className="hover:text-white">Terms of Service</Link></li>
                 </ul>
               </div>
             </div>

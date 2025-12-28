@@ -41,15 +41,17 @@ try {
     $feeStmt->execute([$schoolId, $startDate, $endDate]);
     $feeData = $feeStmt->fetch(PDO::FETCH_ASSOC);
 
-    // 2. Outstanding Fees
+    // 2. Outstanding Fees (exclude archived fee structures)
     $outstandingQuery = "SELECT
                             COUNT(DISTINCT sf.student_id) as students_with_balance,
                             SUM(sf.amount_due - sf.amount_paid) as total_outstanding
                          FROM student_fees sf
                          INNER JOIN students s ON sf.student_id = s.id
+                         INNER JOIN fee_structure fs ON sf.fee_structure_id = fs.id
                          WHERE s.school_id = ?
                          AND sf.status != 'paid'
-                         AND sf.session = ?";
+                         AND sf.session = ?
+                         AND fs.is_active = TRUE";
 
     $currentSession = isset($_GET['session']) ? $_GET['session'] : date('Y') . '/' . (date('Y') + 1);
     $outstandingStmt = $db->prepare($outstandingQuery);

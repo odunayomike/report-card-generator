@@ -35,15 +35,15 @@ try {
 
     $schoolId = $_SESSION['school_id'];
 
-    // Get fee structure details
-    $feeQuery = "SELECT * FROM fee_structure WHERE id = ? AND school_id = ?";
+    // Get fee structure details (only active fees can be assigned)
+    $feeQuery = "SELECT * FROM fee_structure WHERE id = ? AND school_id = ? AND is_active = TRUE";
     $feeStmt = $db->prepare($feeQuery);
     $feeStmt->execute([$feeStructureId, $schoolId]);
     $feeStructure = $feeStmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$feeStructure) {
         http_response_code(404);
-        echo json_encode(['success' => false, 'message' => 'Fee structure not found']);
+        echo json_encode(['success' => false, 'message' => 'Fee structure not found or has been archived']);
         exit;
     }
 

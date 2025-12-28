@@ -11,6 +11,7 @@ import {
   ChevronDown,
   Menu,
   X,
+  Mail,
 } from 'lucide-react';
 import { superAdminLogout } from '../services/api';
 import { useToastContext } from '../context/ToastContext';
@@ -67,6 +68,11 @@ export default function SuperAdminLayout() {
       name: 'All Students',
       path: '/super-admin/students',
       icon: GraduationCap,
+    },
+    {
+      name: 'Contact Messages',
+      path: '/super-admin/contact-messages',
+      icon: Mail,
     },
     {
       name: 'Analytics',

@@ -48,7 +48,7 @@ try {
     $countStmt->execute($params);
     $total = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-    // Get payments with student and fee information
+    // Get payments with student and fee information (exclude archived fees from filtering, but show all payments)
     $query = "SELECT fp.id, fp.receipt_no, fp.amount, fp.payment_method,
                      fp.payment_date, fp.verification_status, fp.verified_at,
                      fp.verified_by, fp.rejection_reason, fp.bank_name,
@@ -58,7 +58,8 @@ try {
                      s.admission_no,
                      sf.session, sf.term,
                      fc.name as fee_category,
-                     p.name as parent_name, p.email as parent_email
+                     p.name as parent_name, p.email as parent_email,
+                     fs.is_active as fee_is_active
               FROM fee_payments fp
               INNER JOIN students s ON fp.student_id = s.id
               INNER JOIN student_fees sf ON fp.student_fee_id = sf.id

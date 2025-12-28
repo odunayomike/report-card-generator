@@ -77,13 +77,18 @@ try {
 
     $parentId = null;
 
+    $defaultPassword = 'Welcome123';
+    $isNewParent = false;
+
     if (!$parent) {
-        // Create new parent account
-        $insertParentQuery = "INSERT INTO parents (email, name, phone)
-                              VALUES (?, ?, ?)";
+        // Create new parent account with default password
+        $hashedPassword = password_hash($defaultPassword, PASSWORD_DEFAULT);
+        $insertParentQuery = "INSERT INTO parents (email, name, phone, password)
+                              VALUES (?, ?, ?, ?)";
         $insertParentStmt = $db->prepare($insertParentQuery);
-        $insertParentStmt->execute([$parentEmail, $parentName, $parentPhone]);
+        $insertParentStmt->execute([$parentEmail, $parentName, $parentPhone, $hashedPassword]);
         $parentId = $db->lastInsertId();
+        $isNewParent = true;
     } else {
         // Parent exists, use existing ID
         $parentId = $parent['id'];
@@ -145,7 +150,9 @@ try {
             'student_name' => $student['name'],
             'parent_email' => $parentEmail,
             'relationship' => $relationship,
-            'is_primary' => $isPrimary
+            'is_primary' => $isPrimary,
+            'is_new_parent' => $isNewParent,
+            'default_password' => $isNewParent ? $defaultPassword : null
         ]
     ]);
 

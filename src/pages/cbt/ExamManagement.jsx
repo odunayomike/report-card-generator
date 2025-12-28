@@ -350,7 +350,7 @@ const ExamManagement = () => {
             ...examForm,
             shuffle_questions: examForm.shuffle_questions ? 1 : 0,
             shuffle_options: examForm.shuffle_options ? 1 : 0,
-            show_results: examForm.show_results ? 1 : 0
+            show_results: examForm.show_results ? 0 : 1 // Checkbox is "Hide results", so checked=0 (hide), unchecked=1 (show)
           })
         });
 
@@ -463,9 +463,9 @@ const ExamManagement = () => {
           duration_minutes: exam.duration_minutes || 30,
           total_score: exam.total_score || 10,
           instructions: exam.instructions || '',
-          shuffle_questions: Boolean(exam.shuffle_questions),
-          shuffle_options: Boolean(exam.shuffle_options),
-          show_results: exam.show_results_immediately === 0, // Checkbox is "Hide results", so 0=checked, 1=unchecked
+          shuffle_questions: exam.shuffle_questions == 1 || exam.shuffle_questions === true,
+          shuffle_options: exam.shuffle_options == 1 || exam.shuffle_options === true,
+          show_results: exam.show_results_immediately == 0, // Checkbox is "Hide results", so 0=checked, 1=unchecked
           start_datetime: exam.start_datetime || '',
           end_datetime: exam.end_datetime || '',
           questions: questionIds
@@ -1459,9 +1459,9 @@ const ExamManagement = () => {
                         <h3 className="text-base font-semibold text-gray-900">{exam.exam_title}</h3>
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
-                            exam.is_published ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                            (exam.is_published == 1 || exam.is_published === true) ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
                           }`}>
-                            {exam.is_published ? '✓ Published' : '○ Draft'}
+                            {(exam.is_published == 1 || exam.is_published === true) ? '✓ Published' : '○ Draft'}
                           </span>
                           <span className="px-2 py-0.5 text-xs font-medium bg-primary-50 text-primary-700 rounded-full">
                             {exam.assessment_type?.toUpperCase()}
@@ -1491,20 +1491,20 @@ const ExamManagement = () => {
                     >
                       Edit
                     </button>
-                    {!exam.is_published && (
+                    {(exam.is_published != 1 && exam.is_published !== true) && (
                       <>
                         <button
                           onClick={() => handlePublishExam(exam.id)}
                           className={`px-3 py-1.5 text-white rounded-lg text-xs font-medium transition-all ${
-                            exam.question_count === 0 || exam.assigned_students === 0
+                            exam.question_count == 0 || exam.assigned_students == 0
                               ? 'bg-gray-300 cursor-not-allowed'
                               : 'bg-green-500 hover:bg-green-600'
                           }`}
-                          disabled={exam.question_count === 0 || exam.assigned_students === 0}
+                          disabled={exam.question_count == 0 || exam.assigned_students == 0}
                           title={
-                            exam.question_count === 0
+                            exam.question_count == 0
                               ? 'Cannot publish: No questions added'
-                              : exam.assigned_students === 0
+                              : exam.assigned_students == 0
                               ? 'Cannot publish: No students assigned'
                               : 'Publish this exam to make it available to students'
                           }

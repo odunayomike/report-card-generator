@@ -23,19 +23,35 @@ try {
 
     $schoolId = $_SESSION['school_id'];
 
+    // Check if we should include archived fees (default: only active)
+    $includeArchived = isset($_GET['include_archived']) && $_GET['include_archived'] === 'true';
+    $showOnlyArchived = isset($_GET['only_archived']) && $_GET['only_archived'] === 'true';
+
+    // Build WHERE clause based on filters
+    $whereConditions = ["fs.school_id = ?"];
+    $params = [$schoolId];
+
+    if ($showOnlyArchived) {
+        $whereConditions[] = "fs.is_active = FALSE";
+    } elseif (!$includeArchived) {
+        $whereConditions[] = "fs.is_active = TRUE";
+    }
+
+    $whereClause = implode(' AND ', $whereConditions);
+
     // Get fee structures with category information and student info
     $query = "SELECT fs.id, fs.fee_category_id, fs.class, fs.student_id, fs.session, fs.term,
-                     fs.amount, fs.frequency, fs.is_mandatory, fs.created_at,
+                     fs.amount, fs.frequency, fs.is_mandatory, fs.is_active, fs.created_at,
                      fc.name as category_name, fc.description as category_description,
                      s.name as student_name, s.admission_no
               FROM fee_structure fs
               INNER JOIN fee_categories fc ON fs.fee_category_id = fc.id
               LEFT JOIN students s ON fs.student_id = s.id
-              WHERE fs.school_id = ?
+              WHERE {$whereClause}
               ORDER BY fs.session DESC, fs.term DESC, fc.name ASC";
 
     $stmt = $db->prepare($query);
-    $stmt->execute([$schoolId]);
+    $stmt->execute($params);
     $feeStructures = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Format the data
@@ -54,6 +70,7 @@ try {
             'amount' => (float)$fee['amount'],
             'frequency' => $fee['frequency'],
             'is_mandatory' => (bool)$fee['is_mandatory'],
+            'is_active' => isset($fee['is_active']) ? (bool)$fee['is_active'] : true,
             'created_at' => $fee['created_at']
         ];
     }, $feeStructures);

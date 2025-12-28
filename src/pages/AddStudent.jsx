@@ -9,6 +9,7 @@ const AddStudent = () => {
   const [generatingAdmission, setGeneratingAdmission] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [parentPassword, setParentPassword] = useState(null);
 
   // Determine if user is a teacher based on the current route
   const isTeacher = location.pathname.startsWith('/teacher');
@@ -91,7 +92,7 @@ const AddStudent = () => {
         // Step 2: Link parent to student if parent info is provided
         if (formData.parent_email && formData.parent_name && response.student?.id) {
           try {
-            await addParentStudent({
+            const parentResponse = await addParentStudent({
               student_id: response.student.id,
               parent_email: formData.parent_email,
               parent_name: formData.parent_name,
@@ -99,7 +100,14 @@ const AddStudent = () => {
               relationship: formData.parent_relationship,
               is_primary: true
             });
-            setSuccess('Student profile created and parent account linked successfully!');
+
+            // Check if a new parent was created with default password
+            if (parentResponse.data?.is_new_parent && parentResponse.data?.default_password) {
+              setParentPassword(parentResponse.data.default_password);
+              setSuccess('Student profile created and parent account created successfully!');
+            } else {
+              setSuccess('Student profile created and linked to existing parent account!');
+            }
           } catch (parentError) {
             console.error('Error linking parent:', parentError);
             setSuccess('Student created, but there was an issue linking the parent account. You can add parent details later.');
@@ -108,9 +116,12 @@ const AddStudent = () => {
           setSuccess('Student profile created successfully!');
         }
 
-        setTimeout(() => {
-          navigate(isTeacher ? '/teacher/students' : '/dashboard/students');
-        }, 2000);
+        // Don't auto-navigate if we need to show parent password
+        if (!parentPassword) {
+          setTimeout(() => {
+            navigate(isTeacher ? '/teacher/students' : '/dashboard/students');
+          }, 2000);
+        }
       } else {
         setError(response.message || 'Failed to create student profile');
       }
@@ -136,8 +147,38 @@ const AddStudent = () => {
         )}
 
         {success && (
-          <div className="mb-4 p-3 bg-green-50 border-l-4 border-green-400 rounded">
-            <p className="text-sm text-green-700">{success}</p>
+          <div className="mb-4 p-4 bg-green-50 border-l-4 border-green-400 rounded">
+            <p className="text-sm text-green-700 font-semibold">{success}</p>
+            {parentPassword && (
+              <div className="mt-3 p-3 bg-white border border-green-300 rounded">
+                <p className="text-sm font-semibold text-gray-900 mb-2">
+                  Parent Login Credentials
+                </p>
+                <div className="space-y-1 text-sm">
+                  <p className="text-gray-700">
+                    <span className="font-medium">Email:</span> {formData.parent_email}
+                  </p>
+                  <p className="text-gray-700">
+                    <span className="font-medium">Default Password:</span>{' '}
+                    <span className="font-mono bg-gray-100 px-2 py-1 rounded text-green-700 font-semibold">
+                      {parentPassword}
+                    </span>
+                  </p>
+                </div>
+                <p className="text-xs text-gray-600 mt-2 italic">
+                  Please share these credentials with the parent. They can use this to login to the parent portal.
+                </p>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(`Email: ${formData.parent_email}\nPassword: ${parentPassword}`);
+                    alert('Credentials copied to clipboard!');
+                  }}
+                  className="mt-2 text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded transition-colors"
+                >
+                  Copy Credentials
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -170,9 +211,9 @@ const AddStudent = () => {
                     type="text"
                     name="admission_no"
                     value={formData.admission_no}
-                    readOnly
+                    onChange={handleChange}
                     required
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 font-medium"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Generating..."
                   />
                   <button
@@ -419,20 +460,32 @@ const AddStudent = () => {
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Creating...' : 'Create Student Profile'}
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate(isTeacher ? '/teacher/students' : '/dashboard/students')}
-              className="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-            >
-              Cancel
-            </button>
+            {!parentPassword ? (
+              <>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Creating...' : 'Create Student Profile'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate(isTeacher ? '/teacher/students' : '/dashboard/students')}
+                  className="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => navigate(isTeacher ? '/teacher/students' : '/dashboard/students')}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200"
+              >
+                Done - Go to Students List
+              </button>
+            )}
           </div>
         </form>
       </div>

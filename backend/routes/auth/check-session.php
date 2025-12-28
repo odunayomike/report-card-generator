@@ -81,8 +81,9 @@ if (isset($_SESSION['user_type'])) {
             ]);
         }
     } elseif ($userType === 'teacher' && isset($_SESSION['teacher_id'])) {
-        // Fetch teacher data
-        $query = "SELECT t.id, t.name, t.email, t.phone, s.school_name
+        // Fetch teacher data and school settings
+        $query = "SELECT t.id, t.name, t.email, t.phone, s.school_name, s.id as school_id,
+                         s.assessment_types, s.available_subjects, s.ca_max_marks, s.exam_max_marks
                   FROM teachers t
                   INNER JOIN schools s ON t.school_id = s.id
                   WHERE t.id = :id AND t.is_active = TRUE";
@@ -91,6 +92,24 @@ if (isset($_SESSION['user_type'])) {
         $teacher = $stmt->fetch();
 
         if ($teacher) {
+            // Parse assessment_types JSON
+            $assessmentTypes = ['CA', 'Exam']; // Default
+            if (!empty($teacher['assessment_types'])) {
+                $decoded = json_decode($teacher['assessment_types'], true);
+                if (is_array($decoded)) {
+                    $assessmentTypes = $decoded;
+                }
+            }
+
+            // Parse available_subjects JSON
+            $availableSubjects = [];
+            if (!empty($teacher['available_subjects'])) {
+                $decoded = json_decode($teacher['available_subjects'], true);
+                if (is_array($decoded)) {
+                    $availableSubjects = $decoded;
+                }
+            }
+
             http_response_code(200);
             echo json_encode([
                 'success' => true,
@@ -101,8 +120,16 @@ if (isset($_SESSION['user_type'])) {
                     'name' => $teacher['name'],
                     'email' => $teacher['email'],
                     'phone' => $teacher['phone'],
-                    'school_id' => $_SESSION['school_id'],
+                    'school_id' => $teacher['school_id'],
                     'school_name' => $teacher['school_name']
+                ],
+                'school' => [
+                    'id' => $teacher['school_id'],
+                    'school_name' => $teacher['school_name'],
+                    'assessment_types' => $assessmentTypes,
+                    'available_subjects' => $availableSubjects,
+                    'ca_max_marks' => $teacher['ca_max_marks'] ?? 40,
+                    'exam_max_marks' => $teacher['exam_max_marks'] ?? 60
                 ]
             ]);
         } else {

@@ -318,14 +318,19 @@ export default function LandingPage() {
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </Link>
 
-                <button className="group px-10 py-5 bg-white/80 backdrop-blur-sm border-2 border-gray-300 text-gray-800 rounded-2xl transition-all font-bold text-lg hover:border-blue-500 hover:bg-white shadow-lg hover:shadow-xl transform hover:scale-105">
+                <a
+                  href="https://wa.me/2347010123061?text=Hi%2C%20I%27d%20like%20to%20see%20a%20demo%20of%20SchoolHub"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group px-10 py-5 bg-white/80 backdrop-blur-sm border-2 border-gray-300 text-gray-800 rounded-2xl transition-all font-bold text-lg hover:border-blue-500 hover:bg-white shadow-lg hover:shadow-xl transform hover:scale-105 inline-block"
+                >
                   <span className="flex items-center justify-center gap-2">
                     Watch Demo
                     <svg className="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
                     </svg>
                   </span>
-                </button>
+                </a>
               </div>
 
               <div className="flex items-center gap-10 pt-6">
@@ -963,12 +968,17 @@ export default function LandingPage() {
               <ChevronRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
             </Link>
 
-            <button className="group px-12 py-5 bg-transparent border-3 border-white text-white rounded-2xl hover:bg-white/20 backdrop-blur-sm transition-all font-bold text-xl shadow-xl transform hover:scale-110 flex items-center gap-3">
+            <a
+              href="https://wa.me/2347010123061?text=Hi%2C%20I%27d%20like%20to%20see%20a%20demo%20of%20SchoolHub"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group px-12 py-5 bg-transparent border-3 border-white text-white rounded-2xl hover:bg-white/20 backdrop-blur-sm transition-all font-bold text-xl shadow-xl transform hover:scale-110 flex items-center gap-3"
+            >
               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
               </svg>
               Watch Demo
-            </button>
+            </a>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-blue-100">
@@ -1210,8 +1220,8 @@ export default function LandingPage() {
             <div>
               <h3 className="text-white font-bold mb-4">Legal</h3>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white">Terms of Service</a></li>
+                <li><Link to="/privacy-policy" className="hover:text-white">Privacy Policy</Link></li>
+                <li><Link to="/terms-of-service" className="hover:text-white">Terms of Service</Link></li>
               </ul>
             </div>
           </div>

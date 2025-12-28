@@ -64,7 +64,7 @@ try {
     $reportsStmt->execute([$schoolId, $admission_no]);
     $reports = $reportsStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Get fee information
+    // Get fee information (exclude archived fee structures)
     $feesQuery = "SELECT sf.id, sf.amount_due, sf.amount_paid,
                   (sf.amount_due - sf.amount_paid) as balance,
                   sf.due_date, sf.status, sf.session, sf.term,
@@ -74,6 +74,7 @@ try {
                   INNER JOIN fee_structure fs ON sf.fee_structure_id = fs.id
                   INNER JOIN fee_categories fc ON fs.fee_category_id = fc.id
                   WHERE sf.student_id = ?
+                  AND fs.is_active = TRUE
                   ORDER BY sf.due_date DESC, sf.created_at DESC";
     $feesStmt = $db->prepare($feesQuery);
     $feesStmt->execute([$studentId]);

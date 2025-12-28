@@ -16,6 +16,7 @@ const FeeManagement = () => {
   const [processing, setProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState('categories');
   const [notification, setNotification] = useState({ show: false, type: '', message: '' });
+  const [showArchived, setShowArchived] = useState(false);
 
   const [categoryForm, setCategoryForm] = useState({
     name: '',
@@ -44,6 +45,13 @@ const FeeManagement = () => {
     fetchClasses();
     fetchStudents();
   }, []);
+
+  // Refetch when showArchived changes
+  useEffect(() => {
+    if (activeTab === 'structures') {
+      fetchFeeStructures();
+    }
+  }, [showArchived]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -76,7 +84,8 @@ const FeeManagement = () => {
   const fetchFeeStructures = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/accounting/admin/get-fee-structure`, {
+      const queryParam = showArchived ? '?only_archived=true' : '';
+      const response = await fetch(`${API_BASE_URL}/accounting/admin/get-fee-structure${queryParam}`, {
         credentials: 'include'
       });
       const data = await response.json();
@@ -111,12 +120,12 @@ const FeeManagement = () => {
 
   const fetchStudents = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/get-all-students`, {
+      const response = await fetch(`${API_BASE_URL}/get-students-with-ids`, {
         credentials: 'include'
       });
       const data = await response.json();
       if (data.success) {
-        // The endpoint returns students in 'data' property, not 'students'
+        // The endpoint returns students in 'data' property with IDs
         setStudents(data.data || []);
       }
     } catch (err) {
@@ -237,6 +246,32 @@ const FeeManagement = () => {
     setShowDeleteConfirmModal(true);
   };
 
+  const handleArchiveFee = async (fee, archive = true) => {
+    setProcessing(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/accounting/admin/archive-fee-structure`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ id: fee.id, is_active: !archive })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        showNotification('success', data.message);
+        fetchFeeStructures();
+      } else {
+        showNotification('error', data.message || `Failed to ${archive ? 'archive' : 'unarchive'} fee structure`);
+      }
+    } catch (err) {
+      showNotification('error', 'Network error occurred');
+      console.error('Error:', err);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   const confirmDeleteFee = async () => {
     setProcessing(true);
 
@@ -259,7 +294,12 @@ const FeeManagement = () => {
         setSelectedFee(null);
         fetchFeeStructures();
       } else {
-        showNotification('error', data.message || 'Failed to delete fee structure');
+        // Enhanced error message for payment conflicts
+        let errorMessage = data.message || 'Failed to delete fee structure';
+        if (data.payments_count && data.payments_count > 0) {
+          errorMessage += `. This fee has ${data.payments_count} payment(s) recorded. You cannot delete a fee structure with existing payments. Consider archiving it instead.`;
+        }
+        showNotification('error', errorMessage);
       }
     } catch (err) {
       showNotification('error', 'Network error occurred');
@@ -495,7 +535,33 @@ const FeeManagement = () => {
       {activeTab === 'structures' && (
         <div className="bg-white rounded-lg shadow">
           <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-            <h2 className="text-lg font-semibold">Fee Structures</h2>
+            <div className="flex items-center gap-4">
+              <h2 className="text-lg font-semibold">Fee Structures</h2>
+              <button
+                onClick={() => setShowArchived(!showArchived)}
+                className={`px-3 py-1 text-sm rounded-md flex items-center gap-2 ${
+                  showArchived
+                    ? 'bg-primary-100 text-primary-800 hover:bg-primary-200 border border-primary-300'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {showArchived ? (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    View Active Fees
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                    View Archived
+                  </>
+                )}
+              </button>
+            </div>
             <button
               onClick={() => setShowAddFeeModal(true)}
               className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center gap-2"
@@ -513,10 +579,32 @@ const FeeManagement = () => {
             </div>
           ) : feeStructures.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500">No fee structures yet. Add one to get started.</p>
+              <p className="text-gray-500">
+                {showArchived
+                  ? "No archived fee structures found."
+                  : "No fee structures yet. Add one to get started."}
+              </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <>
+              {showArchived && (
+                <div className="bg-primary-50 border-l-4 border-primary-400 p-4 m-4">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-primary-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-medium text-primary-800">
+                        Viewing Archived Fee Structures
+                      </p>
+                      <p className="text-xs text-primary-700 mt-1">
+                        These fees are no longer active and won't appear in student balances. Click "View Active Fees" to return to active fees.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
@@ -579,6 +667,27 @@ const FeeManagement = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
                         </button>
+                        {showArchived ? (
+                          <button
+                            onClick={() => handleArchiveFee(fee, false)}
+                            className="text-green-600 hover:text-green-900 mr-3"
+                            title="Unarchive fee structure"
+                          >
+                            <svg className="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                            </svg>
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleArchiveFee(fee, true)}
+                            className="text-yellow-600 hover:text-yellow-900 mr-3"
+                            title="Archive fee structure"
+                          >
+                            <svg className="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                            </svg>
+                          </button>
+                        )}
                         <button
                           onClick={() => handleDeleteFee(fee)}
                           className="text-red-600 hover:text-red-900"
@@ -593,7 +702,8 @@ const FeeManagement = () => {
                   ))}
                 </tbody>
               </table>
-            </div>
+              </div>
+            </>
           )}
         </div>
       )}
@@ -747,10 +857,15 @@ const FeeManagement = () => {
                             setFeeForm({...feeForm, student_id: ''});
                           }
                         }}
-                        onFocus={() => setShowStudentDropdown(true)}
+                        onFocus={() => {
+                          if (!selectedStudent) {
+                            setShowStudentDropdown(true);
+                          }
+                        }}
+                        readOnly={!!selectedStudent}
                         placeholder="Search by name or admission number..."
                         required={!feeForm.student_id}
-                        className="w-full border border-gray-300 rounded-md p-2 pr-8 focus:ring-primary-500 focus:border-primary-500"
+                        className={`w-full border border-gray-300 rounded-md p-2 pr-8 focus:ring-primary-500 focus:border-primary-500 ${selectedStudent ? 'bg-gray-50 cursor-default' : ''}`}
                       />
                       <svg
                         className="absolute right-2 top-3 w-5 h-5 text-gray-400 pointer-events-none"
@@ -766,13 +881,14 @@ const FeeManagement = () => {
                     <input type="hidden" value={feeForm.student_id} />
 
                     {/* Dropdown List */}
-                    {showStudentDropdown && (
+                    {showStudentDropdown && !selectedStudent && (
                       <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                         {filteredStudents && filteredStudents.length > 0 ? (
                           filteredStudents.map((student) => (
                             <div
                               key={student.id}
-                              onClick={() => {
+                              onMouseDown={(e) => {
+                                e.preventDefault(); // Prevent input blur
                                 setFeeForm({...feeForm, student_id: student.id.toString()});
                                 setStudentSearch('');
                                 setShowStudentDropdown(false);
@@ -780,7 +896,7 @@ const FeeManagement = () => {
                               className="px-4 py-2 hover:bg-primary-50 cursor-pointer border-b border-gray-100 last:border-b-0"
                             >
                               <div className="font-medium text-gray-900">{student.name}</div>
-                              <div className="text-xs text-gray-500">{student.admission_no} - {student.current_class}</div>
+                              <div className="text-xs text-gray-500">{student.admission_no} - {student.class || 'N/A'}</div>
                             </div>
                           ))
                         ) : (
@@ -797,7 +913,7 @@ const FeeManagement = () => {
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="text-sm font-medium text-gray-900">{selectedStudent.name}</div>
-                            <div className="text-xs text-gray-600">{selectedStudent.admission_no} - {selectedStudent.current_class}</div>
+                            <div className="text-xs text-gray-600">{selectedStudent.admission_no} - {selectedStudent.class || 'N/A'}</div>
                           </div>
                           <button
                             type="button"

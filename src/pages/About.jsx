@@ -442,8 +442,8 @@ export default function About() {
               <div>
                 <h3 className="text-white font-bold mb-4">Legal</h3>
                 <ul className="space-y-2 text-sm">
-                  <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
-                  <li><a href="#" className="hover:text-white">Terms of Service</a></li>
+                  <li><Link to="/privacy-policy" className="hover:text-white">Privacy Policy</Link></li>
+                  <li><Link to="/terms-of-service" className="hover:text-white">Terms of Service</Link></li>
                 </ul>
               </div>
             </div>

@@ -42,7 +42,7 @@ $session = trim($data['session']);
 $term = isset($data['term']) && !empty($data['term']) ? trim($data['term']) : null;
 $amount = floatval($data['amount']);
 $frequency = isset($data['frequency']) ? $data['frequency'] : 'per-term';
-$isMandatory = isset($data['is_mandatory']) ? (bool)$data['is_mandatory'] : true;
+$isMandatory = isset($data['is_mandatory']) ? (int)(bool)$data['is_mandatory'] : 1;
 
 // Validate frequency
 $validFrequencies = ['one-time', 'per-term', 'per-session', 'monthly'];

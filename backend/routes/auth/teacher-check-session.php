@@ -4,6 +4,7 @@
  * Validates teacher session
  */
 
+// Session is already started in index.php
 // Check if teacher is logged in
 if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'teacher' || !isset($_SESSION['teacher_id'])) {
     http_response_code(200);

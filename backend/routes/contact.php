@@ -6,6 +6,9 @@
 
 header('Content-Type: application/json');
 
+// Include database connection
+require_once __DIR__ . '/../config/database.php';
+
 // Get the posted data
 $data = json_decode(file_get_contents("php://input"), true);
 
@@ -135,6 +138,31 @@ ini_set('SMTP', 'localhost'); // Your hosting provider's SMTP server
 ini_set('smtp_port', '25');
 ini_set('sendmail_from', 'noreply@schoolhub.tech');
 
+// Store message in database first (as backup even if email fails)
+try {
+    $database = new Database();
+    $db = $database->getConnection();
+
+    $insertQuery = "INSERT INTO contact_messages (name, email, phone, school_name, subject, message, ip_address, user_agent, email_sent)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)";
+    $stmt = $db->prepare($insertQuery);
+    $stmt->execute([
+        $name,
+        $email,
+        $phone,
+        $school,
+        $subject,
+        $message,
+        $_SERVER['REMOTE_ADDR'] ?? 'Unknown',
+        $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown'
+    ]);
+    $messageId = $db->lastInsertId();
+} catch (Exception $e) {
+    error_log("Failed to store contact message in database: " . $e->getMessage());
+    // Continue anyway - we'll try to send email
+    $messageId = null;
+}
+
 // Email headers
 $headers = "From: SchoolHub <noreply@schoolhub.tech>\r\n";
 $headers .= "Reply-To: {$email}\r\n";
@@ -145,6 +173,17 @@ $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 $mailSent = @mail($to, $emailSubject, $htmlBody, $headers);
 
 if ($mailSent) {
+    // Update database to mark email as sent
+    if ($messageId) {
+        try {
+            $updateQuery = "UPDATE contact_messages SET email_sent = 1 WHERE id = ?";
+            $updateStmt = $db->prepare($updateQuery);
+            $updateStmt->execute([$messageId]);
+        } catch (Exception $e) {
+            error_log("Failed to update email_sent status: " . $e->getMessage());
+        }
+    }
+
     // Also send confirmation email to user
     $confirmSubject = "Thank you for contacting SchoolHub";
     $confirmBody = "
@@ -183,14 +222,18 @@ if ($mailSent) {
     $confirmHeaders .= "MIME-Version: 1.0\r\n";
     $confirmHeaders .= "Content-Type: text/html; charset=UTF-8\r\n";
 
-    mail($email, $confirmSubject, $confirmBody, $confirmHeaders);
+    @mail($email, $confirmSubject, $confirmBody, $confirmHeaders);
+}
 
+// Always return success if message was stored in database
+if ($messageId) {
     http_response_code(200);
     echo json_encode([
         'success' => true,
-        'message' => 'Thank you! We will get back to you within 24 hours.'
+        'message' => 'Thank you! We have received your message and will get back to you within 24 hours.'
     ]);
 } else {
+    // Only fail if we couldn't store in database AND couldn't send email
     http_response_code(500);
     echo json_encode([
         'success' => false,

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { subjects, affectiveDomains, psychomotorDomains } from '../data/subjects';
-import { checkStudent } from '../services/api';
+import { checkStudent, searchStudents } from '../services/api';
 
 export default function StudentForm({ onSubmit, saving = false, school, initialData = null }) {
   const [currentStep, setCurrentStep] = useState(1);
@@ -9,6 +9,12 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
   const [studentExists, setStudentExists] = useState(false);
   const [checkingStudent, setCheckingStudent] = useState(false);
   const debounceTimer = useRef(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const searchDebounceTimer = useRef(null);
+  const dropdownRef = useRef(null);
 
   const [formData, setFormData] = useState({
     // Student Info
@@ -56,12 +62,50 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
   useEffect(() => {
     if (initialData) {
       setFormData(initialData);
+      setSearchQuery(initialData.admissionNo || '');
       // Set active subjects if editing
       if (initialData.subjects && initialData.subjects.length > 0) {
         setActiveSubjects(initialData.subjects.map(s => s.name));
       }
     }
   }, [initialData]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Search students by name or admission number
+  const handleSearchStudents = useCallback(async (query) => {
+    if (query.length < 2) {
+      setSearchResults([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    setSearching(true);
+    try {
+      const response = await searchStudents(query);
+      if (response.success) {
+        setSearchResults(response.students);
+        setShowDropdown(response.students.length > 0);
+      }
+    } catch (error) {
+      console.error('Error searching students:', error);
+      setSearchResults([]);
+    } finally {
+      setSearching(false);
+    }
+  }, []);
 
   // Debounced function to check if student exists
   const checkExistingStudent = useCallback(async (admissionNo) => {
@@ -77,6 +121,17 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
         setStudentExists(true);
         // Auto-fill all student information if not editing
         if (!initialData) {
+          // Auto-populate subjects from previous report WITHOUT grades (for new report card)
+          const previousSubjects = response.student.subjects || [];
+          const subjectsWithoutGrades = previousSubjects.map(s => ({
+            name: s.name,
+            classScore: '',
+            examScore: '',
+            total: '',
+            grade: '',
+            remark: ''
+          }));
+
           setFormData(prev => ({
             ...prev,
             name: response.student.name || '',
@@ -87,12 +142,16 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
             clubSociety: response.student.clubSociety || '',
             favCol: response.student.favCol || '',
             photo: response.student.photo || null,
-            subjects: response.student.subjects || []
+            subjects: subjectsWithoutGrades, // Subjects WITHOUT previous grades
+            parentName: response.student.parent_name || '',
+            parentEmail: response.student.parent_email || '',
+            parentPhone: response.student.parent_phone || '',
+            parentRelationship: response.student.parent_relationship || 'guardian'
           }));
 
-          // Auto-populate active subjects from previous report
-          if (response.student.subjects && response.student.subjects.length > 0) {
-            setActiveSubjects(response.student.subjects.map(s => s.name));
+          // Auto-populate active subjects list from previous report
+          if (previousSubjects.length > 0) {
+            setActiveSubjects(previousSubjects.map(s => s.name));
           }
         }
       } else {
@@ -105,6 +164,35 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
       setCheckingStudent(false);
     }
   }, [initialData]);
+
+  // Handle student selection from dropdown
+  const handleSelectStudent = useCallback((student) => {
+    setFormData(prev => ({
+      ...prev,
+      admissionNo: student.admission_no,
+      name: student.name || '',
+      class: student.class || '',
+      gender: student.gender || '',
+      height: student.height || '',
+      weight: student.weight || '',
+      clubSociety: student.club_society || '',
+      favCol: student.fav_col || '',
+      photo: student.photo || null,
+      parentName: student.parent_name || '',
+      parentEmail: student.parent_email || '',
+      parentPhone: student.parent_phone || '',
+      parentRelationship: student.parent_relationship || 'guardian'
+    }));
+
+    setSearchQuery(student.admission_no);
+    setShowDropdown(false);
+    setStudentExists(true);
+
+    // Trigger the check which will load subjects
+    if (student.admission_no) {
+      checkExistingStudent(student.admission_no);
+    }
+  }, [checkExistingStudent]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -301,8 +389,8 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 type="text"
                 name="name"
                 value={formData.name}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
+                readOnly
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 cursor-not-allowed text-xs"
               />
             </div>
 
@@ -312,8 +400,8 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 type="text"
                 name="class"
                 value={formData.class}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
+                readOnly
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 cursor-not-allowed text-xs"
               />
             </div>
 
@@ -331,22 +419,63 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
 
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Admission No.</label>
-              <div className="relative">
+              <div className="relative" ref={dropdownRef}>
                 <input
                   type="text"
                   name="admissionNo"
-                  value={formData.admissionNo}
-                  onChange={handleInputChange}
+                  value={searchQuery}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSearchQuery(value);
+                    setFormData(prev => ({ ...prev, admissionNo: value }));
+
+                    // Clear previous timer
+                    if (searchDebounceTimer.current) {
+                      clearTimeout(searchDebounceTimer.current);
+                    }
+
+                    // Set new timer for search
+                    searchDebounceTimer.current = setTimeout(() => {
+                      handleSearchStudents(value);
+                    }, 300);
+                  }}
+                  onFocus={() => {
+                    if (searchResults.length > 0) {
+                      setShowDropdown(true);
+                    }
+                  }}
+                  placeholder="Search by name or admission number..."
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
                 />
-                {checkingStudent && (
+                {searching && (
                   <div className="absolute right-3 top-2.5 text-xs text-gray-500">
-                    Checking...
+                    Searching...
                   </div>
                 )}
-                {!checkingStudent && studentExists && formData.admissionNo.length >= 3 && (
+                {!searching && studentExists && formData.admissionNo.length >= 3 && (
                   <div className="absolute right-3 top-2.5 text-xs text-green-600 font-semibold">
-                    ✓ Existing student
+                    ✓ Found
+                  </div>
+                )}
+
+                {/* Dropdown results */}
+                {showDropdown && searchResults.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                    {searchResults.map((student) => (
+                      <div
+                        key={student.id}
+                        onClick={() => handleSelectStudent(student)}
+                        className="px-3 py-2 hover:bg-primary-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                      >
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <div className="text-xs font-semibold text-gray-900">{student.name}</div>
+                            <div className="text-[10px] text-gray-600">{student.class}</div>
+                          </div>
+                          <div className="text-xs text-primary-600 font-medium">{student.admission_no}</div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -369,16 +498,13 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
 
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Gender</label>
-              <select
+              <input
+                type="text"
                 name="gender"
                 value={formData.gender}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
-              >
-                <option value="">Select Gender</option>
-                <option value="MALE">MALE</option>
-                <option value="FEMALE">FEMALE</option>
-              </select>
+                readOnly
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 cursor-not-allowed text-xs"
+              />
             </div>
 
             {/* Parent/Guardian Information Section */}
@@ -387,29 +513,29 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
-                    Parent/Guardian Name <span className="text-red-500">*</span>
+                    Parent/Guardian Name
                   </label>
                   <input
                     type="text"
                     name="parentName"
                     value={formData.parentName}
-                    onChange={handleInputChange}
-                    placeholder="e.g., John Doe"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
+                    readOnly
+                    placeholder="Auto-filled from student profile"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 cursor-not-allowed text-xs"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
-                    Parent/Guardian Email <span className="text-red-500">*</span>
+                    Parent/Guardian Email
                   </label>
                   <input
                     type="email"
                     name="parentEmail"
                     value={formData.parentEmail}
-                    onChange={handleInputChange}
-                    placeholder="parent@example.com"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
+                    readOnly
+                    placeholder="Auto-filled from student profile"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 cursor-not-allowed text-xs"
                   />
                 </div>
 
@@ -421,31 +547,27 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                     type="tel"
                     name="parentPhone"
                     value={formData.parentPhone}
-                    onChange={handleInputChange}
-                    placeholder="+234812345678"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
+                    readOnly
+                    placeholder="Auto-filled from student profile"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 cursor-not-allowed text-xs"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">
-                    Relationship <span className="text-red-500">*</span>
+                    Relationship
                   </label>
-                  <select
+                  <input
+                    type="text"
                     name="parentRelationship"
                     value={formData.parentRelationship}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
-                  >
-                    <option value="father">Father</option>
-                    <option value="mother">Mother</option>
-                    <option value="guardian">Guardian</option>
-                    <option value="other">Other</option>
-                  </select>
+                    readOnly
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 cursor-not-allowed text-xs capitalize"
+                  />
                 </div>
               </div>
               <p className="text-[10px] text-gray-500 mt-2">
-                This information will be used to create a parent account for accessing student reports online.
+                Parent information is loaded from the student's profile. To update, please edit the student profile.
               </p>
             </div>
 
@@ -455,8 +577,8 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 type="text"
                 name="height"
                 value={formData.height}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
+                readOnly
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 cursor-not-allowed text-xs"
               />
             </div>
 
@@ -466,8 +588,8 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 type="text"
                 name="weight"
                 value={formData.weight}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
+                readOnly
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 cursor-not-allowed text-xs"
               />
             </div>
 
@@ -477,8 +599,8 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 type="text"
                 name="clubSociety"
                 value={formData.clubSociety}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
+                readOnly
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 cursor-not-allowed text-xs"
               />
             </div>
 
@@ -488,19 +610,16 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 type="text"
                 name="favCol"
                 value={formData.favCol}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
+                readOnly
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700 cursor-not-allowed text-xs"
               />
             </div>
 
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Student Photo</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoUpload}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
-              />
+              <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-xs text-gray-500">
+                {formData.photo ? 'Photo loaded from profile' : 'No photo'}
+              </div>
             </div>
           </div>
         </section>
