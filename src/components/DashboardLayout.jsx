@@ -40,7 +40,6 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
       const data = await response.json();
 
       if (data.success) {
-        console.log('Fetched classes for admin:', data.classes);
         setClasses(data.classes || []);
       } else {
         console.error('Failed to fetch classes:', data.message);

@@ -33,7 +33,7 @@ export default function SchoolProfile() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{borderColor: '#1791C8'}}></div>
       </div>
     );
   }
@@ -49,7 +49,7 @@ export default function SchoolProfile() {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-gray-900">School Profile</h2>
+        <h2 className="text-xl font-bold" style={{color: '#1791C8'}}>School Profile</h2>
         <button
           onClick={() => navigate('/dashboard/profile/edit')}
           className="px-3 py-2 text-white text-sm rounded-md transition-colors flex items-center gap-2"
@@ -64,9 +64,9 @@ export default function SchoolProfile() {
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+      <div className="bg-white rounded-lg border overflow-hidden" style={{borderColor: '#1791C8'}}>
         {/* Header Section with Logo */}
-        <div className="px-6 py-5" style={{background: 'linear-gradient(to right, #1791C8, #667eea)'}}>
+        <div className="px-6 py-5" style={{backgroundColor: '#1791C8'}}>
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-full border-4 border-white bg-white flex items-center justify-center overflow-hidden">
               {profile.logo ? (
@@ -77,7 +77,7 @@ export default function SchoolProfile() {
             </div>
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-white mb-1">{profile.school_name}</h1>
-              {profile.motto && <p className="text-white/90 text-sm italic">"{profile.motto}"</p>}
+              {profile.motto && <p className="text-white opacity-90 text-sm italic">"{profile.motto}"</p>}
             </div>
           </div>
         </div>
@@ -85,41 +85,41 @@ export default function SchoolProfile() {
         {/* Profile Information */}
         <div className="p-6">
           {/* Basic Information */}
-          <h2 className="text-lg font-bold text-gray-900 mb-3">Basic Information</h2>
+          <h2 className="text-lg font-bold mb-3" style={{color: '#1791C8'}}>Basic Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Email</label>
+            <div className="border rounded-lg p-3" style={{borderColor: '#E5E7EB'}}>
+              <label className="block text-xs font-medium mb-1" style={{color: '#1791C8'}}>Email</label>
               <p className="text-sm text-gray-900">{profile.email}</p>
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Phone</label>
+            <div className="border rounded-lg p-3" style={{borderColor: '#E5E7EB'}}>
+              <label className="block text-xs font-medium mb-1" style={{color: '#1791C8'}}>Phone</label>
               <p className="text-sm text-gray-900">{profile.phone || 'N/A'}</p>
             </div>
-            <div className="md:col-span-2">
-              <label className="block text-xs font-medium text-gray-600 mb-1">Address</label>
+            <div className="md:col-span-2 border rounded-lg p-3" style={{borderColor: '#E5E7EB'}}>
+              <label className="block text-xs font-medium mb-1" style={{color: '#1791C8'}}>Address</label>
               <p className="text-sm text-gray-900">{profile.address || 'N/A'}</p>
             </div>
           </div>
 
           {/* Branding Section */}
-          <h2 className="text-lg font-bold text-gray-900 mb-3 mt-6">Branding</h2>
+          <h2 className="text-lg font-bold mb-3 mt-6" style={{color: '#1791C8'}}>Branding</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Primary Color</label>
+            <div className="border rounded-lg p-3" style={{borderColor: '#E5E7EB'}}>
+              <label className="block text-xs font-medium mb-2" style={{color: '#1791C8'}}>Primary Color</label>
               <div className="flex items-center gap-2">
                 <div
-                  className="w-10 h-10 rounded-md border-2 border-gray-300"
-                  style={{ backgroundColor: profile.primary_color || '#4F46E5' }}
+                  className="w-10 h-10 rounded-md border"
+                  style={{ backgroundColor: profile.primary_color || '#4F46E5', borderColor: '#E5E7EB' }}
                 ></div>
                 <span className="text-sm text-gray-900">{profile.primary_color || '#4F46E5'}</span>
               </div>
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Secondary Color</label>
+            <div className="border rounded-lg p-3" style={{borderColor: '#E5E7EB'}}>
+              <label className="block text-xs font-medium mb-2" style={{color: '#1791C8'}}>Secondary Color</label>
               <div className="flex items-center gap-2">
                 <div
-                  className="w-10 h-10 rounded-md border-2 border-gray-300"
-                  style={{ backgroundColor: profile.secondary_color || '#9333EA' }}
+                  className="w-10 h-10 rounded-md border"
+                  style={{ backgroundColor: profile.secondary_color || '#9333EA', borderColor: '#E5E7EB' }}
                 ></div>
                 <span className="text-sm text-gray-900">{profile.secondary_color || '#9333EA'}</span>
               </div>
@@ -127,18 +127,18 @@ export default function SchoolProfile() {
           </div>
 
           {/* Academic Information */}
-          <h2 className="text-lg font-bold text-gray-900 mb-3 mt-6">Academic Information</h2>
+          <h2 className="text-lg font-bold mb-3 mt-6" style={{color: '#1791C8'}}>Academic Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Academic Year</label>
+            <div className="border rounded-lg p-3" style={{borderColor: '#E5E7EB'}}>
+              <label className="block text-xs font-medium mb-1" style={{color: '#1791C8'}}>Academic Year</label>
               <p className="text-sm text-gray-900">
                 {profile.academic_year_start && profile.academic_year_end
                   ? `${profile.academic_year_start} to ${profile.academic_year_end}`
                   : 'Not set'}
               </p>
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Available Subjects</label>
+            <div className="border rounded-lg p-3" style={{borderColor: '#E5E7EB'}}>
+              <label className="block text-xs font-medium mb-1" style={{color: '#1791C8'}}>Available Subjects</label>
               <p className="text-sm text-gray-900">
                 {profile.available_subjects ? profile.available_subjects.length : 0} subjects
               </p>
@@ -147,13 +147,13 @@ export default function SchoolProfile() {
 
           {/* Available Subjects List */}
           {profile.available_subjects && profile.available_subjects.length > 0 && (
-            <div className="mb-6">
-              <label className="block text-xs font-medium text-gray-600 mb-2">Subject List</label>
+            <div className="mb-6 border rounded-lg p-4" style={{borderColor: '#E5E7EB'}}>
+              <label className="block text-xs font-medium mb-3" style={{color: '#1791C8'}}>Subject List</label>
               <div className="flex flex-wrap gap-2">
                 {profile.available_subjects.map((subject, index) => (
                   <span
                     key={index}
-                    className="inline-flex px-2 py-1 text-xs font-medium rounded-full text-white"
+                    className="inline-flex px-3 py-1 text-xs font-medium rounded-full text-white"
                     style={{backgroundColor: '#1791C8'}}
                   >
                     {subject}
@@ -166,10 +166,10 @@ export default function SchoolProfile() {
           {/* Grading Scale */}
           {profile.grading_scale && (
             <div className="mb-6">
-              <h2 className="text-lg font-bold text-gray-900 mb-3 mt-6">Grading Scale</h2>
+              <h2 className="text-lg font-bold mb-3 mt-6" style={{color: '#1791C8'}}>Grading Scale</h2>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                 {Object.entries(profile.grading_scale).map(([grade, range]) => (
-                  <div key={grade} className="bg-gray-50 p-3 rounded-lg text-center">
+                  <div key={grade} className="border rounded-lg p-3 text-center" style={{borderColor: '#1791C8', backgroundColor: '#E6F4F9'}}>
                     <div className="text-lg font-bold" style={{color: '#1791C8'}}>{grade}</div>
                     <div className="text-xs text-gray-600 mt-1">
                       {Array.isArray(range) ? `${range[0]} - ${range[1]}` : range}
@@ -181,12 +181,12 @@ export default function SchoolProfile() {
           )}
 
           {/* Quick Actions */}
-          <div className="mt-6 pt-4 border-t border-gray-200">
-            <h3 className="text-base font-semibold text-gray-900 mb-3">Quick Actions</h3>
+          <div className="mt-6 pt-4 border-t" style={{borderColor: '#1791C8'}}>
+            <h3 className="text-base font-semibold mb-3" style={{color: '#1791C8'}}>Quick Actions</h3>
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => navigate('/dashboard/profile/edit')}
-                className="px-3 py-2 text-white text-sm rounded-md transition-colors"
+                className="px-4 py-2 text-white text-sm rounded-md transition-colors"
                 style={{backgroundColor: '#1791C8'}}
                 onMouseEnter={(e) => e.target.style.backgroundColor = '#1478A6'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = '#1791C8'}
@@ -195,10 +195,14 @@ export default function SchoolProfile() {
               </button>
               <button
                 onClick={() => navigate('/dashboard/settings')}
-                className="px-3 py-2 text-white text-sm rounded-md transition-colors"
-                style={{backgroundColor: '#667eea'}}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#5568d3'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#667eea'}
+                className="px-4 py-2 text-sm rounded-md transition-colors border"
+                style={{borderColor: '#1791C8', color: '#1791C8', backgroundColor: 'white'}}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#E6F4F9';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = 'white';
+                }}
               >
                 Manage Settings
               </button>

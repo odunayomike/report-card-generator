@@ -14,7 +14,7 @@ export default function Pricing() {
   // Plan prices in NGN (base currency)
   const plans = {
     monthly: { price: 15000, savings: 0, perMonth: 15000 },
-    term: { price: 40000, savings: 5000, perMonth: 13333 },
+    term: { price: 55000, savings: 5000, perMonth: 13750 },
     yearly: { price: 150000, savings: 30000, perMonth: 12500 }
   };
 
@@ -224,10 +224,10 @@ export default function Pricing() {
                     </div>
                     <div className="mt-2">
                       <p className="text-gray-500 text-sm">
-                        <span className="line-through text-gray-400">{formatPrice(plans.monthly.price * 3)}</span>
+                        <span className="line-through text-gray-400">{formatPrice(plans.monthly.price * 4)}</span>
                         <span className="ml-2 text-green-600 font-semibold">Save {formatPrice(plans.term.savings)}</span>
                       </p>
-                      <p className="text-gray-500 text-xs mt-1">Only {formatPrice(plans.term.perMonth)}/month • 3 months</p>
+                      <p className="text-gray-500 text-xs mt-1">Only {formatPrice(plans.term.perMonth)}/month • 4 months</p>
                     </div>
                   </div>
 
@@ -372,7 +372,7 @@ export default function Pricing() {
                 },
                 {
                   question: 'Are there any setup fees or hidden charges?',
-                  answer: 'No! The price you see is what you pay. There are no setup fees, no hidden charges, and no surprise costs. Choose from our flexible plans: Monthly (₦15,000), Per Term (₦40,000), or Yearly (₦150,000).'
+                  answer: 'No! The price you see is what you pay. There are no setup fees, no hidden charges, and no surprise costs. Choose from our flexible plans: Monthly (₦15,000), Per Term (₦55,000), or Yearly (₦150,000).'
                 },
                 {
                   question: 'What happens after the free trial?',
@@ -384,7 +384,7 @@ export default function Pricing() {
                 },
                 {
                   question: 'Do you offer discounts for longer-term plans?',
-                  answer: 'Yes! Save ₦5,000 with our Per Term plan (₦40,000 for 3 months) or save ₦30,000 with our Annual plan (₦150,000 for 12 months) compared to paying monthly.'
+                  answer: 'Yes! Save ₦5,000 with our Per Term plan (₦55,000 for 4 months) or save ₦30,000 with our Annual plan (₦150,000 for 12 months) compared to paying monthly.'
                 },
                 {
                   question: 'Is there a student limit?',

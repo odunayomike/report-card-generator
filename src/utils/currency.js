@@ -126,12 +126,10 @@ export const detectUserCurrency = async () => {
         const data = await response.json();
         if (data.country_code && !data.error) {
           const currency = getCurrencyForCountry(data.country_code);
-          console.log(`Currency detected: ${currency} from country: ${data.country_code}`);
           return currency;
         }
       }
     } catch (error) {
-      console.log('ipapi.co failed, trying fallback...');
     }
 
     // Fallback 1: Try ip-api.com
@@ -141,12 +139,10 @@ export const detectUserCurrency = async () => {
         const data = await response.json();
         if (data.countryCode && data.status === 'success') {
           const currency = getCurrencyForCountry(data.countryCode);
-          console.log(`Currency detected (fallback): ${currency} from country: ${data.countryCode}`);
           return currency;
         }
       }
     } catch (error) {
-      console.log('Fallback API also failed');
     }
 
     // Fallback 2: Use browser timezone as a hint
@@ -163,11 +159,9 @@ export const detectUserCurrency = async () => {
     }
 
   } catch (error) {
-    console.log('Currency detection failed completely, defaulting to NGN', error);
   }
 
   // Default to NGN if all detection fails
-  console.log('Using default currency: NGN');
   return 'NGN';
 };
 
@@ -179,7 +173,6 @@ export const getUserCurrency = async () => {
   // Check if user has manually overridden (from settings page)
   const manualOverride = localStorage.getItem('manualCurrencyOverride');
   if (manualOverride && EXCHANGE_RATES[manualOverride]) {
-    console.log(`Using manual currency override: ${manualOverride}`);
     return manualOverride;
   }
 
@@ -192,13 +185,11 @@ export const getUserCurrency = async () => {
   if (storedCurrency && detectionTimestamp) {
     const timeSinceDetection = now - parseInt(detectionTimestamp);
     if (timeSinceDetection < oneDayInMs && EXCHANGE_RATES[storedCurrency]) {
-      console.log(`Using cached currency (detected ${Math.round(timeSinceDetection / 1000 / 60)} minutes ago): ${storedCurrency}`);
       return storedCurrency;
     }
   }
 
   // Otherwise, detect based on location
-  console.log('Detecting currency based on location...');
   const detectedCurrency = await detectUserCurrency();
 
   // Store the detected currency with timestamp
@@ -220,7 +211,6 @@ export const setUserCurrency = (currency, isManualOverride = true) => {
 
     if (isManualOverride) {
       localStorage.setItem('manualCurrencyOverride', currency);
-      console.log(`Manual currency override set to: ${currency}`);
     }
   }
 };
@@ -238,6 +228,5 @@ export const resetToAutoCurrency = async () => {
   localStorage.setItem('preferredCurrency', detectedCurrency);
   localStorage.setItem('currencyDetectionTimestamp', Date.now().toString());
 
-  console.log(`Currency reset to auto-detected: ${detectedCurrency}`);
   return detectedCurrency;
 };

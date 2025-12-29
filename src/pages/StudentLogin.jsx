@@ -22,10 +22,8 @@ export default function StudentLogin({ onLogin }) {
       });
 
       const data = await response.json();
-      console.log('Login response:', data);
 
       if (data.success) {
-        console.log('Login successful, student data:', data.student);
 
         // Store student info
         localStorage.setItem('userType', 'student');
@@ -37,7 +35,6 @@ export default function StudentLogin({ onLogin }) {
         }
 
         // Navigate to student dashboard
-        console.log('Navigating to /student/dashboard');
         navigate('/student/dashboard');
       } else {
         console.error('Login failed:', data.message);

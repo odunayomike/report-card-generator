@@ -67,13 +67,11 @@ const SettlementSetup = () => {
       }
 
       const data = await response.json();
-      console.log('Banks API response:', data);
 
       if (data.success) {
         setBanks(data.data);
-        console.log('Banks loaded:', data.data.length);
       } else {
-        console.error('Banks API error:', data);
+        console.error('Banks API error:', data.message || 'Failed to load banks');
         showNotification('error', data.message || 'Failed to load banks');
       }
     } catch (error) {

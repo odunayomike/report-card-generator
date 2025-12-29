@@ -224,7 +224,6 @@ export const getAnalytics = async () => {
       credentials: 'include'
     });
     const text = await response.text();
-    console.log('Analytics response:', text.substring(0, 500)); // Log first 500 chars
     const data = JSON.parse(text);
     return data;
   } catch (error) {
@@ -351,7 +350,6 @@ export const changeSchoolPassword = async (passwordData) => {
 export const generateReportPDF = async (reportId) => {
   try {
     // First attempt: Try Puppeteer (high quality, requires exec())
-    console.log('Attempting PDF generation with Puppeteer...');
     const puppeteerResponse = await fetch(`${API_BASE_URL}/generate-pdf?id=${reportId}`, {
       method: 'GET',
       credentials: 'include'
@@ -361,12 +359,10 @@ export const generateReportPDF = async (reportId) => {
 
     // If Puppeteer succeeds, return the result
     if (puppeteerData.success) {
-      console.log('PDF generated successfully with Puppeteer');
       return puppeteerData;
     }
 
     // If Puppeteer fails, fall back to TCPDF
-    console.log('Puppeteer failed, attempting fallback to TCPDF...');
     const tcpdfResponse = await fetch(`${API_BASE_URL}/generate-pdf-tcpdf?id=${reportId}`, {
       method: 'GET',
       credentials: 'include'
@@ -375,7 +371,6 @@ export const generateReportPDF = async (reportId) => {
     const tcpdfData = await tcpdfResponse.json();
 
     if (tcpdfData.success) {
-      console.log('PDF generated successfully with TCPDF (fallback)');
       return tcpdfData;
     }
 

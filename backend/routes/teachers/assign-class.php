@@ -64,6 +64,7 @@ try {
         $insertStmt = $db->prepare($insertQuery);
 
         foreach ($classes as $class) {
+            // Trim and normalize whitespace
             $className = trim($class['class_name'] ?? '');
             $session = trim($class['session'] ?? '');
             $term = trim($class['term'] ?? '');

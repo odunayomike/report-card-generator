@@ -32,9 +32,7 @@ export default function TeacherDashboardLayout({ teacher, onLogout }) {
         credentials: 'include'
       });
       const data = await response.json();
-      console.log('Teacher - School profile data:', data);
       if (data.success && data.data) {
-        console.log('Teacher - School logo:', data.data.logo);
         setSchoolLogo(data.data.logo);
       }
     } catch (error) {

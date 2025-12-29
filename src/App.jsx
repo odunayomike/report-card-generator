@@ -83,34 +83,43 @@ function App() {
       }
 
       // Check super admin session first
-      const superAdminResponse = await fetch(`${API_BASE_URL}/super-admin/check-session`, {
-        credentials: 'include'
-      });
-      const superAdminData = await superAdminResponse.json();
-
-      if (superAdminData.authenticated) {
-        setSuperAdmin(superAdminData.user);
-        localStorage.setItem('userType', 'super_admin');
-        localStorage.setItem('superAdminData', JSON.stringify(superAdminData.user));
-      } else {
-        // Check school session
-        const schoolResponse = await fetch(`${API_BASE_URL}/auth/check-session`, {
+      try {
+        const superAdminResponse = await fetch(`${API_BASE_URL}/super-admin/check-session`, {
           credentials: 'include'
         });
-        const schoolData = await schoolResponse.json();
 
-        if (schoolData.authenticated) {
-          setSchool(schoolData.school);
-        } else {
-          // Check teacher session if school is not authenticated
-          const teacherResponse = await fetch(`${API_BASE_URL}/auth/teacher-check-session`, {
-            credentials: 'include'
-          });
-          const teacherData = await teacherResponse.json();
+        if (superAdminResponse.ok) {
+          const superAdminData = await superAdminResponse.json();
 
-          if (teacherData.authenticated) {
-            setTeacher(teacherData.user);
+          if (superAdminData.authenticated) {
+            setSuperAdmin(superAdminData.user);
+            localStorage.setItem('userType', 'super_admin');
+            localStorage.setItem('superAdminData', JSON.stringify(superAdminData.user));
+            setLoading(false);
+            return;
           }
+        }
+      } catch {
+        // Silent fail - not a super admin, will check other session types
+      }
+
+      // Check school session
+      const schoolResponse = await fetch(`${API_BASE_URL}/auth/check-session`, {
+        credentials: 'include'
+      });
+      const schoolData = await schoolResponse.json();
+
+      if (schoolData.authenticated) {
+        setSchool(schoolData.school);
+      } else {
+        // Check teacher session if school is not authenticated
+        const teacherResponse = await fetch(`${API_BASE_URL}/auth/teacher-check-session`, {
+          credentials: 'include'
+        });
+        const teacherData = await teacherResponse.json();
+
+        if (teacherData.authenticated) {
+          setTeacher(teacherData.user);
         }
       }
     } catch (error) {
@@ -151,9 +160,7 @@ function App() {
   };
 
   const handleStudentLogin = (studentData) => {
-    console.log('App: handleStudentLogin called with:', studentData);
     setStudent(studentData);
-    console.log('App: student state updated');
   };
 
   const handleStudentLogout = () => {

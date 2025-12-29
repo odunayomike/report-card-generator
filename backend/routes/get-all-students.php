@@ -21,7 +21,7 @@ $db = $database->getConnection();
 
 try {
     if ($userType === 'teacher') {
-        // Teachers only see students in their assigned classes
+        // Teachers only see students in their assigned classes (term-independent)
         // Get unique students by admission number with their most recent report
         $query = "SELECT s.admission_no, s.name, s.gender,
                   MAX(s.created_at) as latest_report_date,
@@ -29,9 +29,8 @@ try {
                   GROUP_CONCAT(DISTINCT s.class ORDER BY s.created_at DESC SEPARATOR ', ') as classes,
                   (SELECT s2.class FROM students s2 WHERE s2.admission_no = s.admission_no AND s2.school_id = :school_id ORDER BY s2.created_at DESC LIMIT 1) as current_class
                   FROM students s
-                  INNER JOIN teacher_classes tc ON s.class = tc.class_name
-                      AND s.session = tc.session
-                      AND s.term = tc.term
+                  INNER JOIN teacher_classes tc ON TRIM(LOWER(s.class)) = TRIM(LOWER(tc.class_name))
+                      AND TRIM(LOWER(s.session)) = TRIM(LOWER(tc.session))
                   WHERE s.school_id = :school_id
                       AND tc.teacher_id = :teacher_id
                   GROUP BY s.admission_no, s.name, s.gender

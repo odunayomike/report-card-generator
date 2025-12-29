@@ -38,12 +38,15 @@ try {
         exit;
     }
 
-    // Verify teacher teaches this class (school admins can access all classes)
+    // Verify teacher teaches this class (term-independent; school admins can access all classes)
     if ($isTeacher) {
         $teacherClassQuery = "SELECT id FROM teacher_classes
-                              WHERE teacher_id = ? AND class_name = ? AND session = ? AND term = ? AND school_id = ?";
+                              WHERE teacher_id = ?
+                              AND TRIM(LOWER(class_name)) = LOWER(?)
+                              AND TRIM(LOWER(session)) = LOWER(?)
+                              AND school_id = ?";
         $teacherClassStmt = $db->prepare($teacherClassQuery);
-        $teacherClassStmt->execute([$userId, $className, $session, $term, $schoolId]);
+        $teacherClassStmt->execute([$userId, trim($className), trim($session), $schoolId]);
 
         if (!$teacherClassStmt->fetch()) {
             http_response_code(403);

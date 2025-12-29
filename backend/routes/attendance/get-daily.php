@@ -33,13 +33,15 @@ try {
 
     // Build query based on user type and filters
     if ($userType === 'teacher') {
-        // Teachers can only see their assigned classes
+        // Teachers can only see their assigned classes (term-independent)
         if (!empty($className)) {
             // Verify teacher is assigned to this class
             $checkQuery = "SELECT id FROM teacher_classes
-                           WHERE teacher_id = ? AND class_name = ? AND session = ? AND term = ?";
+                           WHERE teacher_id = ?
+                           AND TRIM(LOWER(class_name)) = LOWER(?)
+                           AND TRIM(LOWER(session)) = LOWER(?)";
             $checkStmt = $db->prepare($checkQuery);
-            $checkStmt->execute([$_SESSION['teacher_id'], $className, $session, $term]);
+            $checkStmt->execute([$_SESSION['teacher_id'], trim($className), trim($session)]);
 
             if (!$checkStmt->fetch()) {
                 http_response_code(403);
@@ -61,14 +63,14 @@ try {
             $stmt = $db->prepare($query);
             $stmt->execute([$date, $className, $session, $term, $_SESSION['school_id']]);
         } else {
-            // Get attendance for all classes teacher is assigned to
+            // Get attendance for all classes teacher is assigned to (term-independent)
             $query = "SELECT da.id, da.student_id, da.date, da.status, da.created_at,
                       s.name as student_name, s.admission_no, s.class, s.session, s.term,
                       t.name as teacher_name
                       FROM daily_attendance da
                       INNER JOIN students s ON da.student_id = s.id
-                      INNER JOIN teacher_classes tc ON s.class = tc.class_name
-                          AND s.session = tc.session AND s.term = tc.term
+                      INNER JOIN teacher_classes tc ON TRIM(LOWER(s.class)) = TRIM(LOWER(tc.class_name))
+                          AND TRIM(LOWER(s.session)) = TRIM(LOWER(tc.session))
                       LEFT JOIN teachers t ON da.marked_by_teacher_id = t.id
                       WHERE da.date = ? AND tc.teacher_id = ? AND s.school_id = ?
                       ORDER BY s.class ASC, s.name ASC";

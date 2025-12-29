@@ -27,11 +27,13 @@ try {
     $database = new Database();
     $db = $database->getConnection();
 
-    // Verify teacher is assigned to this class
+    // Verify teacher is assigned to this class (term-independent)
     $checkQuery = "SELECT id FROM teacher_classes
-                   WHERE teacher_id = ? AND class_name = ? AND session = ? AND term = ?";
+                   WHERE teacher_id = ?
+                   AND TRIM(LOWER(class_name)) = LOWER(?)
+                   AND TRIM(LOWER(session)) = LOWER(?)";
     $checkStmt = $db->prepare($checkQuery);
-    $checkStmt->execute([$_SESSION['teacher_id'], $className, $session, $term]);
+    $checkStmt->execute([$_SESSION['teacher_id'], trim($className), trim($session)]);
 
     if (!$checkStmt->fetch()) {
         http_response_code(403);

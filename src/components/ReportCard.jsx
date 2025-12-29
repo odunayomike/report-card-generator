@@ -110,9 +110,7 @@ export default function ReportCard({ data, school, hideButtons = false }) {
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
       };
 
-      console.log('Starting PDF generation...');
       await html2pdf().set(opt).from(element).save();
-      console.log('PDF generation completed');
     } catch (error) {
       console.error('PDF generation error:', error);
       toast.error('Error generating PDF: ' + error.message);

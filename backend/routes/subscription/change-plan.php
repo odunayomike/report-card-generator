@@ -22,9 +22,9 @@ try {
     $data = json_decode(file_get_contents('php://input'), true);
     $new_plan_type = $data['new_plan_type'] ?? null;
 
-    if (!$new_plan_type || !in_array($new_plan_type, ['monthly', 'yearly'])) {
+    if (!$new_plan_type || !in_array($new_plan_type, ['monthly', 'term', 'yearly'])) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Valid plan type is required (monthly or yearly)']);
+        echo json_encode(['success' => false, 'message' => 'Valid plan type is required (monthly, term, or yearly)']);
         exit;
     }
 
@@ -71,7 +71,8 @@ try {
     }
 
     // Get new plan details
-    $new_plan_name = $new_plan_type === 'yearly' ? 'Yearly Plan' : 'Monthly Plan';
+    $new_plan_name = $new_plan_type === 'yearly' ? 'Yearly Plan'
+        : ($new_plan_type === 'term' ? 'Per Term Plan' : 'Monthly Plan');
     $stmt = $db->prepare("SELECT * FROM subscription_plans WHERE plan_name = ? AND is_active = TRUE");
     $stmt->execute([$new_plan_name]);
     $new_plan = $stmt->fetch(PDO::FETCH_ASSOC);

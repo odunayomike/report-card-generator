@@ -60,7 +60,6 @@ const TakeExam = () => {
       );
       const data = await response.json();
 
-      console.log('Start exam response:', data);
 
       if (data.success) {
         setExam(data.exam);
@@ -68,7 +67,6 @@ const TakeExam = () => {
         attemptIdRef.current = data.attempt_id; // Store in ref for callbacks
         setQuestions(data.questions);
         setResponses(data.saved_answers || {});
-        console.log('Attempt ID set to:', data.attempt_id);
       } else {
         setError(data.message || 'Failed to start exam');
       }
@@ -102,7 +100,6 @@ const TakeExam = () => {
           question_id: questionId,
           selected_option_id: optionId
         };
-        console.log('Saving answer with payload:', payload);
 
         const response = await fetch(`${API_BASE_URL}/cbt/student-exams`, {
           method: 'POST',
@@ -112,7 +109,6 @@ const TakeExam = () => {
         });
 
         const data = await response.json();
-        console.log('Save answer response:', data);
       } catch (err) {
         console.error('Auto-save error:', err);
       }

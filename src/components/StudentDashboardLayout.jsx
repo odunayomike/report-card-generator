@@ -17,9 +17,7 @@ export default function StudentDashboardLayout({ student, onLogout }) {
         credentials: 'include'
       });
       const data = await response.json();
-      console.log('Student - School profile data:', data);
       if (data.success && data.data) {
-        console.log('Student - School logo:', data.data.logo);
         setSchoolLogo(data.data.logo);
       }
     } catch (error) {

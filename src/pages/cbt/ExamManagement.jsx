@@ -223,17 +223,14 @@ const ExamManagement = () => {
 
   const loadQuestionsForSubject = async (subject) => {
     try {
-      console.log('Loading questions for subject:', subject);
       const response = await fetch(`${API_BASE_URL}/cbt/questions?subject=${encodeURIComponent(subject)}`, {
         credentials: 'include'
       });
       const data = await response.json();
 
-      console.log('Questions API response:', data);
 
       if (data.success) {
         setAvailableQuestions(data.questions);
-        console.log('Available questions:', data.questions);
       } else {
         console.error('Failed to load questions:', data.message);
       }
@@ -244,18 +241,15 @@ const ExamManagement = () => {
 
   const loadStudentsForClass = async (className, session, term) => {
     try {
-      console.log('Loading students for:', { className, session, term });
       const response = await fetch(
         `${API_BASE_URL}/cbt/get-students?class_name=${encodeURIComponent(className)}&session=${encodeURIComponent(session)}&term=${encodeURIComponent(term)}`,
         { credentials: 'include' }
       );
       const data = await response.json();
 
-      console.log('Students API response:', data);
 
       if (data.success) {
         setStudents(data.students);
-        console.log('Loaded students:', data.students);
       } else {
         console.error('Failed to load students:', data.message);
         setStudents([]);
@@ -358,8 +352,6 @@ const ExamManagement = () => {
 
         if (data.success) {
           const examId = data.exam_id;
-          console.log('Exam created with ID:', examId);
-          console.log('Selected students to assign:', selectedStudents);
 
           // Assign students
           if (selectedStudents.length > 0) {
@@ -375,7 +367,6 @@ const ExamManagement = () => {
             });
 
             const assignData = await assignResponse.json();
-            console.log('Student assignment response:', assignData);
 
             if (!assignData.success) {
               console.error('Failed to assign students:', assignData.message);
@@ -1025,11 +1016,9 @@ const ExamManagement = () => {
                         required
                       >
                         <option value="">-- Select term --</option>
-                        {[...new Set(classes.map(c => c.term))].filter(Boolean).map((term, idx) => (
-                          <option key={idx} value={term}>
-                            {term}
-                          </option>
-                        ))}
+                        <option value="First Term">First Term</option>
+                        <option value="Second Term">Second Term</option>
+                        <option value="Third Term">Third Term</option>
                       </select>
                     </div>
                   </div>

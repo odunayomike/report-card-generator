@@ -46,28 +46,38 @@ const AttendanceMarker = () => {
         })
       ]);
 
+
       if (studentsResponse.success) {
-        setStudents(studentsResponse.students || []);
+        const studentsList = studentsResponse.students || [];
+        setStudents(studentsList);
+
+        if (studentsList.length === 0) {
+          setError(`No students found for ${selectedClass.class_name} - ${selectedClass.session} - ${selectedClass.term}`);
+          return;
+        }
 
         // Initialize attendance state
         const initialAttendance = {};
-        (studentsResponse.students || []).forEach(student => {
+        studentsList.forEach(student => {
           initialAttendance[student.id] = 'present';
         });
 
         // Update with existing attendance if available
         if (attendanceResponse.success && attendanceResponse.data) {
-          attendanceResponse.students.forEach(record => {
+          attendanceResponse.data.forEach(record => {
             initialAttendance[record.student_id] = record.status;
           });
         }
 
         setAttendance(initialAttendance);
       } else {
-        setError('Failed to load students');
+        const errorMsg = studentsResponse.message || 'Failed to load students';
+        setError(errorMsg);
+        console.error('Students API error:', errorMsg);
       }
     } catch (err) {
-      setError('Error loading data');
+      const errorMsg = err.message || 'Error loading data';
+      setError(`Error loading data: ${errorMsg}`);
       console.error('Load data error:', err);
     } finally {
       setLoading(false);
@@ -75,8 +85,10 @@ const AttendanceMarker = () => {
   };
 
   const handleClassChange = (e) => {
-    const classId = parseInt(e.target.value);
-    const selected = classes.find(c => c.id === classId);
+    const classId = e.target.value;
+
+    const selected = classes.find(c => c.id == classId); // Use == for loose comparison
+
     setSelectedClass(selected || null);
     setStudents([]);
     setAttendance({});

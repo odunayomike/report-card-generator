@@ -358,6 +358,8 @@ export default function LandingPage() {
                   src={schoolHero}
                   alt="Nigerian students in classroom learning"
                   className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 via-transparent to-purple-500/20"></div>
               </div>
@@ -454,7 +456,7 @@ export default function LandingPage() {
               ].map((pill, index) => {
                 const IconComponent = pill.icon;
                 return (
-                  <div key={index} className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-md border border-gray-200 hover:shadow-lg hover:scale-105 transition-all">
+                  <div key={index} className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-gray-200 hover:scale-105 transition-all">
                     <IconComponent className={`w-5 h-5 ${pill.color}`} />
                     <span className="text-sm font-semibold text-gray-700">{pill.text}</span>
                   </div>
@@ -465,7 +467,7 @@ export default function LandingPage() {
 
           {/* Main Dashboard Screenshot with Browser Mockup */}
           <div className="mb-16">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-gray-800 transform hover:scale-[1.02] transition-all duration-500">
+            <div className="relative rounded-2xl overflow-hidden bg-gray-800 transform hover:scale-[1.02] transition-all duration-500">
               {/* Browser Header */}
               <div className="bg-gray-700 px-4 py-3 flex items-center gap-2">
                 <div className="flex gap-2">
@@ -487,6 +489,8 @@ export default function LandingPage() {
                   src={dashboard}
                   alt="SchoolHub Dashboard"
                   className="w-full h-auto"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-blue-600/10 via-transparent to-transparent pointer-events-none"></div>
               </div>
@@ -541,13 +545,15 @@ export default function LandingPage() {
             ].map((screenshot, index) => (
               <div
                 key={index}
-                className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
+                className="group relative bg-white rounded-2xl overflow-hidden transition-all duration-500 transform hover:-translate-y-2"
               >
                 <div className="relative overflow-hidden bg-gray-100">
                   <img
                     src={screenshot.image}
                     alt={screenshot.title}
                     className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-700"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
@@ -566,7 +572,7 @@ export default function LandingPage() {
             <p className="text-gray-600 mb-6 text-lg">Ready to experience SchoolHub?</p>
             <Link
               to="/register"
-              className="inline-flex items-center gap-2 px-10 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all"
+              className="inline-flex items-center gap-2 px-10 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-2xl font-bold text-lg transform hover:scale-105 transition-all"
             >
               Start Your Free Trial
               <ChevronRight className="w-5 h-5" />
@@ -679,7 +685,7 @@ export default function LandingPage() {
 
             <div className="relative z-10">
               <div className="text-center mb-12">
-                <div className="inline-flex items-center gap-2 px-6 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-md mb-4">
+                <div className="inline-flex items-center gap-2 px-6 py-2 bg-white/80 backdrop-blur-sm rounded-full mb-4">
                   <Zap className="w-5 h-5 text-blue-600" />
                   <span className="text-sm font-bold text-blue-700">ALL-INCLUSIVE FEATURES</span>
                 </div>
@@ -725,7 +731,7 @@ export default function LandingPage() {
                   '256-bit SSL encryption',
                   'Secure authentication'
                 ].map((feature, index) => (
-                  <div key={index} className="group flex items-start gap-3 bg-white/90 backdrop-blur-sm rounded-2xl p-5 shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  <div key={index} className="group flex items-start gap-3 bg-white/90 backdrop-blur-sm rounded-2xl p-5 transition-all duration-300 transform hover:scale-105">
                     <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:rotate-12 transition-transform">
                       <CheckCircle className="w-4 h-4 text-white" />
                     </div>
@@ -735,7 +741,7 @@ export default function LandingPage() {
               </div>
 
               <div className="mt-12 text-center">
-                <div className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl shadow-lg border-2 border-green-200">
+                <div className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl border-2 border-green-200">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
                     <Star className="w-6 h-6 text-white fill-white" />
                   </div>
@@ -899,6 +905,8 @@ export default function LandingPage() {
                   src={school2}
                   alt="Happy Nigerian students and teacher in classroom"
                   className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             </div>

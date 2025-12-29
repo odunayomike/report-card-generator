@@ -71,7 +71,7 @@ try {
     ");
     $stmt->execute([
         $school_id,
-        $plan_id,
+        $plan['id'],
         $reference,
         $plan['amount'],
         $plan['currency']

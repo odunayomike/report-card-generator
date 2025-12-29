@@ -30,10 +30,8 @@ export default function Dashboard({ school, onLogout }) {
     try {
       setLoadingStudents(true);
       const response = await getAllStudents();
-      console.log('Students response:', response);
       if (response.success) {
         setStudents(response.data);
-        console.log('Students loaded:', response.data.length);
       } else {
         console.error('Failed to load students:', response.message);
       }

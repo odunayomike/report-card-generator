@@ -45,16 +45,17 @@ try {
         exit();
     }
 
-    // If teacher, verify they are assigned to this student's class
+    // If teacher, verify they are assigned to this student's class (check class and session only, not term)
     if ($userType === 'teacher') {
         $verifyQuery = "SELECT id FROM teacher_classes
-                        WHERE teacher_id = ? AND class_name = ? AND session = ? AND term = ?";
+                        WHERE teacher_id = ?
+                        AND TRIM(LOWER(class_name)) = LOWER(?)
+                        AND TRIM(LOWER(session)) = LOWER(?)";
         $verifyStmt = $db->prepare($verifyQuery);
         $verifyStmt->execute([
             $_SESSION['teacher_id'],
-            $student['class'],
-            $student['session'],
-            $student['term']
+            trim($student['class']),
+            trim($student['session'])
         ]);
 
         if (!$verifyStmt->fetch()) {

@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getStudentProfile } from '../services/api';
 import { useToastContext } from '../context/ToastContext';
 
 export default function StudentProfile() {
   const { admissionNo } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToastContext();
   const [viewingProfile, setViewingProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Determine if user is a teacher based on the current route
+  const isTeacher = location.pathname.startsWith('/teacher');
 
   useEffect(() => {
     loadProfile();
@@ -22,23 +26,27 @@ export default function StudentProfile() {
         setViewingProfile(response);
       } else {
         toast.error('Error loading profile: ' + response.message);
-        navigate('/dashboard/students');
+        const basePath = isTeacher ? '/teacher' : '/dashboard';
+        navigate(`${basePath}/students`);
       }
     } catch (error) {
       console.error('Error:', error);
       toast.error('Failed to load profile. Please try again.');
-      navigate('/dashboard/students');
+      const basePath = isTeacher ? '/teacher' : '/dashboard';
+      navigate(`${basePath}/students`);
     } finally {
       setLoading(false);
     }
   };
 
   const handleViewReport = (reportId) => {
-    navigate(`/dashboard/reports/${reportId}`);
+    const basePath = isTeacher ? '/teacher' : '/dashboard';
+    navigate(`${basePath}/reports/${reportId}`);
   };
 
   const handleEditReport = (reportId) => {
-    navigate(`/dashboard/reports/${reportId}/edit`);
+    const basePath = isTeacher ? '/teacher' : '/dashboard';
+    navigate(`${basePath}/reports/${reportId}/edit`);
   };
 
   if (loading) {

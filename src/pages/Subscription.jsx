@@ -20,8 +20,17 @@ export default function Subscription() {
   const { formatPrice } = useCurrency();
 
   useEffect(() => {
-    loadSubscriptionStatus();
-    loadPlans();
+    const init = async () => {
+      try {
+        setLoading(true);
+        await Promise.all([loadSubscriptionStatus(), loadPlans()]);
+      } catch (error) {
+        console.error('Error initializing:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    init();
   }, []);
 
   const loadPlans = async () => {
@@ -41,14 +50,12 @@ export default function Subscription() {
 
   const loadSubscriptionStatus = async () => {
     try {
-      setLoading(true);
       const response = await fetch(`${API_BASE_URL}/subscription/get-status`, {
         credentials: 'include'
       });
       const data = await response.json();
 
       if (data.success) {
-        console.log('Subscription API Response:', data); // Debug log
         // Map the backend response to the frontend structure
         const mappedData = {
           status: data.subscription?.status || 'inactive',
@@ -60,20 +67,17 @@ export default function Subscription() {
           amount: data.current_subscription?.amount || 5000,
           payment_history: data.payment_history || []
         };
-        console.log('Mapped Subscription Data:', mappedData); // Debug log
         setSubscriptionData(mappedData);
       }
     } catch (error) {
       console.error('Error loading subscription:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleSubscribe = async () => {
     try {
       setProcessingPayment(true);
-      const response = await fetch(`${API_BASE_URL}/subscription/initialize`, {
+      const response = await fetch(`${API_BASE_URL}/subscription/initialize-payment`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -187,6 +191,7 @@ export default function Subscription() {
     }
   };
 
+
   return (
     <>
       <ToastContainer toasts={toasts} removeToast={removeToast} />
@@ -199,322 +204,211 @@ export default function Subscription() {
         confirmText={confirmDialog.confirmText}
         type={confirmDialog.type}
       />
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-6 flex items-center justify-between">
+
+      <div className="max-w-6xl mx-auto px-2">
+        <div className="mb-3 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Subscription Management</h2>
-            <p className="text-sm text-gray-600 mt-1">Manage your SchoolHub subscription and billing</p>
+            <h2 className="text-xl font-bold" style={{color: '#1791C8'}}>Subscription Management</h2>
+            <p className="text-xs text-gray-600">Manage your SchoolHub subscription</p>
           </div>
           <CurrencySelector />
         </div>
 
-      {/* Current Status Card */}
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
-        <div
-          className="px-6 py-4"
-          style={{background: 'linear-gradient(to right, #1791C8, #667eea)'}}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-bold text-white">Current Plan</h3>
-              <p className="text-white/90 text-sm">
-                {isActive ? 'Active Subscription' : isTrialing ? 'Free Trial' : 'No Active Subscription'}
-              </p>
-            </div>
-            <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
-              isActive ? 'bg-green-500 text-white' :
-              isTrialing ? 'bg-yellow-500 text-white' :
-              'bg-red-500 text-white'
-            }`}>
-              {subscriptionData?.status?.toUpperCase() || 'INACTIVE'}
-            </div>
-          </div>
-        </div>
-
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {subscriptionData?.start_date && (
-              <div className="flex items-center gap-3">
-                <Calendar className="w-5 h-5 text-gray-400" />
-                <div>
-                  <p className="text-xs text-gray-600">Start Date</p>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {formatDate(subscriptionData.start_date)}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {subscriptionData?.end_date && (
-              <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5 text-gray-400" />
-                <div>
-                  <p className="text-xs text-gray-600">
-                    {isTrialing ? 'Trial Ends' : 'Next Payment Due'}
-                  </p>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {formatDate(subscriptionData.end_date)}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {(isActive || isTrialing) && daysRemaining > 0 && (
-            <div className={`p-4 rounded-lg ${
-              daysRemaining <= 7 ? 'bg-yellow-50 border border-yellow-200' : 'bg-blue-50 border border-blue-200'
-            }`}>
-              <div className="flex items-start gap-3">
-                <AlertCircle className={`w-5 h-5 mt-0.5 ${
-                  daysRemaining <= 7 ? 'text-yellow-600' : 'text-blue-600'
-                }`} />
-                <div>
-                  <p className={`text-sm font-semibold ${
-                    daysRemaining <= 7 ? 'text-yellow-900' : 'text-blue-900'
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
+          <div className="lg:col-span-1">
+            <div className="bg-white border rounded-lg overflow-hidden" style={{borderColor: '#1791C8'}}>
+              <div className="px-3 py-2" style={{backgroundColor: '#1791C8'}}>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-white">Current Plan</h3>
+                  <div className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                    isActive ? 'bg-green-500 text-white' :
+                    isTrialing ? 'bg-yellow-500 text-white' :
+                    'bg-red-500 text-white'
                   }`}>
-                    {daysRemaining} {daysRemaining === 1 ? 'day' : 'days'} remaining
-                  </p>
-                  <p className={`text-xs mt-1 ${
-                    daysRemaining <= 7 ? 'text-yellow-700' : 'text-blue-700'
-                  }`}>
-                    {isTrialing
-                      ? 'Your free trial will expire soon. Subscribe to continue using SchoolHub.'
-                      : 'Your subscription will renew automatically.'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Plan Selection */}
-      {!isActive && (
-        <div className="mb-6">
-          <div className="bg-white rounded-lg shadow-lg p-4">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 text-center">Choose Your Plan</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {plans.map((plan, index) => {
-                const planKey = plan.plan_name.toLowerCase().includes('yearly') ? 'yearly'
-                  : plan.plan_name.toLowerCase().includes('term') ? 'term'
-                  : 'monthly';
-                const isPopular = planKey === 'term';
-                const savingsAmount = planKey === 'term' ? 5000
-                  : planKey === 'yearly' ? 30000
-                  : 0;
-                const savings = savingsAmount > 0 ? formatPrice(savingsAmount) : null;
-                const perMonthPrice = planKey === 'term' ? Math.round(plan.amount / 3)
-                  : planKey === 'yearly' ? Math.round(plan.amount / 12)
-                  : null;
-
-                return (
-                  <button
-                    key={plan.id}
-                    onClick={() => setSelectedPlan(planKey)}
-                    className={`p-6 rounded-lg border-2 transition-all relative ${
-                      selectedPlan === planKey
-                        ? index === 0 ? 'border-blue-600 bg-blue-50'
-                        : index === 1 ? 'border-indigo-600 bg-indigo-50'
-                        : 'border-green-600 bg-green-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    {isPopular && (
-                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                        <span className="bg-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                          POPULAR
-                        </span>
-                      </div>
-                    )}
-                    {savings && !isPopular && (
-                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                        <span className="bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                          Save {savings}
-                        </span>
-                      </div>
-                    )}
-                    <div className="text-center">
-                      <div className="text-sm font-semibold text-gray-700 mb-2">{plan.plan_name}</div>
-                      <div className="text-3xl font-bold text-gray-900">
-                        {formatPrice(plan.amount)}
-                      </div>
-                      <div className="text-sm text-gray-600 mt-1">
-                        for {plan.duration_days} days
-                      </div>
-                      {perMonthPrice && (
-                        <div className="mt-2 text-xs text-gray-500">
-                          {formatPrice(perMonthPrice)}/month
-                        </div>
-                      )}
-                      <div className="mt-3 text-xs text-gray-500 min-h-[2.5rem]">
-                        {plan.description?.split('.')[0]}
-                      </div>
-                      {selectedPlan === planKey && (
-                        <div className="mt-3">
-                          <Check className={`w-5 h-5 mx-auto ${
-                            index === 0 ? 'text-blue-600'
-                            : index === 1 ? 'text-indigo-600'
-                            : 'text-green-600'
-                          }`} />
-                        </div>
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Pricing Plan Details */}
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-xl font-bold text-gray-900">
-                {plans.find(p => {
-                  const key = p.plan_name.toLowerCase().includes('yearly') ? 'yearly'
-                    : p.plan_name.toLowerCase().includes('term') ? 'term'
-                    : 'monthly';
-                  return key === selectedPlan;
-                })?.plan_name || 'Selected Plan'}
-              </h3>
-              <p className="text-sm text-gray-600">All features included</p>
-            </div>
-            <div className="text-right">
-              <div className="text-3xl font-bold text-gray-900">
-                {formatPrice(plans.find(p => {
-                  const key = p.plan_name.toLowerCase().includes('yearly') ? 'yearly'
-                    : p.plan_name.toLowerCase().includes('term') ? 'term'
-                    : 'monthly';
-                  return key === selectedPlan;
-                })?.amount || 0)}
-              </div>
-              <div className="text-sm text-gray-600">
-                {selectedPlan === 'yearly' ? 'per year' : selectedPlan === 'term' ? 'per term' : 'per month'}
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-gray-200 pt-4 mb-6">
-            <h4 className="text-sm font-semibold text-gray-900 mb-3">What's included:</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {[
-                'Unlimited Report Cards',
-                'Student Management',
-                'Teacher Management',
-                'Attendance Tracking',
-                'Custom Branding',
-                'School Profile Management',
-                'Analytics Dashboard',
-                'PDF Export',
-                'Email Support',
-                'Regular Updates'
-              ].map((feature, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
-                  <span className="text-sm text-gray-700">{feature}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {!isActive && (
-            <button
-              onClick={handleSubscribe}
-              disabled={processingPayment}
-              className="w-full px-6 py-3 text-white rounded-lg hover:shadow-lg transition-all font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{backgroundColor: '#1791C8'}}
-              onMouseEnter={(e) => !processingPayment && (e.target.style.backgroundColor = '#1478A6')}
-              onMouseLeave={(e) => e.target.style.backgroundColor = '#1791C8'}
-            >
-              <CreditCard className="w-5 h-5" />
-              {processingPayment ? 'Processing...' : isTrialing ? 'Subscribe Now' : 'Start 7-Day Free Trial'}
-            </button>
-          )}
-
-          {isActive && (
-            <div>
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-                <div className="flex items-center gap-3">
-                  <Check className="w-5 h-5 text-green-600" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-green-900">
-                      Active {currentPlanType === 'yearly' ? 'Yearly' : currentPlanType === 'term' ? 'Per Term' : 'Monthly'} Subscription
-                    </p>
-                    <p className="text-xs text-green-700">Your subscription will renew automatically</p>
+                    {subscriptionData?.status?.toUpperCase() || 'INACTIVE'}
                   </div>
                 </div>
               </div>
 
-              {/* Change Plan Options */}
-              {canChangePlan && (
-                <div className="border-t border-gray-200 pt-4 mt-4">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-3">Change Plan</h4>
-                  <div className="space-y-2">
-                    {plans.filter(plan => {
+              <div className="p-3 space-y-2">
+                {subscriptionData?.start_date && (
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-3.5 h-3.5" style={{color: '#1791C8'}} />
+                    <div className="flex-1">
+                      <p className="text-xs text-gray-500">Start</p>
+                      <p className="text-xs font-semibold">{formatDate(subscriptionData.start_date)}</p>
+                    </div>
+                  </div>
+                )}
+
+                {subscriptionData?.end_date && (
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-3.5 h-3.5" style={{color: '#1791C8'}} />
+                    <div className="flex-1">
+                      <p className="text-xs text-gray-500">{isTrialing ? 'Trial Ends' : 'Next Payment'}</p>
+                      <p className="text-xs font-semibold">{formatDate(subscriptionData.end_date)}</p>
+                    </div>
+                  </div>
+                )}
+
+                {(isActive || isTrialing) && daysRemaining > 0 && (
+                  <div className={`p-2 rounded border text-center ${daysRemaining <= 7 ? 'bg-yellow-50 border-yellow-200' : ''}`} style={daysRemaining > 7 ? {borderColor: '#1791C8', backgroundColor: '#E6F4F9'} : {}}>
+                    <p className={`text-xs font-bold ${daysRemaining <= 7 ? 'text-yellow-900' : ''}`} style={daysRemaining > 7 ? {color: '#1791C8'} : {}}>
+                      {daysRemaining} days left
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-3">
+            <div className="bg-white border rounded-lg overflow-hidden" style={{borderColor: '#1791C8'}}>
+              {!isActive && (
+                <div className="border-b p-3" style={{borderColor: '#1791C8'}}>
+                  <h3 className="text-sm font-bold mb-2" style={{color: '#1791C8'}}>Choose Your Plan</h3>
+                  <div className="grid grid-cols-3 gap-2">
+                    {plans.map((plan, index) => {
                       const planKey = plan.plan_name.toLowerCase().includes('yearly') ? 'yearly'
                         : plan.plan_name.toLowerCase().includes('term') ? 'term'
                         : 'monthly';
-                      return planKey !== currentPlanType;
-                    }).map((plan) => {
-                      const planKey = plan.plan_name.toLowerCase().includes('yearly') ? 'yearly'
-                        : plan.plan_name.toLowerCase().includes('term') ? 'term'
-                        : 'monthly';
-                      const isUpgrade = (currentPlanType === 'monthly' && (planKey === 'term' || planKey === 'yearly'))
-                        || (currentPlanType === 'term' && planKey === 'yearly');
-                      const perMonth = planKey === 'term' ? Math.round(plan.amount / 3)
+                      const isPopular = planKey === 'term';
+                      const perMonth = planKey === 'term' ? Math.round(plan.amount / 4)
                         : planKey === 'yearly' ? Math.round(plan.amount / 12)
                         : null;
 
                       return (
                         <button
                           key={plan.id}
-                          onClick={() => handleChangePlan(planKey)}
-                          disabled={processingPayment}
-                          className={`w-full px-4 py-3 text-white rounded-lg hover:shadow-lg transition-all font-semibold flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed ${
-                            isUpgrade
-                              ? 'bg-gradient-to-r from-green-600 to-green-700'
-                              : 'bg-gray-600 hover:bg-gray-700'
+                          onClick={() => setSelectedPlan(planKey)}
+                          className={`p-2 rounded border transition-all text-center ${
+                            selectedPlan === planKey ? '' : 'border-gray-200 hover:border-gray-300'
                           }`}
+                          style={selectedPlan === planKey ? {borderColor: '#1791C8', backgroundColor: '#E6F4F9'} : {}}
                         >
-                          <div className="text-left">
-                            <div className="font-bold">{isUpgrade ? 'Upgrade' : 'Switch'} to {plan.plan_name}</div>
-                            <div className={`text-xs ${isUpgrade ? 'text-green-100' : 'text-gray-200'}`}>
-                              {plan.description?.split('.')[0]}
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="font-bold">{formatPrice(plan.amount)}/{planKey === 'yearly' ? 'year' : planKey === 'term' ? 'term' : 'month'}</div>
-                            {perMonth && (
-                              <div className={`text-xs ${isUpgrade ? 'text-green-100' : 'text-gray-200'}`}>
-                                {formatPrice(perMonth)}/month
-                              </div>
-                            )}
-                          </div>
+                          {isPopular && <span className="text-xs font-bold block mb-1" style={{color: '#1791C8'}}>POPULAR</span>}
+                          <div className="text-xs font-semibold text-gray-700">{plan.plan_name}</div>
+                          <div className="text-lg font-bold text-gray-900">{formatPrice(plan.amount)}</div>
+                          {perMonth && (
+                            <div className="text-xs text-gray-500">{formatPrice(perMonth)}/mo</div>
+                          )}
+                          {selectedPlan === planKey && (
+                            <Check className="w-4 h-4 mx-auto mt-1" style={{color: '#1791C8'}} />
+                          )}
                         </button>
                       );
                     })}
                   </div>
                 </div>
               )}
+
+              <div className="p-3">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="text-sm font-bold" style={{color: '#1791C8'}}>
+                      {plans.find(p => {
+                        const key = p.plan_name.toLowerCase().includes('yearly') ? 'yearly'
+                          : p.plan_name.toLowerCase().includes('term') ? 'term'
+                          : 'monthly';
+                        return key === selectedPlan;
+                      })?.plan_name || 'Selected Plan'}
+                    </h3>
+                    <p className="text-xs text-gray-600">All features included</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold" style={{color: '#1791C8'}}>
+                      {formatPrice(plans.find(p => {
+                        const key = p.plan_name.toLowerCase().includes('yearly') ? 'yearly'
+                          : p.plan_name.toLowerCase().includes('term') ? 'term'
+                          : 'monthly';
+                        return key === selectedPlan;
+                      })?.amount || 0)}
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      {selectedPlan === 'yearly' ? 'per year' : selectedPlan === 'term' ? 'per term' : 'per month'}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t pt-2 mb-3" style={{borderColor: '#1791C8'}}>
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+                    {[
+                      'Unlimited Report Cards',
+                      'Student Management',
+                      'Teacher Management',
+                      'Attendance Tracking',
+                      'Custom Branding',
+                      'Analytics Dashboard',
+                      'PDF Export',
+                      'Email Support'
+                    ].map((feature, index) => (
+                      <div key={index} className="flex items-center gap-1">
+                        <Check className="w-3 h-3 flex-shrink-0" style={{color: '#1791C8'}} />
+                        <span className="text-xs text-gray-700">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {!isActive && (
+                  <button
+                    onClick={handleSubscribe}
+                    disabled={processingPayment}
+                    className="w-full px-4 py-2 text-white rounded-lg transition-all font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
+                    style={{backgroundColor: '#1791C8'}}
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    {processingPayment ? 'Processing...' : isTrialing ? 'Subscribe Now' : 'Start 7-Day Free Trial'}
+                  </button>
+                )}
+
+                {isActive && (
+                  <div>
+                    <div className="border rounded p-2 mb-2" style={{borderColor: '#1791C8', backgroundColor: '#E6F4F9'}}>
+                      <p className="text-xs font-semibold" style={{color: '#1791C8'}}>
+                        Active {currentPlanType === 'yearly' ? 'Yearly' : currentPlanType === 'term' ? 'Per Term' : 'Monthly'} Subscription
+                      </p>
+                    </div>
+
+                    {canChangePlan && (
+                      <div className="space-y-2">
+                        {plans.filter(plan => {
+                          const planKey = plan.plan_name.toLowerCase().includes('yearly') ? 'yearly'
+                            : plan.plan_name.toLowerCase().includes('term') ? 'term'
+                            : 'monthly';
+                          return planKey !== currentPlanType;
+                        }).map((plan) => {
+                          const planKey = plan.plan_name.toLowerCase().includes('yearly') ? 'yearly'
+                            : plan.plan_name.toLowerCase().includes('term') ? 'term'
+                            : 'monthly';
+                          const isUpgrade = (currentPlanType === 'monthly' && (planKey === 'term' || planKey === 'yearly'))
+                            || (currentPlanType === 'term' && planKey === 'yearly');
+
+                          return (
+                            <button
+                              key={plan.id}
+                              onClick={() => handleChangePlan(planKey)}
+                              disabled={processingPayment}
+                              className="w-full px-3 py-2 text-white rounded text-sm font-semibold flex items-center justify-between disabled:opacity-50 transition-opacity"
+                              style={{backgroundColor: isUpgrade ? '#1791C8' : '#6b7280'}}
+                            >
+                              <span>{isUpgrade ? 'Upgrade' : 'Switch'} to {plan.plan_name}</span>
+                              <span>{formatPrice(plan.amount)}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <p className="text-xs text-gray-500 text-center mt-2">
+                  Secure payment by Paystack • Cancel anytime
+                </p>
+              </div>
             </div>
-          )}
-
-          <p className="text-xs text-gray-500 text-center mt-4">
-            Secure payment powered by Paystack. Cancel anytime.
-          </p>
+          </div>
         </div>
-      </div>
-
-      {/* Help Section */}
-      <div className="mt-6 bg-gray-50 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-gray-900 mb-2">Need Help?</h4>
-        <p className="text-xs text-gray-600">
-          If you have any questions about your subscription or billing, please contact our support team.
-        </p>
-      </div>
       </div>
     </>
   );

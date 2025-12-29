@@ -27,11 +27,11 @@ if (!$data) {
     exit();
 }
 
-// If teacher, verify they are assigned to this class
+// If teacher, verify they are assigned to this class (check class and session only, not term)
 if ($userType === 'teacher') {
-    $className = $data['class'] ?? '';
-    $session = $data['session'] ?? '';
-    $term = $data['term'] ?? '';
+    $className = trim($data['class'] ?? '');
+    $session = trim($data['session'] ?? '');
+    $term = trim($data['term'] ?? '');
 
     if (empty($className) || empty($session) || empty($term)) {
         http_response_code(400);
@@ -39,10 +39,13 @@ if ($userType === 'teacher') {
         exit;
     }
 
+    // Verify teacher is assigned to this class and session (term-independent)
     $verifyQuery = "SELECT id FROM teacher_classes
-                    WHERE teacher_id = ? AND class_name = ? AND session = ? AND term = ?";
+                    WHERE teacher_id = ?
+                    AND TRIM(LOWER(class_name)) = LOWER(?)
+                    AND TRIM(LOWER(session)) = LOWER(?)";
     $verifyStmt = $db->prepare($verifyQuery);
-    $verifyStmt->execute([$_SESSION['teacher_id'], $className, $session, $term]);
+    $verifyStmt->execute([$_SESSION['teacher_id'], $className, $session]);
 
     if (!$verifyStmt->fetch()) {
         http_response_code(403);
