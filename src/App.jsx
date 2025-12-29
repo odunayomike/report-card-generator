@@ -4,6 +4,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { CurrencyProvider } from './contexts/CurrencyContext';
 import { API_BASE_URL } from './config/env';
 import CookieBanner from './components/CookieBanner';
+import ScrollToTop from './components/ScrollToTop';
 import LandingPage from './components/LandingPage';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -182,21 +183,16 @@ function App() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  // Let the HTML loader handle the initial loading state
+  // if (loading) {
+  //   return null;
+  // }
 
   return (
     <HelmetProvider>
       <CurrencyProvider>
         <Router>
+          <ScrollToTop />
           <CookieBanner />
           <Routes>
         <Route

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, Zap, ChevronDown } from 'lucide-react';
+import { Check, Zap, ChevronDown, Menu, X } from 'lucide-react';
 import schoolLogo from '../assets/schoolhub.png';
 import SEO from '../components/SEO';
 import CurrencySelector from '../components/CurrencySelector';
@@ -9,6 +9,7 @@ import PaystackLogo from '../components/PaystackLogo';
 
 export default function Pricing() {
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { formatPrice, currency } = useCurrency();
 
   // Plan prices in NGN (base currency)
@@ -30,19 +31,21 @@ export default function Pricing() {
       <div className="min-h-screen bg-white">
         {/* Navigation */}
         <nav className="bg-white shadow-sm sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4">
             <div className="flex justify-between items-center h-20">
-              <Link to="/" className="flex items-center gap-3">
+              <Link to="/" className="flex items-center gap-2 sm:gap-3">
                 <img
                   src={schoolLogo}
                   alt="SchoolHub Logo"
-                  className="w-20 h-20 object-contain"
+                  className="w-16 h-16 sm:w-20 sm:h-20 object-contain"
                 />
-                <h1 className="text-2xl font-bold" style={{color: '#1791C8'}}>
+                <h1 className="text-xl sm:text-2xl font-bold" style={{color: '#1791C8'}}>
                   SchoolHub
                 </h1>
               </Link>
-              <div className="flex items-center gap-6">
+
+              {/* Desktop Navigation */}
+              <div className="hidden lg:flex items-center gap-6">
                 <Link
                   to="/about"
                   className="text-gray-700 hover:text-[#1791C8] transition-colors font-medium"
@@ -112,7 +115,91 @@ export default function Pricing() {
                   Get Started Free
                 </Link>
               </div>
+
+              {/* Mobile Menu Button and Currency Selector */}
+              <div className="flex lg:hidden items-center gap-2">
+                <CurrencySelector />
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="p-2 text-gray-700 hover:text-[#1791C8] transition-colors"
+                  aria-label="Toggle menu"
+                >
+                  {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                </button>
+              </div>
             </div>
+
+            {/* Mobile Menu */}
+            {mobileMenuOpen && (
+              <div className="lg:hidden py-4 border-t border-gray-200">
+                <div className="flex flex-col space-y-3">
+                  <Link
+                    to="/about"
+                    className="px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#1791C8] transition-colors font-medium rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    About
+                  </Link>
+                  <Link
+                    to="/pricing"
+                    className="px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#1791C8] transition-colors font-medium rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Pricing
+                  </Link>
+                  <Link
+                    to="/contact"
+                    className="px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#1791C8] transition-colors font-medium rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Contact
+                  </Link>
+                  <Link
+                    to="/faq"
+                    className="px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#1791C8] transition-colors font-medium rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    FAQ
+                  </Link>
+
+                  {/* Mobile Login Section */}
+                  <div className="border-t border-gray-200 pt-3 mt-3">
+                    <p className="px-4 text-xs font-semibold text-gray-500 uppercase mb-2">Login</p>
+                    <Link
+                      to="/login"
+                      className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#1791C8] transition-colors font-medium rounded-lg"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      School Login
+                    </Link>
+                    <Link
+                      to="/teacher/login"
+                      className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#1791C8] transition-colors font-medium rounded-lg"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Teacher Login
+                    </Link>
+                    <Link
+                      to="/student/login"
+                      className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#1791C8] transition-colors font-medium rounded-lg"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Student Portal
+                    </Link>
+                  </div>
+
+                  {/* Mobile CTA Button */}
+                  <Link
+                    to="/register"
+                    className="mx-4 mt-3 px-6 py-3 text-white rounded-lg hover:shadow-lg transition-all font-semibold text-center"
+                    style={{backgroundColor: '#1791C8'}}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Get Started Free
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         </nav>
 

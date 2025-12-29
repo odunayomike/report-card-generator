@@ -4,6 +4,7 @@ import { API_BASE_URL } from '../config/env';
 
 export default function StudentDashboardLayout({ student, onLogout }) {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [schoolLogo, setSchoolLogo] = useState(null);
   const navigate = useNavigate();
 
@@ -48,6 +49,22 @@ export default function StudentDashboardLayout({ student, onLogout }) {
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100"
+              >
+                {mobileMenuOpen ? (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                )}
+              </button>
+
               {schoolLogo ? (
                 <img
                   src={schoolLogo}
@@ -61,7 +78,7 @@ export default function StudentDashboardLayout({ student, onLogout }) {
                   </svg>
                 </div>
               )}
-              <div>
+              <div className="hidden sm:block">
                 <h1 className="text-lg font-bold text-gray-900">Student Portal</h1>
                 <p className="text-xs text-gray-500">{student?.name}</p>
               </div>
@@ -115,7 +132,20 @@ export default function StudentDashboardLayout({ student, onLogout }) {
       {/* Sidebar and Main Content */}
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-gray-200 h-screen fixed top-16 left-0 overflow-y-auto">
+        {/* Mobile Overlay */}
+        {mobileMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          ></div>
+        )}
+
+        <aside className={`
+          w-64 bg-white border-r border-gray-200 h-screen fixed top-16 left-0 overflow-y-auto z-50
+          transition-transform duration-300 ease-in-out
+          lg:translate-x-0
+          ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}>
           <nav className="p-4 pt-8">
             <ul className="space-y-2">
               <li>
@@ -159,7 +189,7 @@ export default function StudentDashboardLayout({ student, onLogout }) {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 ml-64 p-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 lg:ml-64">
           <Outlet />
         </main>
       </div>

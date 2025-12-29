@@ -435,20 +435,20 @@ const FeeManagement = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-3 sm:p-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Fee Management</h1>
-        <p className="text-gray-600 mt-1">Manage fee categories and structures</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Fee Management</h1>
+        <p className="text-sm sm:text-base text-gray-600 mt-1">Manage fee categories and structures</p>
       </div>
 
       {/* Tabs */}
       <div className="bg-white rounded-lg shadow mb-6">
         <div className="border-b border-gray-200">
-          <nav className="flex -mb-px">
+          <nav className="flex -mb-px overflow-x-auto">
             <button
               onClick={() => setActiveTab('categories')}
-              className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+              className={`py-3 sm:py-4 px-4 sm:px-6 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === 'categories'
                   ? 'border-primary-500 text-primary-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -458,7 +458,7 @@ const FeeManagement = () => {
             </button>
             <button
               onClick={() => setActiveTab('structures')}
-              className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+              className={`py-3 sm:py-4 px-4 sm:px-6 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === 'structures'
                   ? 'border-primary-500 text-primary-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -473,104 +473,133 @@ const FeeManagement = () => {
       {/* Fee Categories Tab */}
       {activeTab === 'categories' && (
         <div className="bg-white rounded-lg shadow">
-          <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-            <h2 className="text-lg font-semibold">Fee Categories</h2>
+          <div className="p-3 sm:p-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <h2 className="text-base sm:text-lg font-semibold">Fee Categories</h2>
             <button
               onClick={() => setShowAddCategoryModal(true)}
-              className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center gap-2"
+              className="bg-primary-600 text-white px-3 sm:px-4 py-2 rounded-md hover:bg-primary-700 flex items-center gap-2 text-sm w-full sm:w-auto justify-center"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
               Add Category
             </button>
           </div>
 
-          <div className="overflow-x-auto">
-            {categories.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500">No fee categories yet. Add one to get started.</p>
+          {categories.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500">No fee categories yet. Add one to get started.</p>
+            </div>
+          ) : (
+            <>
+              {/* Mobile Card View */}
+              <div className="block md:hidden p-3 space-y-3">
+                {categories.map((category) => (
+                  <div key={category.id} className="border border-gray-200 rounded-lg p-3">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-medium text-gray-900 text-sm flex-1">{category.name}</h3>
+                      <span className={`px-2 py-0.5 text-xs font-semibold rounded-full whitespace-nowrap ml-2 ${
+                        category.is_active
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {category.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-2">
+                      {category.description || 'No description'}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Created {new Date(category.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))}
               </div>
-            ) : (
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {categories.map((category) => (
-                    <tr key={category.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                        {category.name}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {category.description || 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                          category.is_active
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {category.is_active ? 'Active' : 'Inactive'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(category.created_at).toLocaleDateString()}
-                      </td>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {categories.map((category) => (
+                      <tr key={category.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                          {category.name}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600">
+                          {category.description || 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                            category.is_active
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {category.is_active ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(category.created_at).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </div>
       )}
 
       {/* Fee Structures Tab */}
       {activeTab === 'structures' && (
         <div className="bg-white rounded-lg shadow">
-          <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <h2 className="text-lg font-semibold">Fee Structures</h2>
+          <div className="p-3 sm:p-4 border-b border-gray-200">
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+                <h2 className="text-base sm:text-lg font-semibold">Fee Structures</h2>
+                <button
+                  onClick={() => setShowArchived(!showArchived)}
+                  className={`px-3 py-1.5 text-xs sm:text-sm rounded-md flex items-center justify-center gap-2 ${
+                    showArchived
+                      ? 'bg-primary-100 text-primary-800 hover:bg-primary-200 border border-primary-300'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {showArchived ? (
+                    <>
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      <span className="whitespace-nowrap">View Active Fees</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                      </svg>
+                      <span className="whitespace-nowrap">View Archived</span>
+                    </>
+                  )}
+                </button>
+              </div>
               <button
-                onClick={() => setShowArchived(!showArchived)}
-                className={`px-3 py-1 text-sm rounded-md flex items-center gap-2 ${
-                  showArchived
-                    ? 'bg-primary-100 text-primary-800 hover:bg-primary-200 border border-primary-300'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                onClick={() => setShowAddFeeModal(true)}
+                className="bg-primary-600 text-white px-3 sm:px-4 py-2 rounded-md hover:bg-primary-700 flex items-center justify-center gap-2 text-sm"
               >
-                {showArchived ? (
-                  <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    View Active Fees
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                    </svg>
-                    View Archived
-                  </>
-                )}
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Add Fee Structure
               </button>
             </div>
-            <button
-              onClick={() => setShowAddFeeModal(true)}
-              className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Add Fee Structure
-            </button>
           </div>
 
           {loading ? (
@@ -588,13 +617,13 @@ const FeeManagement = () => {
           ) : (
             <>
               {showArchived && (
-                <div className="bg-primary-50 border-l-4 border-primary-400 p-4 m-4">
-                  <div className="flex items-center">
-                    <svg className="w-5 h-5 text-primary-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-primary-50 border-l-4 border-primary-400 p-3 sm:p-4 m-3 sm:m-4">
+                  <div className="flex items-start sm:items-center gap-2 sm:gap-3">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 flex-shrink-0 mt-0.5 sm:mt-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                     </svg>
-                    <div>
-                      <p className="text-sm font-medium text-primary-800">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm font-medium text-primary-800">
                         Viewing Archived Fee Structures
                       </p>
                       <p className="text-xs text-primary-700 mt-1">
@@ -604,7 +633,101 @@ const FeeManagement = () => {
                   </div>
                 </div>
               )}
-              <div className="overflow-x-auto">
+
+              {/* Mobile Card View */}
+              <div className="block lg:hidden p-3 space-y-3">
+                {feeStructures.map((fee) => (
+                  <div key={fee.id} className="border border-gray-200 rounded-lg p-3">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-gray-900 text-sm mb-1">{fee.category_name}</h3>
+                        <div className="flex items-center gap-2 flex-wrap mb-2">
+                          <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                            fee.is_mandatory
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {fee.is_mandatory ? 'Mandatory' : 'Optional'}
+                          </span>
+                          <span className="text-xs text-gray-600 capitalize">{fee.frequency}</span>
+                        </div>
+                      </div>
+                      <div className="text-right ml-2">
+                        <p className="font-semibold text-gray-900 text-sm whitespace-nowrap">₦{fee.amount.toLocaleString()}</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 text-xs mb-3">
+                      <div className="flex items-center text-gray-600">
+                        <span className="font-medium min-w-[80px]">Applied To:</span>
+                        {fee.student_id ? (
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-gray-900 truncate">{fee.student_name}</div>
+                            <div className="text-xs text-gray-500">{fee.admission_number}</div>
+                          </div>
+                        ) : fee.class ? (
+                          <span className="text-gray-900">{fee.class}</span>
+                        ) : (
+                          <span className="text-gray-500">All Students</span>
+                        )}
+                      </div>
+                      <div className="flex items-center text-gray-600">
+                        <span className="font-medium min-w-[80px]">Session:</span>
+                        <span className="text-gray-900">{fee.session}</span>
+                      </div>
+                      <div className="flex items-center text-gray-600">
+                        <span className="font-medium min-w-[80px]">Term:</span>
+                        <span className="text-gray-900">{fee.term || 'All Terms'}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200">
+                      <button
+                        onClick={() => handleEditFee(fee)}
+                        className="text-primary-600 hover:text-primary-900 p-1.5"
+                        title="Edit fee structure"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      {showArchived ? (
+                        <button
+                          onClick={() => handleArchiveFee(fee, false)}
+                          className="text-green-600 hover:text-green-900 p-1.5"
+                          title="Unarchive fee structure"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                          </svg>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleArchiveFee(fee, true)}
+                          className="text-yellow-600 hover:text-yellow-900 p-1.5"
+                          title="Archive fee structure"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                          </svg>
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDeleteFee(fee)}
+                        className="text-red-600 hover:text-red-900 p-1.5"
+                        title="Delete fee structure"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden lg:block overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>

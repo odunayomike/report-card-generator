@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { teacherLogin } from '../services/api';
+import schoolLogo from '../assets/schoolhub.png';
 
 const TeacherLogin = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -56,26 +57,33 @@ const TeacherLogin = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+    <div className="min-h-screen flex items-center justify-center bg-white py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full">
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <img
+              src={schoolLogo}
+              alt="SchoolHub Logo"
+              className="w-20 h-20 sm:w-24 sm:h-24 object-contain"
+            />
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
             Teacher Login
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="text-sm sm:text-base text-gray-600">
             Sign in to access your classes and mark attendance
           </p>
         </div>
 
-        <form className="mt-8 space-y-6 bg-white p-8 rounded-lg shadow-md" onSubmit={handleSubmit}>
+        <form className="space-y-6 bg-white p-6 sm:p-8 rounded-lg border border-gray-200" onSubmit={handleSubmit}>
           {error && (
             <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
               <span className="block sm:inline">{error}</span>
             </div>
           )}
 
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div className="mb-4">
+          <div className="space-y-4">
+            <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
               </label>
@@ -85,7 +93,7 @@ const TeacherLogin = ({ onLogin }) => {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
@@ -103,7 +111,7 @@ const TeacherLogin = ({ onLogin }) => {
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   required
-                  className="appearance-none rounded-md relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
+                  className="w-full px-4 py-3 pr-12 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="Enter your password"
                   value={formData.password}
                   onChange={handleChange}
@@ -119,24 +127,18 @@ const TeacherLogin = ({ onLogin }) => {
             </div>
           </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
-                loading
-                  ? 'bg-green-400 cursor-not-allowed'
-                  : 'bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
-              }`}
-            >
-              {loading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Signing in...' : 'Sign in'}
+          </button>
 
           <div className="text-center">
             <Link
               to="/login"
-              className="font-medium text-green-600 hover:text-green-500"
+              className="font-medium text-primary-600 hover:text-primary-700"
             >
               School Login
             </Link>

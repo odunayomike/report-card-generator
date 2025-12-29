@@ -130,7 +130,7 @@ const ManageTeachers = () => {
         <h2 className="text-2xl font-bold text-gray-900">Manage Teachers</h2>
         <button
           onClick={() => setShowCreateForm(true)}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+          className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
         >
           Add New Teacher
         </button>
@@ -169,7 +169,7 @@ const ManageTeachers = () => {
                       required
                       value={newTeacher.name}
                       onChange={handleCreateChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                       placeholder="Enter teacher's name"
                     />
                   </div>
@@ -184,7 +184,7 @@ const ManageTeachers = () => {
                       required
                       value={newTeacher.email}
                       onChange={handleCreateChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                       placeholder="teacher@school.com"
                     />
                   </div>
@@ -199,7 +199,7 @@ const ManageTeachers = () => {
                       required
                       value={newTeacher.password}
                       onChange={handleCreateChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                       placeholder="Create a password"
                     />
                   </div>
@@ -213,7 +213,7 @@ const ManageTeachers = () => {
                       name="phone"
                       value={newTeacher.phone}
                       onChange={handleCreateChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                       placeholder="Phone number"
                     />
                   </div>
@@ -229,7 +229,7 @@ const ManageTeachers = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                    className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
                   >
                     Create Teacher
                   </button>
@@ -260,7 +260,7 @@ const ManageTeachers = () => {
                       required
                       value={assignmentData.class_name}
                       onChange={handleAssignmentChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                       placeholder="e.g., JSS 1, SSS 2"
                     />
                   </div>
@@ -275,7 +275,7 @@ const ManageTeachers = () => {
                       required
                       value={assignmentData.session}
                       onChange={handleAssignmentChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                       placeholder="e.g., 2023/2024"
                     />
                   </div>
@@ -289,7 +289,7 @@ const ManageTeachers = () => {
                       required
                       value={assignmentData.term}
                       onChange={handleAssignmentChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                     >
                       <option value="">Select term</option>
                       <option value="First Term">First Term</option>
@@ -312,7 +312,7 @@ const ManageTeachers = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                    className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
                   >
                     Assign Class
                   </button>
@@ -324,14 +324,14 @@ const ManageTeachers = () => {
 
         {/* Teachers List */}
         <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">All Teachers</h2>
+          <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">All Teachers</h2>
           </div>
 
-          <div className="p-6">
+          <div className="p-3 sm:p-6">
             {loading ? (
               <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
                 <p className="mt-4 text-gray-600">Loading teachers...</p>
               </div>
             ) : teachers.length === 0 ? (
@@ -339,83 +339,130 @@ const ManageTeachers = () => {
                 <p className="text-gray-600">No teachers found</p>
                 <button
                   onClick={() => setShowCreateForm(true)}
-                  className="mt-4 text-indigo-600 hover:text-indigo-700 font-medium"
+                  className="mt-4 text-primary-600 hover:text-primary-700 font-medium"
                 >
                   Create your first teacher
                 </button>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Name
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Email
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Phone
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Assigned Classes
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {teachers.map((teacher) => (
-                      <tr key={teacher.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {teacher.name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {teacher.email}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {teacher.phone || 'N/A'}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-500">
-                          {teacher.classes && teacher.classes.length > 0 ? (
-                            <div className="space-y-1">
-                              {teacher.classes.map((cls, idx) => (
-                                <div key={idx} className="text-xs">
-                                  {cls.class_name} ({cls.session} - {cls.term})
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <span className="text-gray-400">No classes assigned</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            teacher.is_active
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {teacher.is_active ? 'Active' : 'Inactive'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
-                          <button
-                            onClick={() => handleAssignClass(teacher)}
-                            className="text-indigo-600 hover:text-indigo-900 font-medium"
-                          >
-                            Assign Class
-                          </button>
-                        </td>
+              <>
+                {/* Mobile Card View */}
+                <div className="block md:hidden space-y-3">
+                  {teachers.map((teacher) => (
+                    <div key={teacher.id} className="border border-gray-200 rounded-lg p-3">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-gray-900 text-sm">{teacher.name}</h3>
+                          <p className="text-xs text-gray-500 mt-1 truncate">{teacher.email}</p>
+                          <p className="text-xs text-gray-500">{teacher.phone || 'N/A'}</p>
+                        </div>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ml-2 ${
+                          teacher.is_active
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {teacher.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                      </div>
+
+                      <div className="mb-2">
+                        <p className="text-xs font-medium text-gray-700 mb-1">Assigned Classes</p>
+                        {teacher.classes && teacher.classes.length > 0 ? (
+                          <div className="space-y-1">
+                            {teacher.classes.map((cls, idx) => (
+                              <div key={idx} className="text-xs text-gray-600">
+                                {cls.class_name} ({cls.session} - {cls.term})
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400">No classes assigned</span>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={() => handleAssignClass(teacher)}
+                        className="w-full text-center py-2 px-3 bg-primary-50 text-primary-600 rounded-md hover:bg-primary-100 font-medium text-sm"
+                      >
+                        Assign Class
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Name
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Email
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Phone
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Assigned Classes
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {teachers.map((teacher) => (
+                        <tr key={teacher.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {teacher.name}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {teacher.email}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {teacher.phone || 'N/A'}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-500">
+                            {teacher.classes && teacher.classes.length > 0 ? (
+                              <div className="space-y-1">
+                                {teacher.classes.map((cls, idx) => (
+                                  <div key={idx} className="text-xs">
+                                    {cls.class_name} ({cls.session} - {cls.term})
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">No classes assigned</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              teacher.is_active
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {teacher.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
+                            <button
+                              onClick={() => handleAssignClass(teacher)}
+                              className="text-primary-600 hover:text-primary-900 font-medium"
+                            >
+                              Assign Class
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
         </div>

@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, Send, Clock, CheckCircle, ChevronDown, AlertCircle } from 'lucide-react';
+import { Mail, Phone, Send, Clock, CheckCircle, ChevronDown, AlertCircle, Menu, X } from 'lucide-react';
 import schoolLogo from '../assets/schoolhub.png';
 import SEO from '../components/SEO';
 import { submitContactForm } from '../services/api';
 
 export default function Contact() {
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -68,19 +69,21 @@ export default function Contact() {
       <div className="min-h-screen bg-white">
         {/* Navigation */}
         <nav className="bg-white shadow-sm sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4">
             <div className="flex justify-between items-center h-20">
               <Link to="/" className="flex items-center gap-3">
                 <img
                   src={schoolLogo}
                   alt="SchoolHub Logo"
-                  className="w-20 h-20 object-contain"
+                  className="w-16 h-16 sm:w-20 sm:h-20 object-contain"
                 />
-                <h1 className="text-2xl font-bold" style={{color: '#1791C8'}}>
+                <h1 className="text-xl sm:text-2xl font-bold" style={{color: '#1791C8'}}>
                   SchoolHub
                 </h1>
               </Link>
-              <div className="flex items-center gap-6">
+
+              {/* Desktop Menu */}
+              <div className="hidden lg:flex items-center gap-6">
                 <Link
                   to="/about"
                   className="text-gray-700 hover:text-[#1791C8] transition-colors font-medium"
@@ -148,7 +151,91 @@ export default function Contact() {
                   Get Started Free
                 </Link>
               </div>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-2 text-gray-700 hover:text-[#1791C8] transition-colors"
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
+              </button>
             </div>
+
+            {/* Mobile Menu */}
+            {mobileMenuOpen && (
+              <div className="lg:hidden py-4 border-t border-gray-200">
+                <div className="flex flex-col space-y-3">
+                  <Link
+                    to="/about"
+                    className="px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#1791C8] transition-colors font-medium rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    About
+                  </Link>
+                  <Link
+                    to="/pricing"
+                    className="px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#1791C8] transition-colors font-medium rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Pricing
+                  </Link>
+                  <Link
+                    to="/contact"
+                    className="px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#1791C8] transition-colors font-medium rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Contact
+                  </Link>
+                  <Link
+                    to="/faq"
+                    className="px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#1791C8] transition-colors font-medium rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    FAQ
+                  </Link>
+
+                  {/* Mobile Login Dropdown */}
+                  <div className="border-t border-gray-200 pt-3 mt-3">
+                    <p className="px-4 text-xs font-semibold text-gray-500 uppercase mb-2">Login</p>
+                    <Link
+                      to="/login"
+                      className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#1791C8] transition-colors font-medium rounded-lg"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      School Login
+                    </Link>
+                    <Link
+                      to="/teacher/login"
+                      className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#1791C8] transition-colors font-medium rounded-lg"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Teacher Login
+                    </Link>
+                    <Link
+                      to="/student/login"
+                      className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#1791C8] transition-colors font-medium rounded-lg"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Student Portal
+                    </Link>
+                  </div>
+
+                  <Link
+                    to="/register"
+                    className="mx-4 px-6 py-3 text-white rounded-lg hover:shadow-lg transition-all font-semibold text-center"
+                    style={{backgroundColor: '#1791C8'}}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Get Started Free
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         </nav>
 
@@ -173,7 +260,7 @@ export default function Contact() {
         {/* Contact Methods */}
         <section className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            <div className="grid grid-cols-2 gap-4 sm:gap-8 mb-16">
               {[
                 {
                   icon: Mail,
@@ -192,13 +279,13 @@ export default function Contact() {
               ].map((method, index) => {
                 const IconComponent = method.icon;
                 return (
-                  <div key={index} className="bg-white border-2 border-gray-100 rounded-2xl p-8 text-center hover:shadow-xl transition-all">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center" style={{backgroundColor: `${method.color}20`}}>
-                      <IconComponent className="w-8 h-8" style={{color: method.color}} />
+                  <div key={index} className="bg-white border-2 border-gray-100 rounded-2xl p-4 sm:p-8 text-center hover:shadow-xl transition-all">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-xl flex items-center justify-center" style={{backgroundColor: `${method.color}20`}}>
+                      <IconComponent className="w-6 h-6 sm:w-8 sm:h-8" style={{color: method.color}} />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{method.title}</h3>
-                    <p className="text-gray-900 font-semibold mb-1">{method.info}</p>
-                    <p className="text-gray-600 text-sm">{method.subinfo}</p>
+                    <h3 className="text-base sm:text-xl font-bold text-gray-900 mb-1 sm:mb-2">{method.title}</h3>
+                    <p className="text-gray-900 font-semibold mb-1 text-xs sm:text-base">{method.info}</p>
+                    <p className="text-gray-600 text-xs sm:text-sm">{method.subinfo}</p>
                   </div>
                 );
               })}

@@ -145,70 +145,70 @@ const PaymentVerification = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-3 sm:p-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Payment Verification</h1>
-        <p className="text-gray-600 mt-1">Review and verify bank transfer payments from parents</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Payment Verification</h1>
+        <p className="text-sm sm:text-base text-gray-600 mt-1">Review and verify bank transfer payments from parents</p>
       </div>
 
       {/* Statistics Cards */}
       {statistics && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-blue-100 text-blue-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-6">
+          <div className="bg-white rounded-lg shadow p-3 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
+              <div className="p-2 sm:p-3 rounded-full bg-blue-100 text-blue-600 w-fit">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Payments</p>
-                <p className="text-2xl font-semibold text-gray-900">{statistics.total_payments}</p>
+              <div className="sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Payments</p>
+                <p className="text-xl sm:text-2xl font-semibold text-gray-900">{statistics.total_payments}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-yellow-100 text-yellow-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-white rounded-lg shadow p-3 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
+              <div className="p-2 sm:p-3 rounded-full bg-yellow-100 text-yellow-600 w-fit">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Pending</p>
-                <p className="text-2xl font-semibold text-gray-900">{statistics.pending_count}</p>
+              <div className="sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Pending</p>
+                <p className="text-xl sm:text-2xl font-semibold text-gray-900">{statistics.pending_count}</p>
                 <p className="text-xs text-gray-500">₦{statistics.pending_amount?.toLocaleString()}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-green-100 text-green-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-white rounded-lg shadow p-3 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
+              <div className="p-2 sm:p-3 rounded-full bg-green-100 text-green-600 w-fit">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Verified</p>
-                <p className="text-2xl font-semibold text-gray-900">{statistics.verified_count}</p>
+              <div className="sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Verified</p>
+                <p className="text-xl sm:text-2xl font-semibold text-gray-900">{statistics.verified_count}</p>
                 <p className="text-xs text-gray-500">₦{statistics.verified_amount?.toLocaleString()}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-red-100 text-red-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-white rounded-lg shadow p-3 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
+              <div className="p-2 sm:p-3 rounded-full bg-red-100 text-red-600 w-fit">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Rejected</p>
-                <p className="text-2xl font-semibold text-gray-900">{statistics.rejected_count}</p>
+              <div className="sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Rejected</p>
+                <p className="text-xl sm:text-2xl font-semibold text-gray-900">{statistics.rejected_count}</p>
               </div>
             </div>
           </div>
@@ -218,12 +218,12 @@ const PaymentVerification = () => {
       {/* Filter Tabs */}
       <div className="bg-white rounded-lg shadow mb-6">
         <div className="border-b border-gray-200">
-          <nav className="flex -mb-px">
+          <nav className="flex -mb-px overflow-x-auto">
             {['pending', 'verified', 'rejected'].map((status) => (
               <button
                 key={status}
                 onClick={() => setFilter(status)}
-                className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+                className={`py-3 sm:py-4 px-4 sm:px-6 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                   filter === status
                     ? 'border-primary-500 text-primary-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -263,7 +263,101 @@ const PaymentVerification = () => {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+            {/* Mobile Card View */}
+            <div className="block lg:hidden p-3 space-y-3">
+              {payments.map((payment) => (
+                <div key={payment.id} className="border border-gray-200 rounded-lg p-3">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs font-medium text-gray-500">#{payment.receipt_no}</span>
+                        <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${getStatusBadgeClass(payment.verification_status)}`}>
+                          {payment.verification_status}
+                        </span>
+                      </div>
+                      <h3 className="font-medium text-gray-900 text-sm mb-1">{payment.student.name}</h3>
+                      <p className="text-xs text-gray-500">{payment.student.class} - {payment.student.admission_no}</p>
+                    </div>
+                    <div className="text-right ml-2">
+                      <p className="font-semibold text-gray-900 text-sm whitespace-nowrap">₦{payment.amount.toLocaleString()}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 text-xs mb-3">
+                    <div>
+                      <span className="font-medium text-gray-600">Parent:</span>
+                      <span className="text-gray-900 ml-1">{payment.parent.name || 'N/A'}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-600">Fee:</span>
+                      <span className="text-gray-900 ml-1">{payment.fee.category}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-600">Session/Term:</span>
+                      <span className="text-gray-900 ml-1">{payment.fee.session} - {payment.fee.term}</span>
+                    </div>
+                    {payment.bank_name && (
+                      <div>
+                        <span className="font-medium text-gray-600">Bank:</span>
+                        <span className="text-gray-900 ml-1">{payment.bank_name} ({payment.account_number})</span>
+                      </div>
+                    )}
+                    <div>
+                      <span className="font-medium text-gray-600">Date:</span>
+                      <span className="text-gray-900 ml-1">{new Date(payment.payment_date).toLocaleDateString()}</span>
+                    </div>
+                    {payment.rejection_reason && (
+                      <div className="text-xs text-red-600 mt-2 bg-red-50 p-2 rounded">
+                        <span className="font-medium">Reason:</span> {payment.rejection_reason}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200">
+                    {payment.has_receipt_image && (
+                      <button
+                        onClick={() => openReceiptModal(payment)}
+                        className="text-blue-600 hover:text-blue-900 p-1.5"
+                        title="View Receipt"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      </button>
+                    )}
+                    {payment.verification_status === 'pending' && (
+                      <>
+                        <button
+                          onClick={() => handleVerifyPayment(payment.id)}
+                          disabled={processing}
+                          className="text-green-600 hover:text-green-900 disabled:opacity-50 p-1.5"
+                          title="Verify Payment"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => openRejectModal(payment)}
+                          disabled={processing}
+                          className="text-red-600 hover:text-red-900 disabled:opacity-50 p-1.5"
+                          title="Reject Payment"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden lg:block overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -358,7 +452,8 @@ const PaymentVerification = () => {
                 ))}
               </tbody>
             </table>
-          </div>
+            </div>
+          </>
         )}
       </div>
 

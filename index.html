@@ -107,8 +107,54 @@
     </noscript>
     <!-- End Meta Pixel Noscript -->
 
-    <div id="root"></div>
+    <div id="root">
+      <!-- Initial Loading Screen (shows before React loads) -->
+      <div id="initial-loader" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      ">
+        <img
+          src="/schoolhub.png"
+          alt="SchoolHub"
+          style="width: 80px; height: 80px; margin-bottom: 20px; object-fit: contain;"
+        />
+        <div style="
+          width: 50px;
+          height: 50px;
+          border: 3px solid #e5e7eb;
+          border-top-color: #1791C8;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        "></div>
+        <p style="
+          margin-top: 16px;
+          color: #6b7280;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-size: 14px;
+        ">Loading SchoolHub...</p>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <style>
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      /* Hide loader once React renders */
+      #root:has(> :not(#initial-loader)) #initial-loader {
+        display: none;
+      }
+    </style>
 
     <!-- WhatsApp Floating Chat Button -->
     <a href="https://wa.me/2347010123061?text=Hello,%20I%20need%20help%20with%20SchoolHub"

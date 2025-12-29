@@ -7,6 +7,7 @@ export default function TeacherDashboardLayout({ teacher, onLogout }) {
   const [classes, setClasses] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showCBTSubmenu, setShowCBTSubmenu] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [schoolLogo, setSchoolLogo] = useState(null);
   const navigate = useNavigate();
 
@@ -54,6 +55,22 @@ export default function TeacherDashboardLayout({ teacher, onLogout }) {
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100"
+              >
+                {mobileMenuOpen ? (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                )}
+              </button>
+
               {schoolLogo ? (
                 <img
                   src={schoolLogo}
@@ -67,7 +84,7 @@ export default function TeacherDashboardLayout({ teacher, onLogout }) {
                   </svg>
                 </div>
               )}
-              <div>
+              <div className="hidden sm:block">
                 <h1 className="text-lg font-bold text-gray-900">Teacher Portal</h1>
                 <p className="text-xs text-gray-500">{teacher?.school_name}</p>
               </div>
@@ -131,7 +148,20 @@ export default function TeacherDashboardLayout({ teacher, onLogout }) {
 
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 pt-10 bg-white border-r border-gray-200 h-screen print:hidden fixed top-16 left-0 overflow-y-auto flex flex-col">
+        {/* Mobile Overlay */}
+        {mobileMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          ></div>
+        )}
+
+        <aside className={`
+          w-64 pt-10 bg-white border-r border-gray-200 h-screen print:hidden fixed top-16 left-0 overflow-y-auto flex flex-col z-50
+          transition-transform duration-300 ease-in-out
+          lg:translate-x-0
+          ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}>
           <nav className="p-4 space-y-1 flex-1">
             <NavLink
               to="/teacher/dashboard"
@@ -348,7 +378,7 @@ export default function TeacherDashboardLayout({ teacher, onLogout }) {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-8 ml-64">
+        <main className="flex-1 overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8 lg:ml-64">
           <Outlet context={{ teacher, classes, refreshClasses: fetchClasses }} />
         </main>
       </div>

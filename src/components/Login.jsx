@@ -68,7 +68,7 @@ export default function Login({ onLogin }) {
           <p className="text-gray-600">Sign in to your school account</p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-lg">
+        <div className="bg-white border border-gray-200 rounded-lg p-8">
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
               {error}
@@ -114,7 +114,7 @@ export default function Login({ onLogin }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors font-semibold shadow-lg disabled:bg-gray-500 disabled:cursor-not-allowed"
+              className="w-full px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors font-semibold disabled:bg-gray-500 disabled:cursor-not-allowed"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>

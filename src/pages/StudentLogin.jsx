@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config/env';
+import schoolLogo from '../assets/schoolhub.png';
 
 export default function StudentLogin({ onLogin }) {
   const [admissionNo, setAdmissionNo] = useState('');
@@ -49,19 +50,21 @@ export default function StudentLogin({ onLogin }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-lg shadow-xl p-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Student Portal</h1>
-            <p className="text-gray-600">Enter your admission number to access your exams</p>
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <img
+              src={schoolLogo}
+              alt="SchoolHub Logo"
+              className="w-20 h-20 sm:w-24 sm:h-24 object-contain"
+            />
           </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Student Portal</h1>
+          <p className="text-sm sm:text-base text-gray-600">Enter your admission number to access your exams</p>
+        </div>
+
+        <div className="bg-white rounded-lg border border-gray-200 p-6 sm:p-8">
 
           {/* Error Message */}
           {error && (
@@ -81,7 +84,7 @@ export default function StudentLogin({ onLogin }) {
                 id="admissionNo"
                 value={admissionNo}
                 onChange={(e) => setAdmissionNo(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="Enter your admission number"
                 required
               />
@@ -90,7 +93,7 @@ export default function StudentLogin({ onLogin }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              className="w-full px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {loading ? 'Logging in...' : 'Access Portal'}
             </button>
@@ -98,7 +101,7 @@ export default function StudentLogin({ onLogin }) {
 
           {/* Back Link */}
           <div className="mt-6 text-center">
-            <a href="/" className="text-sm text-gray-600 hover:text-gray-900">
+            <a href="/" className="text-sm text-primary-600 hover:text-primary-700">
               ← Back to Home
             </a>
           </div>

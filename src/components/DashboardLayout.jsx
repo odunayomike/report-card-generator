@@ -11,6 +11,7 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
   const [showCBTSubmenu, setShowCBTSubmenu] = useState(false);
   const [showParentSubmenu, setShowParentSubmenu] = useState(false);
   const [showAccountingSubmenu, setShowAccountingSubmenu] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   // Check if school has access (active or trial subscription)
@@ -75,6 +76,22 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100"
+              >
+                {mobileMenuOpen ? (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                )}
+              </button>
+
               {school.logo ? (
                 <img
                   src={school.logo}
@@ -88,7 +105,7 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
                   </span>
                 </div>
               )}
-              <div>
+              <div className="hidden sm:block">
                 <h1 className="text-lg font-bold text-gray-900">{school.school_name}</h1>
                 <p className="text-xs text-gray-500">All-in-One School Management Platform</p>
               </div>
@@ -159,8 +176,21 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
       </nav>
 
       <div className="flex">
+        {/* Mobile Overlay */}
+        {mobileMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          ></div>
+        )}
+
         {/* Sidebar */}
-        <aside className="w-64 pt-10 bg-white border-r border-gray-200 h-screen print:hidden fixed top-16 left-0 overflow-y-auto flex flex-col">
+        <aside className={`
+          w-64 pt-10 bg-white border-r border-gray-200 h-screen print:hidden fixed top-16 left-0 overflow-y-auto flex flex-col z-50
+          transition-transform duration-300 ease-in-out
+          lg:translate-x-0
+          ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}>
           <nav className="p-4 space-y-0.5 flex-1">
             <NavLink
               to="/dashboard"
@@ -623,7 +653,7 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-8 ml-64">
+        <main className="flex-1 overflow-y-auto bg-gray-50 p-4 sm:p-6 lg:p-8 lg:ml-64">
           <Outlet context={{ school, students, classes, refreshStudents: fetchStudents, refreshClasses: fetchClasses, refreshSchool }} />
         </main>
       </div>
