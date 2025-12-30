@@ -92,6 +92,9 @@ if (isset($_SESSION['user_type'])) {
         $teacher = $stmt->fetch();
 
         if ($teacher) {
+            // Check school's subscription status
+            $subscriptionCheck = checkSubscription($teacher['school_id'], $db);
+
             // Parse assessment_types JSON
             $assessmentTypes = ['CA', 'Exam']; // Default
             if (!empty($teacher['assessment_types'])) {
@@ -129,7 +132,11 @@ if (isset($_SESSION['user_type'])) {
                     'assessment_types' => $assessmentTypes,
                     'available_subjects' => $availableSubjects,
                     'ca_max_marks' => $teacher['ca_max_marks'] ?? 40,
-                    'exam_max_marks' => $teacher['exam_max_marks'] ?? 60
+                    'exam_max_marks' => $teacher['exam_max_marks'] ?? 60,
+                    'subscription_status' => $subscriptionCheck['status'],
+                    'subscription_end_date' => $subscriptionCheck['end_date'] ?? null,
+                    'days_remaining' => $subscriptionCheck['days_remaining'] ?? null,
+                    'has_access' => $subscriptionCheck['has_access']
                 ]
             ]);
         } else {

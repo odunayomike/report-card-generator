@@ -91,6 +91,10 @@ try {
             require __DIR__ . '/routes/auth/teacher-check-session.php';
             break;
 
+        case '/auth/student-check-session':
+            require __DIR__ . '/routes/auth/student-check-session.php';
+            break;
+
         // Super Admin Auth routes
         case '/super-admin/login':
             require __DIR__ . '/routes/super-admin/login.php';

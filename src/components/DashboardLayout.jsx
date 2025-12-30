@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { getAllStudents } from '../services/api';
 import { API_BASE_URL } from '../config/env';
-import SubscriptionRequired from './SubscriptionRequired';
+import SubscriptionBanner from './SubscriptionBanner';
 
 export default function DashboardLayout({ school, onLogout, refreshSchool }) {
   const [students, setStudents] = useState([]);
@@ -13,14 +13,6 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
   const [showAccountingSubmenu, setShowAccountingSubmenu] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
-
-  // Check if school has access (active or trial subscription)
-  const hasAccess = school?.has_access !== false;
-
-  useEffect(() => {
-    fetchStudents();
-    fetchClasses();
-  }, []);
 
   const fetchStudents = async () => {
     try {
@@ -52,6 +44,11 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
     }
   };
 
+  useEffect(() => {
+    fetchStudents();
+    fetchClasses();
+  }, []);
+
   const handleLogout = async () => {
     try {
       await fetch(`${API_BASE_URL}/auth/logout`, {
@@ -64,13 +61,11 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
     }
   };
 
-  // If no access, show subscription required screen
-  if (!hasAccess) {
-    return <SubscriptionRequired school={school} />;
-  }
-
   return (
     <div className="min-h-screen bg-gray-50" data-portal="school">
+      {/* Subscription Banner - shows when trial/subscription expired */}
+      <SubscriptionBanner school={school} />
+
       {/* Top Navigation Bar */}
       <nav className="bg-white border-b border-gray-200 print:hidden sticky top-0 z-50">
         <div className="px-6 py-4">

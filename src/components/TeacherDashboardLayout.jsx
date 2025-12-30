@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { getMyClasses } from '../services/api';
 import { API_BASE_URL } from '../config/env';
+import SubscriptionBanner from './SubscriptionBanner';
 
 export default function TeacherDashboardLayout({ teacher, onLogout }) {
   const [classes, setClasses] = useState([]);
@@ -50,6 +51,9 @@ export default function TeacherDashboardLayout({ teacher, onLogout }) {
 
   return (
     <div className="min-h-screen bg-gray-50" data-portal="teacher">
+      {/* Subscription Banner - shows when school's trial/subscription expired */}
+      <SubscriptionBanner school={teacher?.school} />
+
       {/* Top Navigation Bar */}
       <nav className="bg-white border-b border-gray-200 print:hidden sticky top-0 z-50">
         <div className="px-6 py-4">

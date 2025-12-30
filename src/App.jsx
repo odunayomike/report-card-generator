@@ -56,6 +56,7 @@ import StudentDashboardHome from './pages/StudentDashboardHome';
 import ParentAPIDocs from './pages/ParentAPIDocs';
 import AccountingDashboard from './pages/accounting/AccountingDashboard';
 import StudentDetails from './pages/StudentDetails';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   const [school, setSchool] = useState(null);
@@ -71,16 +72,31 @@ function App() {
 
   const checkSession = async () => {
     try {
-      // Check for stored session in localStorage
-      const userType = localStorage.getItem('userType');
+      // Check student session from backend first
+      try {
+        const studentResponse = await fetch(`${API_BASE_URL}/auth/student-check-session`, {
+          credentials: 'include'
+        });
 
-      if (userType === 'student') {
-        const studentData = localStorage.getItem('studentData');
-        if (studentData) {
-          setStudent(JSON.parse(studentData));
-          setLoading(false);
-          return;
+        if (studentResponse.ok) {
+          const studentData = await studentResponse.json();
+
+          if (studentData.authenticated) {
+            setStudent({
+              ...studentData.student,
+              subscription: studentData.subscription
+            });
+            localStorage.setItem('userType', 'student');
+            localStorage.setItem('studentData', JSON.stringify({
+              ...studentData.student,
+              subscription: studentData.subscription
+            }));
+            setLoading(false);
+            return;
+          }
         }
+      } catch {
+        // Silent fail - not a student, will check other session types
       }
 
       // Check super admin session first
@@ -120,7 +136,11 @@ function App() {
         const teacherData = await teacherResponse.json();
 
         if (teacherData.authenticated) {
-          setTeacher(teacherData.user);
+          // Include school subscription info in teacher object
+          setTeacher({
+            ...teacherData.user,
+            school: teacherData.school
+          });
         }
       }
     } catch (error) {
@@ -239,28 +259,28 @@ function App() {
           path="/dashboard"
           element={school ? <DashboardLayout school={school} onLogout={handleLogout} refreshSchool={refreshSchool} /> : <Navigate to="/login" />}
         >
-          <Route index element={<DashboardHome school={school} />} />
-          <Route path="create" element={<CreateReport school={school} />} />
-          <Route path="add-student" element={<AddStudent />} />
-          <Route path="students" element={<AllStudents />} />
-          <Route path="students/:admissionNo" element={<StudentProfile />} />
-          <Route path="student-details/:admissionNo" element={<StudentDetails />} />
-          <Route path="manage-parents" element={<ManageParents />} />
-          <Route path="view-parents" element={<ViewParents />} />
-          <Route path="add-parent" element={<AddParent />} />
-          <Route path="reports/:id" element={<ViewReport school={school} />} />
-          <Route path="reports/:id/edit" element={<EditReport school={school} />} />
-          <Route path="profile" element={<SchoolProfile />} />
-          <Route path="profile/edit" element={<EditSchoolProfile />} />
-          <Route path="settings" element={<SchoolSettings />} />
-          <Route path="attendance" element={<ViewAttendance />} />
-          <Route path="manage-teachers" element={<ManageTeachers />} />
-          <Route path="accounting/*" element={<AccountingDashboard />} />
-          <Route path="cbt" element={<CBTDashboard />} />
-          <Route path="cbt/questions" element={<QuestionBank />} />
-          <Route path="cbt/exams" element={<ExamManagement />} />
-          <Route path="cbt/results" element={<ExamResultsList />} />
-          <Route path="subscription" element={<Subscription />} />
+          <Route index element={<ProtectedRoute school={school}><DashboardHome school={school} /></ProtectedRoute>} />
+          <Route path="create" element={<ProtectedRoute school={school}><CreateReport school={school} /></ProtectedRoute>} />
+          <Route path="add-student" element={<ProtectedRoute school={school}><AddStudent /></ProtectedRoute>} />
+          <Route path="students" element={<ProtectedRoute school={school}><AllStudents /></ProtectedRoute>} />
+          <Route path="students/:admissionNo" element={<ProtectedRoute school={school}><StudentProfile /></ProtectedRoute>} />
+          <Route path="student-details/:admissionNo" element={<ProtectedRoute school={school}><StudentDetails /></ProtectedRoute>} />
+          <Route path="manage-parents" element={<ProtectedRoute school={school}><ManageParents /></ProtectedRoute>} />
+          <Route path="view-parents" element={<ProtectedRoute school={school}><ViewParents /></ProtectedRoute>} />
+          <Route path="add-parent" element={<ProtectedRoute school={school}><AddParent /></ProtectedRoute>} />
+          <Route path="reports/:id" element={<ProtectedRoute school={school}><ViewReport school={school} /></ProtectedRoute>} />
+          <Route path="reports/:id/edit" element={<ProtectedRoute school={school}><EditReport school={school} /></ProtectedRoute>} />
+          <Route path="profile" element={<ProtectedRoute school={school} allowedWithoutSubscription={true}><SchoolProfile /></ProtectedRoute>} />
+          <Route path="profile/edit" element={<ProtectedRoute school={school} allowedWithoutSubscription={true}><EditSchoolProfile /></ProtectedRoute>} />
+          <Route path="settings" element={<ProtectedRoute school={school} allowedWithoutSubscription={true}><SchoolSettings /></ProtectedRoute>} />
+          <Route path="attendance" element={<ProtectedRoute school={school}><ViewAttendance /></ProtectedRoute>} />
+          <Route path="manage-teachers" element={<ProtectedRoute school={school}><ManageTeachers /></ProtectedRoute>} />
+          <Route path="accounting/*" element={<ProtectedRoute school={school}><AccountingDashboard /></ProtectedRoute>} />
+          <Route path="cbt" element={<ProtectedRoute school={school}><CBTDashboard /></ProtectedRoute>} />
+          <Route path="cbt/questions" element={<ProtectedRoute school={school}><QuestionBank /></ProtectedRoute>} />
+          <Route path="cbt/exams" element={<ProtectedRoute school={school}><ExamManagement /></ProtectedRoute>} />
+          <Route path="cbt/results" element={<ProtectedRoute school={school}><ExamResultsList /></ProtectedRoute>} />
+          <Route path="subscription" element={<ProtectedRoute school={school} allowedWithoutSubscription={true}><Subscription /></ProtectedRoute>} />
         </Route>
 
         {/* Subscription Routes (accessible by authenticated schools) */}
@@ -279,19 +299,19 @@ function App() {
           element={teacher ? <TeacherDashboardLayout teacher={teacher} onLogout={handleTeacherLogout} /> : <Navigate to="/teacher/login" />}
         >
           <Route index element={<Navigate to="/teacher/dashboard" replace />} />
-          <Route path="dashboard" element={<TeacherDashboard />} />
-          <Route path="mark-attendance" element={<AttendanceMarker />} />
-          <Route path="add-student" element={<AddStudent />} />
-          <Route path="students" element={<AllStudents />} />
-          <Route path="students/:admissionNo" element={<StudentProfile />} />
-          <Route path="student-details/:admissionNo" element={<StudentDetails />} />
-          <Route path="create-report" element={<CreateReport school={teacher?.school_id ? { id: teacher.school_id } : school} />} />
-          <Route path="reports/:id" element={<ViewReport school={teacher?.school_id ? { id: teacher.school_id } : school} />} />
-          <Route path="reports/:id/edit" element={<EditReport school={teacher?.school_id ? { id: teacher.school_id } : school} />} />
-          <Route path="cbt" element={<CBTDashboard />} />
-          <Route path="cbt/questions" element={<QuestionBank />} />
-          <Route path="cbt/exams" element={<ExamManagement />} />
-          <Route path="cbt/results" element={<ExamResultsList />} />
+          <Route path="dashboard" element={<ProtectedRoute school={teacher?.school}><TeacherDashboard /></ProtectedRoute>} />
+          <Route path="mark-attendance" element={<ProtectedRoute school={teacher?.school}><AttendanceMarker /></ProtectedRoute>} />
+          <Route path="add-student" element={<ProtectedRoute school={teacher?.school}><AddStudent /></ProtectedRoute>} />
+          <Route path="students" element={<ProtectedRoute school={teacher?.school}><AllStudents /></ProtectedRoute>} />
+          <Route path="students/:admissionNo" element={<ProtectedRoute school={teacher?.school}><StudentProfile /></ProtectedRoute>} />
+          <Route path="student-details/:admissionNo" element={<ProtectedRoute school={teacher?.school}><StudentDetails /></ProtectedRoute>} />
+          <Route path="create-report" element={<ProtectedRoute school={teacher?.school}><CreateReport school={teacher?.school_id ? { id: teacher.school_id } : school} /></ProtectedRoute>} />
+          <Route path="reports/:id" element={<ProtectedRoute school={teacher?.school}><ViewReport school={teacher?.school_id ? { id: teacher.school_id } : school} /></ProtectedRoute>} />
+          <Route path="reports/:id/edit" element={<ProtectedRoute school={teacher?.school}><EditReport school={teacher?.school_id ? { id: teacher.school_id } : school} /></ProtectedRoute>} />
+          <Route path="cbt" element={<ProtectedRoute school={teacher?.school}><CBTDashboard /></ProtectedRoute>} />
+          <Route path="cbt/questions" element={<ProtectedRoute school={teacher?.school}><QuestionBank /></ProtectedRoute>} />
+          <Route path="cbt/exams" element={<ProtectedRoute school={teacher?.school}><ExamManagement /></ProtectedRoute>} />
+          <Route path="cbt/results" element={<ProtectedRoute school={teacher?.school}><ExamResultsList /></ProtectedRoute>} />
         </Route>
 
 
@@ -304,10 +324,10 @@ function App() {
           path="/student"
           element={student ? <StudentDashboardLayout student={student} onLogout={handleStudentLogout} /> : <Navigate to="/student/login" />}
         >
-          <Route path="dashboard" element={<StudentDashboardHome />} />
-          <Route path="exams" element={<StudentExams />} />
-          <Route path="take-exam/:examId" element={<TakeExam />} />
-          <Route path="results/:examId" element={<ExamResults />} />
+          <Route path="dashboard" element={<ProtectedRoute school={student?.subscription}><StudentDashboardHome /></ProtectedRoute>} />
+          <Route path="exams" element={<ProtectedRoute school={student?.subscription}><StudentExams /></ProtectedRoute>} />
+          <Route path="take-exam/:examId" element={<ProtectedRoute school={student?.subscription}><TakeExam /></ProtectedRoute>} />
+          <Route path="results/:examId" element={<ProtectedRoute school={student?.subscription}><ExamResults /></ProtectedRoute>} />
         </Route>
 
         {/* StudentForm for school admin */}
