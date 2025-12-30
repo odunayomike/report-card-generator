@@ -25,7 +25,7 @@ try {
 
     // Get school subscription info
     $stmt = $db->prepare("
-        SELECT subscription_status, subscription_end_date
+        SELECT subscription_status, subscription_end_date, trial_end_date
         FROM schools
         WHERE id = ?
     ");
@@ -84,13 +84,17 @@ try {
         $days_remaining = ceil((strtotime($school['subscription_end_date']) - time()) / 86400);
     }
 
+    // Check if trial has been used
+    $trial_used = !empty($school['trial_end_date']);
+
     echo json_encode([
         'success' => true,
         'subscription' => [
             'status' => $school['subscription_status'],
             'end_date' => $school['subscription_end_date'],
             'days_remaining' => $days_remaining,
-            'is_active' => $school['subscription_status'] === 'active'
+            'is_active' => $school['subscription_status'] === 'active',
+            'trial_used' => $trial_used
         ],
         'current_subscription' => $current_subscription,
         'payment_history' => $payment_history

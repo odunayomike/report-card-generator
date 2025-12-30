@@ -17,7 +17,7 @@ if (isset($_SESSION['user_type'])) {
         // Fetch complete school data from database
         $query = "SELECT id, school_name, email, phone, address, logo, motto, primary_color, secondary_color,
                          subscription_status, subscription_end_date, trial_end_date, assessment_types, available_subjects,
-                         ca_max_marks, exam_max_marks
+                         ca_max_marks, exam_max_marks, onboarding_completed
                   FROM schools WHERE id = :id";
         $stmt = $db->prepare($query);
         $stmt->execute([':id' => $_SESSION['school_id']]);
@@ -68,7 +68,8 @@ if (isset($_SESSION['user_type'])) {
                     'subscription_end_date' => $subscriptionCheck['end_date'] ?? null,
                     'trial_end_date' => $school['trial_end_date'],
                     'days_remaining' => $subscriptionCheck['days_remaining'] ?? null,
-                    'has_access' => $subscriptionCheck['has_access']
+                    'has_access' => $subscriptionCheck['has_access'],
+                    'onboarding_completed' => (bool)$school['onboarding_completed']
                 ]
             ]);
         } else {

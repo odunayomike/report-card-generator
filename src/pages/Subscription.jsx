@@ -63,6 +63,7 @@ export default function Subscription() {
           end_date: data.subscription?.end_date || null,
           days_remaining: data.subscription?.days_remaining || 0,
           is_active: data.subscription?.is_active || false,
+          trial_used: data.subscription?.trial_used || false,
           plan_name: data.current_subscription?.plan_name || 'SchoolHub Subscription',
           amount: data.current_subscription?.amount || 5000,
           payment_history: data.payment_history || []
@@ -358,7 +359,10 @@ export default function Subscription() {
                     style={{backgroundColor: '#1791C8'}}
                   >
                     <CreditCard className="w-4 h-4" />
-                    {processingPayment ? 'Processing...' : isTrialing ? 'Subscribe Now' : 'Start 7-Day Free Trial'}
+                    {processingPayment ? 'Processing...' :
+                     isTrialing ? 'Subscribe Now' :
+                     subscriptionData?.trial_used ? 'Subscribe Now' :
+                     'Start 7-Day Free Trial'}
                   </button>
                 )}
 

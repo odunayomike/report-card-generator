@@ -193,8 +193,17 @@ export default function DashboardHome({ school }) {
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {analytics.classPerformance.map((classData) => (
-                <div key={classData.class} className="border-2 border-gray-200 rounded-lg p-4 hover:border-primary-400 transition-colors">
-                  <h4 className="font-semibold text-gray-900 mb-3">{classData.class}</h4>
+                <button
+                  key={classData.class}
+                  onClick={() => navigate('/dashboard/students', { state: { filterClass: classData.class } })}
+                  className="border-2 border-gray-200 rounded-lg p-4 hover:border-primary-400 hover:shadow-md transition-all text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-semibold text-gray-900">{classData.class}</h4>
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-600">Average Score:</span>
@@ -211,7 +220,7 @@ export default function DashboardHome({ school }) {
                       ></div>
                     </div>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -230,8 +239,12 @@ export default function DashboardHome({ school }) {
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               {analytics.topOverall.map((student, index) => (
-                <div key={student.id} className="relative bg-gradient-to-br from-primary-50 to-purple-50 rounded-lg p-4 border-2 border-primary-200">
-                  <div className="absolute -top-3 -left-3 w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                <button
+                  key={student.id}
+                  onClick={() => navigate(`/dashboard/students/${student.admissionNo}`)}
+                  className="relative bg-gradient-to-br from-primary-50 to-purple-50 rounded-lg p-4 border-2 border-primary-200 hover:border-primary-400 hover:shadow-lg transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500"
+                >
+                  <div className="absolute -top-3 -left-3 w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
                     {index + 1}
                   </div>
                   <div className="flex flex-col items-center text-center">
@@ -248,7 +261,7 @@ export default function DashboardHome({ school }) {
                       <p className="text-lg font-bold text-primary-600">{student.averageScore}%</p>
                     </div>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -266,7 +279,11 @@ export default function DashboardHome({ school }) {
               <div className="p-6">
                 <div className="space-y-3">
                   {topStudents.map((student, index) => (
-                    <div key={student.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <button
+                      key={student.id}
+                      onClick={() => navigate(`/dashboard/students/${student.admissionNo}`)}
+                      className="w-full flex items-center gap-4 p-3 bg-gray-50 rounded-lg hover:bg-primary-50 hover:shadow-md transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500 text-left"
+                    >
                       <div className="flex-shrink-0 w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
                         {index + 1}
                       </div>
@@ -285,7 +302,10 @@ export default function DashboardHome({ school }) {
                         <p className="text-lg font-bold text-primary-600">{student.averageScore}%</p>
                         <p className="text-xs text-gray-500">{student.subjectCount} subjects</p>
                       </div>
-                    </div>
+                      <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
                   ))}
                 </div>
               </div>

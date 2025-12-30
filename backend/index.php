@@ -221,6 +221,10 @@ try {
             require __DIR__ . '/routes/school/update-profile.php';
             break;
 
+        case '/school/complete-onboarding':
+            require __DIR__ . '/routes/school/complete-onboarding.php';
+            break;
+
         case '/school/update-logo':
             require __DIR__ . '/routes/school/update-logo.php';
             break;

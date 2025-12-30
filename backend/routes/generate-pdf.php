@@ -3,6 +3,14 @@
  * Generate PDF Route Handler
  */
 
+// Check if exec() is disabled - if so, use TCPDF fallback
+$disabled_functions = ini_get('disable_functions');
+if (strpos($disabled_functions, 'exec') !== false || !function_exists('exec')) {
+    // exec() is disabled, use TCPDF fallback
+    require_once __DIR__ . '/generate-pdf-tcpdf.php';
+    exit;
+}
+
 // Check if user is authenticated
 if (!isset($_SESSION['school_id'])) {
     http_response_code(401);

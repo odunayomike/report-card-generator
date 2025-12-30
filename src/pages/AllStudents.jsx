@@ -18,6 +18,13 @@ export default function AllStudents() {
     fetchStudents();
   }, []);
 
+  // Apply class filter if passed from navigation state
+  useEffect(() => {
+    if (location.state?.filterClass) {
+      setFilters(prev => ({ ...prev, class: location.state.filterClass }));
+    }
+  }, [location.state]);
+
   const fetchStudents = async () => {
     try {
       setLoadingStudents(true);

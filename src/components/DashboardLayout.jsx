@@ -3,6 +3,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { getAllStudents } from '../services/api';
 import { API_BASE_URL } from '../config/env';
 import SubscriptionBanner from './SubscriptionBanner';
+import OnboardingTour from './OnboardingTour';
 
 export default function DashboardLayout({ school, onLogout, refreshSchool }) {
   const [students, setStudents] = useState([]);
@@ -12,6 +13,8 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
   const [showParentSubmenu, setShowParentSubmenu] = useState(false);
   const [showAccountingSubmenu, setShowAccountingSubmenu] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [runTour, setRunTour] = useState(false);
+  const [showHelpMenu, setShowHelpMenu] = useState(false);
   const navigate = useNavigate();
 
   const fetchStudents = async () => {
@@ -49,6 +52,17 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
     fetchClasses();
   }, []);
 
+  // Start onboarding tour for new users
+  useEffect(() => {
+    if (school && !school.onboarding_completed) {
+      // Small delay to ensure UI is rendered
+      const timer = setTimeout(() => {
+        setRunTour(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [school]);
+
   const handleLogout = async () => {
     try {
       await fetch(`${API_BASE_URL}/auth/logout`, {
@@ -63,6 +77,16 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
 
   return (
     <div className="min-h-screen bg-gray-50" data-portal="school">
+      {/* Onboarding Tour */}
+      <OnboardingTour
+        school={school}
+        run={runTour}
+        onComplete={() => {
+          setRunTour(false);
+          if (refreshSchool) refreshSchool();
+        }}
+      />
+
       {/* Subscription Banner - shows when trial/subscription expired */}
       <SubscriptionBanner school={school} />
 
@@ -131,6 +155,7 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
                           setShowDropdown(false);
                           navigate('/dashboard/profile');
                         }}
+                        data-tour="profile"
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,6 +168,7 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
                           setShowDropdown(false);
                           navigate('/dashboard/settings');
                         }}
+                        data-tour="settings"
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -206,6 +232,7 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
 
             <NavLink
               to="/dashboard/create"
+              data-tour="create-report"
               className={({ isActive }) =>
                 `flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                   isActive
@@ -222,6 +249,7 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
 
             <NavLink
               to="/dashboard/add-student"
+              data-tour="add-student-btn"
               className={({ isActive }) =>
                 `flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                   isActive
@@ -238,6 +266,7 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
 
             <NavLink
               to="/dashboard/students"
+              data-tour="sidebar-students"
               className={({ isActive }) =>
                 `flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                   isActive
@@ -257,6 +286,7 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
 
             <NavLink
               to="/dashboard/manage-teachers"
+              data-tour="manage-teachers"
               className={({ isActive }) =>
                 `flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                   isActive
@@ -580,6 +610,7 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
             <div className="mt-6 pt-6 border-t border-gray-200">
               <NavLink
                 to="/dashboard/subscription"
+                data-tour="subscription-status"
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
                     isActive
