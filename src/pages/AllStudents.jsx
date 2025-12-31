@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getAllStudents } from '../services/api';
+import StudentImportModal from '../components/StudentImportModal';
+import { API_BASE_URL } from '../config/env';
 
 export default function AllStudents() {
   const [students, setStudents] = useState([]);
@@ -8,6 +10,7 @@ export default function AllStudents() {
   const [filters, setFilters] = useState({ class: '', search: '' });
   const [currentPage, setCurrentPage] = useState(1);
   const [studentsPerPage] = useState(10);
+  const [showImportModal, setShowImportModal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -50,6 +53,15 @@ export default function AllStudents() {
     // Navigate to student profile which shows all reports
     const basePath = isTeacher ? '/teacher' : '/dashboard';
     navigate(`${basePath}/students/${admissionNo}`);
+  };
+
+  const handleExport = () => {
+    window.location.href = `${API_BASE_URL}/students/export`;
+  };
+
+  const handleImportComplete = () => {
+    // Refresh student list after import
+    fetchStudents();
   };
 
   const filteredStudents = students.filter(student => {
@@ -203,9 +215,34 @@ export default function AllStudents() {
 
   return (
     <div>
+      <StudentImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImportComplete={handleImportComplete}
+      />
+
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-900">All Students</h2>
         <div className="flex gap-2">
+          <button
+            onClick={handleExport}
+            disabled={students.length === 0}
+            className="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Export CSV
+          </button>
+          <button
+            onClick={() => setShowImportModal(true)}
+            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            Import CSV
+          </button>
           <button
             onClick={() => navigate(isTeacher ? '/teacher/add-student' : '/dashboard/add-student')}
             className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 flex items-center gap-2"

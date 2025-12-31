@@ -206,20 +206,29 @@ export default function OnboardingTour({ school, run, onComplete }) {
     if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
       // Mark onboarding as completed
       try {
-        await fetch(`${API_BASE_URL}/school/complete-onboarding`, {
+        const response = await fetch(`${API_BASE_URL}/school/complete-onboarding`, {
           method: 'POST',
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },
         });
+
+        if (response.ok) {
+          // Wait a bit for database to commit
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          // Call parent completion handler to refresh school data
+          if (onComplete) {
+            onComplete();
+          }
+        }
       } catch (error) {
         console.error('Error completing onboarding:', error);
-      }
-
-      // Call parent completion handler
-      if (onComplete) {
-        onComplete();
+        // Still call onComplete even if there's an error
+        if (onComplete) {
+          onComplete();
+        }
       }
     }
   };

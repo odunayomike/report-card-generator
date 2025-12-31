@@ -208,6 +208,18 @@ try {
             require __DIR__ . '/routes/update-student.php';
             break;
 
+        case '/students/import':
+            require __DIR__ . '/routes/students/import-students.php';
+            break;
+
+        case '/students/export':
+            require __DIR__ . '/routes/students/export-students.php';
+            break;
+
+        case '/students/download-template':
+            require __DIR__ . '/routes/students/download-template.php';
+            break;
+
         case '/get-analytics':
             require __DIR__ . '/routes/get-analytics.php';
             break;
