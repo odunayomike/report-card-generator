@@ -320,7 +320,7 @@ export default function TermsOfService() {
                   <ul className="list-disc list-inside text-gray-600 leading-relaxed space-y-2">
                     <li>Full refund available within 7 days of first paid subscription</li>
                     <li>No refunds for renewals or mid-cycle cancellations</li>
-                    <li>Contact support@schoolhub.ng to request a refund</li>
+                    <li>Contact support@schoolhub.tech to request a refund</li>
                     <li>Refunds processed within 5-10 business days</li>
                   </ul>
                 </div>
@@ -568,8 +568,8 @@ export default function TermsOfService() {
                     If you have questions about these Terms of Service, please contact us:
                   </p>
                   <div className="space-y-2 text-gray-600">
-                    <p><strong>Email:</strong> <a href="mailto:legal@schoolhub.ng" className="text-[#1791C8] font-semibold hover:underline">legal@schoolhub.ng</a></p>
-                    <p><strong>Support:</strong> <a href="mailto:support@schoolhub.ng" className="text-[#1791C8] font-semibold hover:underline">support@schoolhub.ng</a></p>
+                    <p><strong>Email:</strong> <a href="mailto:legal@schoolhub.tech" className="text-[#1791C8] font-semibold hover:underline">legal@schoolhub.tech</a></p>
+                    <p><strong>Support:</strong> <a href="mailto:support@schoolhub.tech" className="text-[#1791C8] font-semibold hover:underline">support@schoolhub.tech</a></p>
                     <p><strong>Website:</strong> <Link to="/contact" className="text-[#1791C8] font-semibold hover:underline">Contact Form</Link></p>
                   </div>
                   <div className="mt-6 pt-6 border-t border-gray-200">

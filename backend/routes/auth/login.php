@@ -25,7 +25,7 @@ $db = $database->getConnection();
 
 try {
     // Get school by email with all details
-    $query = "SELECT id, school_name, email, password, phone, address, logo, motto, primary_color, secondary_color, is_active FROM schools WHERE email = :email";
+    $query = "SELECT id, school_name, email, password, phone, address, logo, motto, primary_color, secondary_color, is_active, onboarding_completed FROM schools WHERE email = :email";
     $stmt = $db->prepare($query);
     $stmt->execute([':email' => $data['email']]);
     $school = $stmt->fetch();
@@ -69,7 +69,8 @@ try {
             'logo' => $school['logo'],
             'motto' => $school['motto'],
             'primary_color' => $school['primary_color'],
-            'secondary_color' => $school['secondary_color']
+            'secondary_color' => $school['secondary_color'],
+            'onboarding_completed' => (bool)$school['onboarding_completed']
         ]
     ]);
 

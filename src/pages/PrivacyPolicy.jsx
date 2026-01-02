@@ -409,7 +409,7 @@ export default function PrivacyPolicy() {
                 <li><strong>Withdraw Consent:</strong> Opt-out of non-essential data processing</li>
               </ul>
               <p className="text-gray-600 leading-relaxed mt-4">
-                To exercise these rights, contact us at <a href="mailto:privacy@schoolhub.ng" className="text-[#1791C8] font-semibold hover:underline">privacy@schoolhub.ng</a>
+                To exercise these rights, contact us at <a href="mailto:privacy@schoolhub.tech" className="text-[#1791C8] font-semibold hover:underline">privacy@schoolhub.tech</a>
               </p>
             </div>
 
@@ -474,8 +474,8 @@ export default function PrivacyPolicy() {
                 If you have questions or concerns about this Privacy Policy or our data practices, please contact us:
               </p>
               <div className="space-y-2 text-gray-600">
-                <p><strong>Email:</strong> <a href="mailto:privacy@schoolhub.ng" className="text-[#1791C8] font-semibold hover:underline">privacy@schoolhub.ng</a></p>
-                <p><strong>Support:</strong> <a href="mailto:support@schoolhub.ng" className="text-[#1791C8] font-semibold hover:underline">support@schoolhub.ng</a></p>
+                <p><strong>Email:</strong> <a href="mailto:privacy@schoolhub.tech" className="text-[#1791C8] font-semibold hover:underline">privacy@schoolhub.tech</a></p>
+                <p><strong>Support:</strong> <a href="mailto:support@schoolhub.tech" className="text-[#1791C8] font-semibold hover:underline">support@schoolhub.tech</a></p>
                 <p><strong>Website:</strong> <Link to="/contact" className="text-[#1791C8] font-semibold hover:underline">Contact Form</Link></p>
               </div>
             </div>

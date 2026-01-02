@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { CurrencyProvider } from './contexts/CurrencyContext';
@@ -6,58 +6,73 @@ import { API_BASE_URL } from './config/env';
 import CookieBanner from './components/CookieBanner';
 import ScrollToTop from './components/ScrollToTop';
 import LandingPage from './components/LandingPage';
-import Login from './components/Login';
-import Register from './components/Register';
-import DashboardLayout from './components/DashboardLayout';
-import TeacherDashboardLayout from './components/TeacherDashboardLayout';
-import DashboardHome from './pages/DashboardHome';
-import CreateReport from './pages/CreateReport';
-import AllStudents from './pages/AllStudents';
-import ViewReport from './pages/ViewReport';
-import EditReport from './pages/EditReport';
-import StudentProfile from './pages/StudentProfile';
-import SchoolProfile from './pages/SchoolProfile';
-import EditSchoolProfile from './pages/EditSchoolProfile';
-import SchoolSettings from './pages/SchoolSettings';
-import TeacherLogin from './pages/TeacherLogin';
-import TeacherDashboard from './pages/TeacherDashboard';
-import AttendanceMarker from './pages/AttendanceMarker';
-import ManageTeachers from './pages/ManageTeachers';
-import ViewAttendance from './pages/ViewAttendance';
-import ComingSoon from './pages/ComingSoon';
-import VerifyPayment from './pages/VerifyPayment';
-import AddStudent from './pages/AddStudent';
-import ManageParents from './pages/ManageParents';
-import ViewParents from './pages/ViewParents';
-import AddParent from './pages/AddParent';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import Pricing from './pages/Pricing';
-import FAQ from './pages/FAQ';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsOfService from './pages/TermsOfService';
-import Subscription from './pages/Subscription';
-import SuperAdminLogin from './pages/SuperAdminLogin';
-import SuperAdminLayout from './components/SuperAdminLayout';
-import SuperAdminDashboard from './pages/SuperAdminDashboard';
-import ManageSchools from './pages/ManageSchools';
-import AllStudentsAdmin from './pages/AllStudentsAdmin';
-import ContactMessagesAdmin from './pages/ContactMessagesAdmin';
-import CBTDashboard from './pages/cbt/CBTDashboard';
-import QuestionBank from './pages/cbt/QuestionBank';
-import ExamManagement from './pages/cbt/ExamManagement';
-import ExamResultsList from './pages/cbt/ExamResultsList';
-import StudentExams from './pages/cbt/StudentExams';
-import TakeExam from './pages/cbt/TakeExam';
-import ExamResults from './pages/cbt/ExamResults';
-import StudentLogin from './pages/StudentLogin';
-import StudentDashboardLayout from './components/StudentDashboardLayout';
-import StudentDashboardHome from './pages/StudentDashboardHome';
-import ParentAPIDocs from './pages/ParentAPIDocs';
-import AccountingDashboard from './pages/accounting/AccountingDashboard';
-import StudentDetails from './pages/StudentDetails';
-import SendAnnouncement from './pages/SendAnnouncement';
 import ProtectedRoute from './components/ProtectedRoute';
+
+const Login = lazy(() => import('./components/Login'));
+const Register = lazy(() => import('./components/Register'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Pricing = lazy(() => import('./pages/Pricing'));
+const FAQ = lazy(() => import('./pages/FAQ'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const ParentAPIDocs = lazy(() => import('./pages/ParentAPIDocs'));
+
+// Lazy load dashboard and authenticated components
+const DashboardLayout = lazy(() => import('./components/DashboardLayout'));
+const TeacherDashboardLayout = lazy(() => import('./components/TeacherDashboardLayout'));
+const StudentDashboardLayout = lazy(() => import('./components/StudentDashboardLayout'));
+const SuperAdminLayout = lazy(() => import('./components/SuperAdminLayout'));
+
+// Dashboard pages
+const DashboardHome = lazy(() => import('./pages/DashboardHome'));
+const CreateReport = lazy(() => import('./pages/CreateReport'));
+const AllStudents = lazy(() => import('./pages/AllStudents'));
+const ViewReport = lazy(() => import('./pages/ViewReport'));
+const EditReport = lazy(() => import('./pages/EditReport'));
+const StudentProfile = lazy(() => import('./pages/StudentProfile'));
+const SchoolProfile = lazy(() => import('./pages/SchoolProfile'));
+const EditSchoolProfile = lazy(() => import('./pages/EditSchoolProfile'));
+const SchoolSettings = lazy(() => import('./pages/SchoolSettings'));
+const ViewAttendance = lazy(() => import('./pages/ViewAttendance'));
+const ManageTeachers = lazy(() => import('./pages/ManageTeachers'));
+const AddStudent = lazy(() => import('./pages/AddStudent'));
+const ManageParents = lazy(() => import('./pages/ManageParents'));
+const ViewParents = lazy(() => import('./pages/ViewParents'));
+const AddParent = lazy(() => import('./pages/AddParent'));
+const Subscription = lazy(() => import('./pages/Subscription'));
+const VerifyPayment = lazy(() => import('./pages/VerifyPayment'));
+const StudentDetails = lazy(() => import('./pages/StudentDetails'));
+const SendAnnouncement = lazy(() => import('./pages/SendAnnouncement'));
+const AccountingDashboard = lazy(() => import('./pages/accounting/AccountingDashboard'));
+
+// Teacher pages
+const TeacherLogin = lazy(() => import('./pages/TeacherLogin'));
+const TeacherDashboard = lazy(() => import('./pages/TeacherDashboard'));
+const AttendanceMarker = lazy(() => import('./pages/AttendanceMarker'));
+
+// Student pages
+const StudentLogin = lazy(() => import('./pages/StudentLogin'));
+const StudentDashboardHome = lazy(() => import('./pages/StudentDashboardHome'));
+
+// Super Admin pages
+const SuperAdminLogin = lazy(() => import('./pages/SuperAdminLogin'));
+const SuperAdminDashboard = lazy(() => import('./pages/SuperAdminDashboard'));
+const ManageSchools = lazy(() => import('./pages/ManageSchools'));
+const AllStudentsAdmin = lazy(() => import('./pages/AllStudentsAdmin'));
+const ContactMessagesAdmin = lazy(() => import('./pages/ContactMessagesAdmin'));
+
+// CBT pages
+const CBTDashboard = lazy(() => import('./pages/cbt/CBTDashboard'));
+const QuestionBank = lazy(() => import('./pages/cbt/QuestionBank'));
+const ExamManagement = lazy(() => import('./pages/cbt/ExamManagement'));
+const ExamResultsList = lazy(() => import('./pages/cbt/ExamResultsList'));
+const StudentExams = lazy(() => import('./pages/cbt/StudentExams'));
+const TakeExam = lazy(() => import('./pages/cbt/TakeExam'));
+const ExamResults = lazy(() => import('./pages/cbt/ExamResults'));
+
+// Shared pages
+const ComingSoon = lazy(() => import('./pages/ComingSoon'));
 
 function App() {
   const [school, setSchool] = useState(null);
@@ -73,76 +88,113 @@ function App() {
 
   const checkSession = async () => {
     try {
-      // Check student session from backend first
-      try {
-        const studentResponse = await fetch(`${API_BASE_URL}/auth/student-check-session`, {
-          credentials: 'include'
-        });
+      const storedUserType = localStorage.getItem('userType');
 
-        if (studentResponse.ok) {
-          const studentData = await studentResponse.json();
+      if (!storedUserType) {
+        setLoading(false);
+        return;
+      }
 
-          if (studentData.authenticated) {
-            setStudent({
-              ...studentData.student,
-              subscription: studentData.subscription
+      switch (storedUserType) {
+        case 'student':
+          try {
+            const studentResponse = await fetch(`${API_BASE_URL}/auth/student-check-session`, {
+              credentials: 'include'
             });
-            localStorage.setItem('userType', 'student');
-            localStorage.setItem('studentData', JSON.stringify({
-              ...studentData.student,
-              subscription: studentData.subscription
-            }));
-            setLoading(false);
-            return;
+
+            if (studentResponse.ok) {
+              const studentData = await studentResponse.json();
+
+              if (studentData.authenticated) {
+                setStudent({
+                  ...studentData.student,
+                  subscription: studentData.subscription
+                });
+                localStorage.setItem('studentData', JSON.stringify({
+                  ...studentData.student,
+                  subscription: studentData.subscription
+                }));
+              } else {
+                localStorage.removeItem('userType');
+                localStorage.removeItem('studentData');
+              }
+            }
+          } catch (error) {
+            console.error('Student session check error:', error);
+            localStorage.removeItem('userType');
+            localStorage.removeItem('studentData');
           }
-        }
-      } catch {
-        // Silent fail - not a student, will check other session types
-      }
+          break;
 
-      // Check super admin session first
-      try {
-        const superAdminResponse = await fetch(`${API_BASE_URL}/super-admin/check-session`, {
-          credentials: 'include'
-        });
+        case 'super_admin':
+          try {
+            const superAdminResponse = await fetch(`${API_BASE_URL}/super-admin/check-session`, {
+              credentials: 'include'
+            });
 
-        if (superAdminResponse.ok) {
-          const superAdminData = await superAdminResponse.json();
+            if (superAdminResponse.ok) {
+              const superAdminData = await superAdminResponse.json();
 
-          if (superAdminData.authenticated) {
-            setSuperAdmin(superAdminData.user);
-            localStorage.setItem('userType', 'super_admin');
-            localStorage.setItem('superAdminData', JSON.stringify(superAdminData.user));
-            setLoading(false);
-            return;
+              if (superAdminData.authenticated) {
+                setSuperAdmin(superAdminData.user);
+                localStorage.setItem('superAdminData', JSON.stringify(superAdminData.user));
+              } else {
+                localStorage.removeItem('userType');
+                localStorage.removeItem('superAdminData');
+              }
+            }
+          } catch (error) {
+            console.error('Super admin session check error:', error);
+            localStorage.removeItem('userType');
+            localStorage.removeItem('superAdminData');
           }
-        }
-      } catch {
-        // Silent fail - not a super admin, will check other session types
-      }
+          break;
 
-      // Check school session
-      const schoolResponse = await fetch(`${API_BASE_URL}/auth/check-session`, {
-        credentials: 'include'
-      });
-      const schoolData = await schoolResponse.json();
+        case 'teacher':
+          try {
+            const teacherResponse = await fetch(`${API_BASE_URL}/auth/teacher-check-session`, {
+              credentials: 'include'
+            });
 
-      if (schoolData.authenticated) {
-        setSchool(schoolData.school);
-      } else {
-        // Check teacher session if school is not authenticated
-        const teacherResponse = await fetch(`${API_BASE_URL}/auth/teacher-check-session`, {
-          credentials: 'include'
-        });
-        const teacherData = await teacherResponse.json();
+            if (teacherResponse.ok) {
+              const teacherData = await teacherResponse.json();
 
-        if (teacherData.authenticated) {
-          // Include school subscription info in teacher object
-          setTeacher({
-            ...teacherData.user,
-            school: teacherData.school
-          });
-        }
+              if (teacherData.authenticated) {
+                setTeacher({
+                  ...teacherData.user,
+                  school: teacherData.school
+                });
+              } else {
+                localStorage.removeItem('userType');
+              }
+            }
+          } catch (error) {
+            console.error('Teacher session check error:', error);
+            localStorage.removeItem('userType');
+          }
+          break;
+
+        case 'school':
+        default:
+          try {
+            const schoolResponse = await fetch(`${API_BASE_URL}/auth/check-session`, {
+              credentials: 'include'
+            });
+
+            if (schoolResponse.ok) {
+              const schoolData = await schoolResponse.json();
+
+              if (schoolData.authenticated) {
+                setSchool(schoolData.school);
+              } else {
+                localStorage.removeItem('userType');
+              }
+            }
+          } catch (error) {
+            console.error('School session check error:', error);
+            localStorage.removeItem('userType');
+          }
+          break;
       }
     } catch (error) {
       console.error('Session check error:', error);
@@ -204,10 +256,19 @@ function App() {
     }
   };
 
-  // Let the HTML loader handle the initial loading state
-  // if (loading) {
-  //   return null;
-  // }
+  // Keep the HTML loader visible while checking session
+  if (loading) {
+    // Return a simple div to prevent routes from rendering
+    // The #initial-loader from index.html will remain visible
+    // Add a safety timeout to prevent infinite loading
+    setTimeout(() => {
+      if (loading) {
+        console.warn('Session check timed out, proceeding anyway');
+        setLoading(false);
+      }
+    }, 5000);
+    return <div id="app-loading"></div>;
+  }
 
   return (
     <HelmetProvider>
@@ -215,7 +276,8 @@ function App() {
         <Router>
           <ScrollToTop />
           <CookieBanner />
-          <Routes>
+          <Suspense fallback={<div id="app-loading"></div>}>
+            <Routes>
         <Route
           path="/"
           element={school ? <Navigate to="/dashboard" /> : <LandingPage />}
@@ -342,7 +404,8 @@ function App() {
           path="*"
           element={<Navigate to="/" />}
         />
-          </Routes>
+            </Routes>
+          </Suspense>
         </Router>
       </CurrencyProvider>
     </HelmetProvider>

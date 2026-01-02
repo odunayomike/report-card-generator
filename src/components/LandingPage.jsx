@@ -23,7 +23,9 @@ import {
   X,
   Shield,
   Cloud,
-  Database
+  Database,
+  Facebook,
+  Instagram
 } from 'lucide-react';
 import schoolLogo from '../assets/schoolhub.png';
 import schoolHero from '../assets/schoolhero.jpg';
@@ -478,7 +480,7 @@ export default function LandingPage() {
                 <div className="flex-1 mx-4">
                   <div className="bg-gray-600 rounded-md px-4 py-1.5 text-xs text-gray-300 flex items-center gap-2">
                     <Lock className="w-3 h-3" />
-                    <span>app.schoolhub.ng/dashboard</span>
+                    <span>app.schoolhub.tech/dashboard</span>
                   </div>
                 </div>
               </div>
@@ -667,10 +669,10 @@ export default function LandingPage() {
                     <h3 className="text-xl font-extrabold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">{feature.title}</h3>
                     <p className="text-gray-600 leading-relaxed text-sm">{feature.description}</p>
 
-                    <div className="mt-6 flex items-center gap-2 text-blue-600 font-semibold text-sm opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <Link to="/pricing" className="mt-6 flex items-center gap-2 text-blue-600 font-semibold text-sm opacity-0 group-hover:opacity-100 transition-all duration-300">
                       Learn more
                       <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </div>
+                    </Link>
                   </div>
                 </div>
               );
@@ -1202,14 +1204,34 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <img 
-                  src={schoolLogo} 
-                  alt="SchoolHub Logo" 
+                <img
+                  src={schoolLogo}
+                  alt="SchoolHub Logo"
                   className="w-14 h-14 object-contain"
                 />
                 <span className="text-xl font-bold text-white">SchoolHub</span>
               </div>
-              <p className="text-sm">Making school management simple and efficient for everyone.</p>
+              <p className="text-sm mb-4">Making school management simple and efficient for everyone.</p>
+              <div className="flex gap-3">
+                <a
+                  href="https://www.facebook.com/profile.php?id=61585216560272"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors"
+                  aria-label="Facebook"
+                >
+                  <Facebook className="w-5 h-5" />
+                </a>
+                <a
+                  href="https://www.instagram.com/schoolhub_africa"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-pink-600 transition-colors"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="w-5 h-5" />
+                </a>
+              </div>
             </div>
             <div>
               <h3 className="text-white font-bold mb-4">Product</h3>

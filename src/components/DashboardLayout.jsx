@@ -54,6 +54,8 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
 
   // Start onboarding tour for new users
   useEffect(() => {
+    // Only show tour if onboarding is not completed
+    // Treat any truthy value (true, 1, "1") as completed
     if (school && !school.onboarding_completed) {
       // Small delay to ensure UI is rendered
       const timer = setTimeout(() => {
