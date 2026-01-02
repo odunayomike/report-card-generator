@@ -56,6 +56,7 @@ import StudentDashboardHome from './pages/StudentDashboardHome';
 import ParentAPIDocs from './pages/ParentAPIDocs';
 import AccountingDashboard from './pages/accounting/AccountingDashboard';
 import StudentDetails from './pages/StudentDetails';
+import SendAnnouncement from './pages/SendAnnouncement';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -268,6 +269,7 @@ function App() {
           <Route path="manage-parents" element={<ProtectedRoute school={school}><ManageParents /></ProtectedRoute>} />
           <Route path="view-parents" element={<ProtectedRoute school={school}><ViewParents /></ProtectedRoute>} />
           <Route path="add-parent" element={<ProtectedRoute school={school}><AddParent /></ProtectedRoute>} />
+          <Route path="send-announcement" element={<ProtectedRoute school={school}><SendAnnouncement /></ProtectedRoute>} />
           <Route path="reports/:id" element={<ProtectedRoute school={school}><ViewReport school={school} /></ProtectedRoute>} />
           <Route path="reports/:id/edit" element={<ProtectedRoute school={school}><EditReport school={school} /></ProtectedRoute>} />
           <Route path="profile" element={<ProtectedRoute school={school} allowedWithoutSubscription={true}><SchoolProfile /></ProtectedRoute>} />

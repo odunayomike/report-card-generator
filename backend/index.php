@@ -133,6 +133,10 @@ try {
             require __DIR__ . '/routes/super-admin/get-all-students.php';
             break;
 
+        case '/super-admin/get-contact-messages':
+            require __DIR__ . '/routes/super-admin/get-contact-messages.php';
+            break;
+
         // Teacher Management routes (for schools)
         case '/teachers/create':
             require __DIR__ . '/routes/teachers/create.php';
@@ -382,6 +386,10 @@ try {
             require __DIR__ . '/routes/parent/get-student-parents.php';
             break;
 
+        case '/parent/get-parent-children':
+            require __DIR__ . '/routes/parent/get-parent-children.php';
+            break;
+
         case '/parent/remove-parent-student':
             require __DIR__ . '/routes/parent/remove-parent-student.php';
             break;
@@ -405,6 +413,23 @@ try {
 
         case '/parent/initialize-paystack-payment':
             require __DIR__ . '/routes/accounting/parent/initialize-paystack-payment.php';
+            break;
+
+        // Parent Notification routes
+        case '/parent/notifications/get':
+            require __DIR__ . '/routes/parent/notifications/get-notifications.php';
+            break;
+
+        case '/parent/notifications/mark-as-read':
+            require __DIR__ . '/routes/parent/notifications/mark-as-read.php';
+            break;
+
+        case '/parent/notifications/register-device':
+            require __DIR__ . '/routes/parent/notifications/register-device.php';
+            break;
+
+        case '/parent/notifications/send-announcement':
+            require __DIR__ . '/routes/parent/notifications/send-announcement.php';
             break;
 
         case '/parent/verify-paystack-payment':

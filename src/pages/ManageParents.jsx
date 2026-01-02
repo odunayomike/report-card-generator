@@ -212,11 +212,20 @@ export default function ManageParents() {
     student.class?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Filter available parents based on search term
-  const availableParents = allParents.filter(parent =>
-    parent.name?.toLowerCase().includes(parentSearchTerm.toLowerCase()) ||
-    parent.email?.toLowerCase().includes(parentSearchTerm.toLowerCase())
-  );
+  // Filter available parents based on search term and exclude already linked parents
+  const availableParents = allParents.filter(parent => {
+    // Check if this parent is already linked to the selected student
+    const isAlreadyLinked = existingParents.some(ep => ep.parent_id === parent.id);
+
+    // Exclude if already linked
+    if (isAlreadyLinked) return false;
+
+    // Include if matches search term
+    return (
+      parent.name?.toLowerCase().includes(parentSearchTerm.toLowerCase()) ||
+      parent.email?.toLowerCase().includes(parentSearchTerm.toLowerCase())
+    );
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">

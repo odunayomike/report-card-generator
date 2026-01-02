@@ -16,11 +16,11 @@ export default function ProtectedRoute({ children, school, allowedWithoutSubscri
     const isTeacherRoute = location.pathname.startsWith('/teacher');
     const isStudentRoute = location.pathname.startsWith('/student');
 
-    // Teachers and students: show message explaining school subscription expired
+    // Teachers and students: Don't redirect them, just show content
+    // The SubscriptionBanner component will inform them about expired subscription
+    // This prevents them from being logged out
     if (isTeacherRoute || isStudentRoute) {
-      // For now, redirect to dashboard/subscription (school admin needs to renew)
-      // In future, you could create a special "contact admin" page
-      return <Navigate to="/dashboard/subscription" replace />;
+      return children; // Allow access but banner will show subscription status
     }
 
     // Schools: redirect to subscription page

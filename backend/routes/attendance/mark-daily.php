@@ -54,6 +54,7 @@ try {
     $stmt = $db->prepare($insertQuery);
 
     $successCount = 0;
+    $absentStudents = []; // Track absent students for notifications
 
     foreach ($attendanceRecords as $record) {
         $studentId = intval($record['student_id'] ?? 0);
@@ -64,22 +65,65 @@ try {
             continue;
         }
 
-        // Verify student belongs to teacher's school
-        $verifyQuery = "SELECT id FROM students WHERE id = ? AND school_id = ?";
+        // Verify student belongs to teacher's school and get student details
+        $verifyQuery = "SELECT id, name, school_id FROM students WHERE id = ? AND school_id = ?";
         $verifyStmt = $db->prepare($verifyQuery);
         $verifyStmt->execute([$studentId, $_SESSION['school_id']]);
+        $studentData = $verifyStmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$verifyStmt->fetch()) {
+        if (!$studentData) {
             continue; // Skip unauthorized students
         }
 
         // Mark attendance
         $stmt->execute([$studentId, $date, $status, $_SESSION['teacher_id']]);
         $successCount++;
+
+        // Track absent students for notification
+        if ($status === 'absent') {
+            $absentStudents[] = [
+                'student_id' => $studentData['id'],
+                'student_name' => $studentData['name'],
+                'school_id' => $studentData['school_id']
+            ];
+        }
     }
 
     // Commit transaction
     $db->commit();
+
+    // Send notifications to parents of absent students
+    if (!empty($absentStudents)) {
+        try {
+            require_once __DIR__ . '/../../utils/NotificationHelper.php';
+            $notificationHelper = new NotificationHelper($db);
+
+            // Format date for notification
+            $formattedDate = date('F j, Y', strtotime($date));
+
+            foreach ($absentStudents as $student) {
+                // Get parent IDs for this student
+                $parentQuery = "SELECT parent_id FROM parent_students WHERE student_id = ?";
+                $parentStmt = $db->prepare($parentQuery);
+                $parentStmt->execute([$student['student_id']]);
+                $parentIds = $parentStmt->fetchAll(PDO::FETCH_COLUMN);
+
+                // Send notification to each parent
+                foreach ($parentIds as $parentId) {
+                    $notificationHelper->notifyStudentAbsent(
+                        $parentId,
+                        $student['school_id'],
+                        $student['student_id'],
+                        $student['student_name'],
+                        $formattedDate
+                    );
+                }
+            }
+        } catch (Exception $e) {
+            // Log error but don't fail the request
+            error_log('Failed to send absence notification: ' . $e->getMessage());
+        }
+    }
 
     echo json_encode([
         'success' => true,

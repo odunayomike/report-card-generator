@@ -256,6 +256,46 @@ try {
     // Commit transaction
     $db->commit();
 
+    // Send notification to parent(s) about new report card
+    try {
+        require_once __DIR__ . '/../utils/NotificationHelper.php';
+        $notificationHelper = new NotificationHelper($db);
+
+        // Get parent IDs for this student
+        $parentQuery = "SELECT ps.parent_id, s.id as student_id, s.name as student_name
+                        FROM parent_students ps
+                        INNER JOIN students s ON ps.student_id = s.id
+                        WHERE s.admission_no = ? AND s.school_id = ?
+                        LIMIT 1";
+        $parentStmt = $db->prepare($parentQuery);
+        $parentStmt->execute([$data['admissionNo'] ?? '', $schoolId]);
+        $studentInfo = $parentStmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($studentInfo) {
+            // Get all parents for this student
+            $allParentsQuery = "SELECT parent_id FROM parent_students WHERE student_id = ?";
+            $allParentsStmt = $db->prepare($allParentsQuery);
+            $allParentsStmt->execute([$studentInfo['student_id']]);
+            $parentIds = $allParentsStmt->fetchAll(PDO::FETCH_COLUMN);
+
+            // Send notification to each parent
+            foreach ($parentIds as $parentId) {
+                $notificationHelper->notifyReportCardPublished(
+                    $parentId,
+                    $schoolId,
+                    $studentInfo['student_id'],
+                    $studentInfo['student_name'],
+                    $student_id, // report ID
+                    $data['term'] ?? '',
+                    $data['session'] ?? ''
+                );
+            }
+        }
+    } catch (Exception $e) {
+        // Log error but don't fail the request
+        error_log('Failed to send report card notification: ' . $e->getMessage());
+    }
+
     http_response_code(201);
     echo json_encode([
         'success' => true,

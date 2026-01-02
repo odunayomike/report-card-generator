@@ -79,6 +79,7 @@ try {
     // For each student, check if they already have this fee assigned
     $assignedCount = 0;
     $skippedCount = 0;
+    $notifiedStudents = []; // Track students for notifications
 
     foreach ($students as $student) {
         // Check if student already has this fee
@@ -140,6 +141,66 @@ try {
         ]);
 
         $assignedCount++;
+
+        // Get student details for notification
+        $studentDetailsQuery = "SELECT id, name FROM students WHERE id = ?";
+        $studentDetailsStmt = $db->prepare($studentDetailsQuery);
+        $studentDetailsStmt->execute([$student['id']]);
+        $studentDetails = $studentDetailsStmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($studentDetails) {
+            $notifiedStudents[] = [
+                'student_id' => $studentDetails['id'],
+                'student_name' => $studentDetails['name'],
+                'due_date' => $dueDate
+            ];
+        }
+    }
+
+    // Send notifications to parents about assigned fees
+    if (!empty($notifiedStudents)) {
+        try {
+            require_once __DIR__ . '/../../../utils/NotificationHelper.php';
+            $notificationHelper = new NotificationHelper($db);
+
+            // Get fee category name for better notification message
+            $categoryQuery = "SELECT fc.name
+                              FROM fee_structure fs
+                              INNER JOIN fee_categories fc ON fs.category_id = fc.id
+                              WHERE fs.id = ?";
+            $categoryStmt = $db->prepare($categoryQuery);
+            $categoryStmt->execute([$feeStructureId]);
+            $category = $categoryStmt->fetch(PDO::FETCH_ASSOC);
+            $feeName = $category['name'] ?? 'School Fee';
+
+            foreach ($notifiedStudents as $student) {
+                // Get parent IDs for this student
+                $parentQuery = "SELECT parent_id FROM parent_students WHERE student_id = ?";
+                $parentStmt = $db->prepare($parentQuery);
+                $parentStmt->execute([$student['student_id']]);
+                $parentIds = $parentStmt->fetchAll(PDO::FETCH_COLUMN);
+
+                // Format amount and due date
+                $formattedAmount = '₦' . number_format($feeStructure['amount'], 2);
+                $formattedDueDate = date('F j, Y', strtotime($student['due_date']));
+
+                // Send notification to each parent
+                foreach ($parentIds as $parentId) {
+                    $notificationHelper->notifyFeePaymentReminder(
+                        $parentId,
+                        $schoolId,
+                        $student['student_id'],
+                        $student['student_name'],
+                        $formattedAmount,
+                        $feeName,
+                        $formattedDueDate
+                    );
+                }
+            }
+        } catch (Exception $e) {
+            // Log error but don't fail the request
+            error_log('Failed to send fee assignment notification: ' . $e->getMessage());
+        }
     }
 
     http_response_code(200);

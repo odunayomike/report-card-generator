@@ -25,7 +25,12 @@ try {
         // Get unique students by admission number with their most recent report
         $query = "SELECT s.admission_no, s.name, s.gender,
                   MAX(s.created_at) as latest_report_date,
-                  COUNT(s.id) as total_reports,
+                  COUNT(DISTINCT CASE
+                      WHEN EXISTS (SELECT 1 FROM subjects sub WHERE sub.student_id = s.id)
+                           OR EXISTS (SELECT 1 FROM attendance att WHERE att.student_id = s.id)
+                           OR EXISTS (SELECT 1 FROM remarks rem WHERE rem.student_id = s.id)
+                      THEN s.id
+                      END) as total_reports,
                   GROUP_CONCAT(DISTINCT s.class ORDER BY s.created_at DESC SEPARATOR ', ') as classes,
                   (SELECT s2.class FROM students s2 WHERE s2.admission_no = s.admission_no AND s2.school_id = :school_id ORDER BY s2.created_at DESC LIMIT 1) as current_class
                   FROM students s
@@ -47,7 +52,12 @@ try {
         // Get unique students by admission number with their most recent report info
         $query = "SELECT s.admission_no, s.name, s.gender,
                   MAX(s.created_at) as latest_report_date,
-                  COUNT(s.id) as total_reports,
+                  COUNT(DISTINCT CASE
+                      WHEN EXISTS (SELECT 1 FROM subjects sub WHERE sub.student_id = s.id)
+                           OR EXISTS (SELECT 1 FROM attendance att WHERE att.student_id = s.id)
+                           OR EXISTS (SELECT 1 FROM remarks rem WHERE rem.student_id = s.id)
+                      THEN s.id
+                      END) as total_reports,
                   GROUP_CONCAT(DISTINCT s.class ORDER BY s.created_at DESC SEPARATOR ', ') as classes,
                   (SELECT s2.class FROM students s2 WHERE s2.admission_no = s.admission_no AND s2.school_id = :school_id ORDER BY s2.created_at DESC LIMIT 1) as current_class
                   FROM students s

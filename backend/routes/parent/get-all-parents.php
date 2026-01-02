@@ -28,7 +28,7 @@ try {
     $query = "SELECT
                 p.id,
                 p.email,
-                p.name,
+                p.name as full_name,
                 p.phone,
                 p.is_active,
                 p.created_at,
@@ -38,7 +38,7 @@ try {
                      INNER JOIN students s2 ON ps2.student_id = s2.id
                      WHERE ps2.parent_id = p.id AND s2.school_id = ?),
                     0
-                ) as student_count
+                ) as children_count
               FROM parents p
               ORDER BY p.name ASC";
 

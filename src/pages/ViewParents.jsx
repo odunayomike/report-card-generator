@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
 import { getAllParents } from '../services/api';
 import { useToastContext } from '../context/ToastContext';
+import { API_BASE_URL } from '../config/env';
 
 export default function ViewParents() {
   const { toast } = useToastContext();
   const [parents, setParents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedParent, setSelectedParent] = useState(null);
+  const [children, setChildren] = useState([]);
+  const [loadingChildren, setLoadingChildren] = useState(false);
+  const [showChildrenModal, setShowChildrenModal] = useState(false);
 
   useEffect(() => {
     fetchParents();
@@ -29,15 +34,41 @@ export default function ViewParents() {
     }
   };
 
+  const fetchParentChildren = async (parent) => {
+    setSelectedParent(parent);
+    setLoadingChildren(true);
+    setShowChildrenModal(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/parent/get-parent-children?parent_id=${parent.id}`, {
+        credentials: 'include'
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setChildren(data.children || []);
+      } else {
+        toast.error('Failed to load children');
+        setChildren([]);
+      }
+    } catch (error) {
+      console.error('Error fetching children:', error);
+      toast.error('Error loading children');
+      setChildren([]);
+    } finally {
+      setLoadingChildren(false);
+    }
+  };
+
   const filteredParents = parents.filter(parent =>
-    parent.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    parent.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     parent.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     parent.phone?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-3 sm:px-4">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-[1600px] mx-auto">
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-3 sm:px-6 py-6 sm:py-8">
@@ -105,7 +136,7 @@ export default function ViewParents() {
                   <div>
                     <p className="text-sm font-medium text-blue-900">With Children Linked</p>
                     <p className="text-2xl font-bold text-blue-700">
-                      {parents.filter(p => p.student_count > 0).length}
+                      {parents.filter(p => p.children_count > 0).length}
                     </p>
                   </div>
                   <svg className="h-10 w-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,11 +171,11 @@ export default function ViewParents() {
                       <div className="flex items-start gap-3 mb-3">
                         <div className="flex-shrink-0 h-12 w-12 bg-primary-100 rounded-full flex items-center justify-center">
                           <span className="text-primary-700 font-semibold">
-                            {parent.name?.charAt(0).toUpperCase()}
+                            {parent.full_name?.charAt(0).toUpperCase()}
                           </span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-gray-900 text-sm mb-1">{parent.name}</h3>
+                          <h3 className="font-medium text-gray-900 text-sm mb-1">{parent.full_name}</h3>
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                               parent.is_active
@@ -154,11 +185,11 @@ export default function ViewParents() {
                               {parent.is_active ? 'Active' : 'Inactive'}
                             </span>
                             <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                              parent.student_count > 0
+                              parent.children_count > 0
                                 ? 'bg-primary-100 text-primary-800'
                                 : 'bg-gray-100 text-gray-600'
                             }`}>
-                              {parent.student_count} {parent.student_count === 1 ? 'child' : 'children'}
+                              {parent.children_count} {parent.children_count === 1 ? 'child' : 'children'}
                             </span>
                           </div>
                         </div>
@@ -178,6 +209,15 @@ export default function ViewParents() {
                         </div>
                         <div className="flex items-center text-gray-600">
                           <svg className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                          <span className="font-medium mr-1">Password:</span>
+                          <code className="bg-gray-100 text-gray-800 px-1.5 py-0.5 rounded font-mono text-xs">
+                            {parent.password || 'N/A'}
+                          </code>
+                        </div>
+                        <div className="flex items-center text-gray-600">
+                          <svg className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
                           <span>
@@ -189,6 +229,14 @@ export default function ViewParents() {
                           </span>
                         </div>
                       </div>
+                      {parent.children_count > 0 && (
+                        <button
+                          onClick={() => fetchParentChildren(parent)}
+                          className="mt-3 w-full bg-primary-600 hover:bg-primary-700 text-white text-xs font-medium py-2 px-3 rounded-md transition-colors"
+                        >
+                          View Children ({parent.children_count})
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -209,6 +257,9 @@ export default function ViewParents() {
                             Phone
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            App Password
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Children Linked
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -216,6 +267,9 @@ export default function ViewParents() {
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Registered
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
                           </th>
                         </tr>
                       </thead>
@@ -226,11 +280,11 @@ export default function ViewParents() {
                               <div className="flex items-center">
                                 <div className="flex-shrink-0 h-10 w-10 bg-primary-100 rounded-full flex items-center justify-center">
                                   <span className="text-primary-700 font-semibold text-sm">
-                                    {parent.name?.charAt(0).toUpperCase()}
+                                    {parent.full_name?.charAt(0).toUpperCase()}
                                   </span>
                                 </div>
                                 <div className="ml-4">
-                                  <div className="text-sm font-medium text-gray-900">{parent.name}</div>
+                                  <div className="text-sm font-medium text-gray-900">{parent.full_name}</div>
                                 </div>
                               </div>
                             </td>
@@ -257,12 +311,19 @@ export default function ViewParents() {
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center text-sm">
+                                <code className="bg-gray-100 text-gray-800 px-2 py-1 rounded font-mono text-xs">
+                                  {parent.password || 'N/A'}
+                                </code>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
                               <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                                parent.student_count > 0
+                                parent.children_count > 0
                                   ? 'bg-primary-100 text-primary-800'
                                   : 'bg-gray-100 text-gray-600'
                               }`}>
-                                {parent.student_count} {parent.student_count === 1 ? 'child' : 'children'}
+                                {parent.children_count} {parent.children_count === 1 ? 'child' : 'children'}
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
@@ -280,6 +341,22 @@ export default function ViewParents() {
                                 month: 'short',
                                 day: 'numeric'
                               })}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              {parent.children_count > 0 ? (
+                                <button
+                                  onClick={() => fetchParentChildren(parent)}
+                                  className="inline-flex items-center px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-md transition-colors"
+                                >
+                                  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                  </svg>
+                                  View Children
+                                </button>
+                              ) : (
+                                <span className="text-gray-400 text-sm">No children</span>
+                              )}
                             </td>
                           </tr>
                         ))}
@@ -299,6 +376,115 @@ export default function ViewParents() {
           </div>
         </div>
       </div>
+
+      {/* Children Modal */}
+      {showChildrenModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-6 py-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-white">
+                  {selectedParent?.full_name}'s Children
+                </h2>
+                <p className="text-sm text-primary-100 mt-1">{selectedParent?.email}</p>
+              </div>
+              <button
+                onClick={() => setShowChildrenModal(false)}
+                className="text-white hover:bg-primary-800 rounded-lg p-2 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              {loadingChildren ? (
+                <div className="text-center py-12">
+                  <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary-600 border-r-transparent"></div>
+                  <p className="mt-4 text-gray-600">Loading children...</p>
+                </div>
+              ) : children.length === 0 ? (
+                <div className="text-center py-12">
+                  <svg className="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  <p className="text-gray-600 font-medium">No children linked to this parent</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Children Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {children.map((child) => (
+                      <div key={child.id} className="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors">
+                        <div className="flex items-start gap-3">
+                          <div className="flex-shrink-0 h-12 w-12 bg-primary-100 rounded-full flex items-center justify-center">
+                            <span className="text-primary-700 font-semibold">
+                              {child.name?.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <h3 className="font-semibold text-gray-900">{child.name}</h3>
+                                <p className="text-sm text-gray-600">Admission No: {child.admission_no}</p>
+                              </div>
+                              {child.is_primary === 1 && (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                                  Primary
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="mt-3 space-y-2">
+                              <div className="flex items-center text-sm text-gray-600">
+                                <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                                <span className="font-medium">Class:</span>
+                                <span className="ml-1">{child.class}</span>
+                              </div>
+
+                              <div className="flex items-center text-sm text-gray-600">
+                                <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                <span className="font-medium">Gender:</span>
+                                <span className="ml-1 capitalize">{child.gender}</span>
+                              </div>
+
+                              <div className="flex items-center text-sm text-gray-600">
+                                <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                <span className="font-medium">Relationship:</span>
+                                <span className="ml-1 capitalize">{child.relationship || 'Parent'}</span>
+                              </div>
+
+                              <div className="flex items-center text-sm text-gray-500">
+                                <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                </svg>
+                                <span>Linked {new Date(child.linked_at).toLocaleDateString('en-US', {
+                                  year: 'numeric',
+                                  month: 'short',
+                                  day: 'numeric'
+                                })}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

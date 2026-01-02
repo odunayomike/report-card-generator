@@ -31,6 +31,7 @@ $studentId = intval($data['student_id']);
 $parentEmail = trim(strtolower($data['parent_email']));
 $parentName = trim($data['parent_name']);
 $parentPhone = isset($data['parent_phone']) ? trim($data['parent_phone']) : null;
+$parentPassword = isset($data['parent_password']) ? trim($data['parent_password']) : null;
 $relationship = isset($data['relationship']) ? $data['relationship'] : 'guardian';
 $isPrimary = isset($data['is_primary']) ? (bool)$data['is_primary'] : false;
 
@@ -77,11 +78,12 @@ try {
 
     $parentId = null;
 
-    $defaultPassword = 'Welcome123';
+    // Use provided password or default
+    $defaultPassword = $parentPassword ?: 'Welcome123';
     $isNewParent = false;
 
     if (!$parent) {
-        // Create new parent account with default password
+        // Create new parent account with provided or default password
         $hashedPassword = password_hash($defaultPassword, PASSWORD_DEFAULT);
         $insertParentQuery = "INSERT INTO parents (email, name, phone, password)
                               VALUES (?, ?, ?, ?)";
@@ -92,16 +94,9 @@ try {
     } else {
         // Parent exists, use existing ID
         $parentId = $parent['id'];
-
-        // Update parent name and phone if provided
-        $updateParentQuery = "UPDATE parents
-                              SET name = ?, phone = COALESCE(?, phone)
-                              WHERE id = ?";
-        $updateParentStmt = $db->prepare($updateParentQuery);
-        $updateParentStmt->execute([$parentName, $parentPhone, $parentId]);
     }
 
-    // Check if relationship already exists
+    // Check if relationship already exists BEFORE updating parent info
     $checkRelationQuery = "SELECT id FROM parent_students
                            WHERE parent_id = ? AND student_id = ?";
     $checkRelationStmt = $db->prepare($checkRelationQuery);
@@ -112,6 +107,15 @@ try {
         http_response_code(409);
         echo json_encode(['success' => false, 'message' => 'This parent is already linked to this student']);
         exit;
+    }
+
+    // Update parent name and phone if parent already exists and not a new parent
+    if (!$isNewParent) {
+        $updateParentQuery = "UPDATE parents
+                              SET name = ?, phone = COALESCE(?, phone)
+                              WHERE id = ?";
+        $updateParentStmt = $db->prepare($updateParentQuery);
+        $updateParentStmt->execute([$parentName, $parentPhone, $parentId]);
     }
 
     // If this is primary, unset other primary relationships for this student

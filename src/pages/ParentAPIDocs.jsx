@@ -40,6 +40,7 @@ const ParentAPIDocs = () => {
             <a href="#auth-endpoints" style={{ color: '#667eea', textDecoration: 'none', fontWeight: '500', transition: 'color 0.3s' }}>🔐 Authentication</a>
             <a href="#parent-endpoints" style={{ color: '#667eea', textDecoration: 'none', fontWeight: '500', transition: 'color 0.3s' }}>👨‍👩‍👧 Parent & Children</a>
             <a href="#accounting-endpoints" style={{ color: '#ed8936', textDecoration: 'none', fontWeight: '600', transition: 'color 0.3s' }}>💰 Accounting & Payments</a>
+            <a href="#notification-endpoints" style={{ color: '#667eea', textDecoration: 'none', fontWeight: '500', transition: 'color 0.3s' }}>🔔 Notifications</a>
             <a href="#errors" style={{ color: '#667eea', textDecoration: 'none', fontWeight: '500', transition: 'color 0.3s' }}>⚠️ Error Codes</a>
             <a href="#examples" style={{ color: '#667eea', textDecoration: 'none', fontWeight: '500', transition: 'color 0.3s' }}>📝 Code Examples</a>
           </div>
@@ -782,6 +783,206 @@ const ParentAPIDocs = () => {
               <div style={{ backgroundColor: '#f0fff4', padding: '1rem', borderRadius: '0.5rem', marginTop: '1rem', borderLeft: '4px solid #48bb78' }}>
                 <p style={{ margin: 0 }}><strong>Auto-Verification:</strong> Paystack payments are automatically verified and the student's fee status is updated immediately.</p>
               </div>
+            </div>
+          </section>
+
+          {/* Notifications Section */}
+          <section id="notification-endpoints" style={{ backgroundColor: 'white', borderRadius: '0.5rem', padding: '2rem', marginBottom: '2rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1a202c', marginBottom: '1.5rem', borderBottom: '3px solid #667eea', paddingBottom: '0.5rem' }}>🔔 Notifications</h2>
+            <p style={{ marginBottom: '2rem', color: '#4a5568' }}>
+              Stay updated with real-time notifications about report cards, fee payments, attendance alerts, and school announcements.
+              Supports both in-app notifications and push notifications via Firebase Cloud Messaging (FCM).
+            </p>
+
+            {/* Get Notifications */}
+            <div style={{ marginBottom: '3rem' }}>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#2d3748', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ backgroundColor: '#667eea', color: 'white', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.75rem' }}>GET</span>
+                Get Notifications
+              </h3>
+
+              <div style={{ backgroundColor: '#1a202c', color: '#e2e8f0', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1rem', fontFamily: 'monospace', fontSize: '0.875rem', overflowX: 'auto' }}>
+                GET /parent/notifications/get
+              </div>
+
+              <p style={{ marginBottom: '1rem' }}><strong>Description:</strong> Fetch all notifications for the authenticated parent. Supports filtering by type, unread status, and pagination.</p>
+
+              <p style={{ marginBottom: '0.5rem' }}><strong>Query Parameters:</strong></p>
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '1rem' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#edf2f7' }}>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e0' }}>Parameter</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e0' }}>Type</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e0' }}>Required</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e0' }}>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}><code>limit</code></td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>integer</td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>No</td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>Number of notifications to return (default: 50)</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}><code>offset</code></td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>integer</td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>No</td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>Number of notifications to skip (default: 0)</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}><code>unread_only</code></td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>boolean</td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>No</td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>Filter to show only unread notifications (true/false)</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}><code>type</code></td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>string</td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>No</td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>Filter by type: report_card, fee_payment, attendance, announcement</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <p style={{ marginBottom: '0.5rem' }}><strong>Response:</strong></p>
+              <pre style={{ backgroundColor: '#1a202c', color: '#68d391', padding: '1rem', borderRadius: '0.5rem', overflowX: 'auto', fontSize: '0.875rem' }}>
+{`{
+  "success": true,
+  "notifications": [
+    {
+      "id": 1,
+      "type": "report_card",
+      "title": "New Report Card Published",
+      "message": "A new report card for John Doe (First Term, 2024/2025) is now available.",
+      "data": {
+        "report_id": 123,
+        "student_id": 45,
+        "student_name": "John Doe",
+        "term": "First Term",
+        "session": "2024/2025"
+      },
+      "is_read": false,
+      "read_at": null,
+      "created_at": "2024-12-31 10:30:00",
+      "student_name": "John Doe",
+      "student_admission_no": "STU24001",
+      "school_name": "Green Valley School"
+    }
+  ],
+  "unread_count": 5,
+  "limit": 50,
+  "offset": 0
+}`}
+              </pre>
+            </div>
+
+            {/* Mark as Read */}
+            <div style={{ marginBottom: '3rem' }}>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#2d3748', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ backgroundColor: '#48bb78', color: 'white', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.75rem' }}>POST</span>
+                Mark Notification(s) as Read
+              </h3>
+
+              <div style={{ backgroundColor: '#1a202c', color: '#e2e8f0', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1rem', fontFamily: 'monospace', fontSize: '0.875rem', overflowX: 'auto' }}>
+                POST /parent/notifications/mark-as-read
+              </div>
+
+              <p style={{ marginBottom: '1rem' }}><strong>Description:</strong> Mark one specific notification or all notifications as read.</p>
+
+              <p style={{ marginBottom: '0.5rem' }}><strong>Request Body:</strong></p>
+              <pre style={{ backgroundColor: '#1a202c', color: '#63b3ed', padding: '1rem', borderRadius: '0.5rem', overflowX: 'auto', fontSize: '0.875rem', marginBottom: '1rem' }}>
+{`// Mark single notification
+{
+  "notification_id": 123
+}
+
+// Mark all notifications
+{
+  "mark_all": true
+}`}
+              </pre>
+
+              <p style={{ marginBottom: '0.5rem' }}><strong>Response:</strong></p>
+              <pre style={{ backgroundColor: '#1a202c', color: '#68d391', padding: '1rem', borderRadius: '0.5rem', overflowX: 'auto', fontSize: '0.875rem' }}>
+{`{
+  "success": true,
+  "message": "Notification marked as read"
+}`}
+              </pre>
+            </div>
+
+            {/* Register Device Token */}
+            <div style={{ marginBottom: '3rem' }}>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#2d3748', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ backgroundColor: '#48bb78', color: 'white', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.75rem' }}>POST</span>
+                Register Device for Push Notifications
+              </h3>
+
+              <div style={{ backgroundColor: '#1a202c', color: '#e2e8f0', padding: '1rem', borderRadius: '0.5rem', marginBottom: '1rem', fontFamily: 'monospace', fontSize: '0.875rem', overflowX: 'auto' }}>
+                POST /parent/notifications/register-device
+              </div>
+
+              <p style={{ marginBottom: '1rem' }}><strong>Description:</strong> Register the device's FCM token to receive push notifications. This should be called when the app launches or when permissions are granted.</p>
+
+              <p style={{ marginBottom: '0.5rem' }}><strong>Request Body:</strong></p>
+              <pre style={{ backgroundColor: '#1a202c', color: '#63b3ed', padding: '1rem', borderRadius: '0.5rem', overflowX: 'auto', fontSize: '0.875rem', marginBottom: '1rem' }}>
+{`{
+  "device_token": "fcm_token_string_from_firebase",
+  "device_type": "android",  // or "ios"
+  "device_name": "Samsung Galaxy S21"  // optional
+}`}
+              </pre>
+
+              <p style={{ marginBottom: '0.5rem' }}><strong>Response:</strong></p>
+              <pre style={{ backgroundColor: '#1a202c', color: '#68d391', padding: '1rem', borderRadius: '0.5rem', overflowX: 'auto', fontSize: '0.875rem' }}>
+{`{
+  "success": true,
+  "message": "Device token registered",
+  "token_id": 45
+}`}
+              </pre>
+
+              <div style={{ backgroundColor: '#fef5e7', padding: '1rem', borderRadius: '0.5rem', marginTop: '1rem', borderLeft: '4px solid #f39c12' }}>
+                <p style={{ margin: 0 }}><strong>Important:</strong> Register the device token every time the app launches to ensure the token stays active and updated.</p>
+              </div>
+            </div>
+
+            {/* Notification Types */}
+            <div style={{ marginBottom: '2rem' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#2d3748', marginBottom: '1rem' }}>Notification Types</h3>
+
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ backgroundColor: '#edf2f7' }}>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e0' }}>Type</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e0' }}>Description</th>
+                    <th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e0' }}>Data Fields</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}><code>report_card</code></td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>New report card published for student</td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>report_id, student_id, student_name, term, session</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}><code>fee_payment</code></td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>Fee payment reminder or due date alert</td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>student_id, fee_amount, fee_name, due_date</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}><code>attendance</code></td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>Student attendance alert (absence)</td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>student_id, student_name, date, status</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}><code>announcement</code></td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>School-wide announcements</td>
+                    <td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>Varies based on announcement</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </section>
 

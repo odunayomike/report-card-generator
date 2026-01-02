@@ -1,10 +1,15 @@
 import { AlertTriangle, CreditCard, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 
 export default function SubscriptionBanner({ school }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isDismissed, setIsDismissed] = useState(false);
+
+  // Detect if this is a student or teacher portal
+  const isStudentPortal = location.pathname.startsWith('/student');
+  const isTeacherPortal = location.pathname.startsWith('/teacher');
 
   // Check if subscription has expired or trial has ended
   const hasAccess = school?.has_access !== false;
@@ -18,6 +23,43 @@ export default function SubscriptionBanner({ school }) {
   }
 
   const getBannerContent = () => {
+    // Message for students and teachers when school subscription expired
+    if (isStudentPortal || isTeacherPortal) {
+      if (status === 'trial_expired') {
+        return {
+          bgColor: 'bg-orange-600',
+          icon: AlertTriangle,
+          title: 'School Trial Expired',
+          message: 'Your school\'s free trial has expired. Please contact your school administrator to renew the subscription.',
+          ctaText: null, // No button for students/teachers
+          ctaClass: ''
+        };
+      }
+
+      if (status === 'expired') {
+        return {
+          bgColor: 'bg-red-600',
+          icon: AlertTriangle,
+          title: 'School Subscription Expired',
+          message: subscriptionEndDate
+            ? `Your school's subscription expired on ${new Date(subscriptionEndDate).toLocaleDateString()}. Please contact your school administrator.`
+            : 'Your school\'s subscription has expired. Please contact your school administrator.',
+          ctaText: null, // No button for students/teachers
+          ctaClass: ''
+        };
+      }
+
+      return {
+        bgColor: 'bg-orange-600',
+        icon: CreditCard,
+        title: 'Subscription Required',
+        message: 'Your school needs an active subscription. Please contact your school administrator.',
+        ctaText: null,
+        ctaClass: ''
+      };
+    }
+
+    // Message for school admins
     if (status === 'trial_expired') {
       return {
         bgColor: 'bg-orange-600',
@@ -70,13 +112,15 @@ export default function SubscriptionBanner({ school }) {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/dashboard/subscription')}
-              className={`${content.ctaClass} px-4 py-2 rounded-md font-semibold text-sm transition-colors flex items-center gap-2 whitespace-nowrap`}
-            >
-              <CreditCard className="w-4 h-4" />
-              {content.ctaText}
-            </button>
+            {content.ctaText && (
+              <button
+                onClick={() => navigate('/dashboard/subscription')}
+                className={`${content.ctaClass} px-4 py-2 rounded-md font-semibold text-sm transition-colors flex items-center gap-2 whitespace-nowrap`}
+              >
+                <CreditCard className="w-4 h-4" />
+                {content.ctaText}
+              </button>
+            )}
 
             <button
               onClick={() => setIsDismissed(true)}
