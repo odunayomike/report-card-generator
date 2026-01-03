@@ -69,8 +69,8 @@ try {
         exit;
     }
 
-    // Get latest report card for session/term/photo/age
-    $reportQuery = "SELECT id as report_card_id, session, term, student_photo, age
+    // Get latest report card for session/term/photo
+    $reportQuery = "SELECT id as report_card_id, session, term, student_photo
                     FROM report_cards
                     WHERE student_admission_no = ? AND school_id = ?
                     ORDER BY created_at DESC LIMIT 1";
@@ -187,10 +187,10 @@ try {
         );
     }
 
-    // Get affective domain (behavior/attitude) from latest report card
-    $affectiveQuery = "SELECT trait_name, rating FROM affective_domain WHERE report_card_id = ?";
+    // Get affective domain (behavior/attitude) - uses student_id not report_card_id
+    $affectiveQuery = "SELECT trait_name, rating FROM affective_domain WHERE student_id = ?";
     $affectiveStmt = $db->prepare($affectiveQuery);
-    $affectiveStmt->execute([$reportCardId]);
+    $affectiveStmt->execute([$studentId]);
     $affective = $affectiveStmt->fetchAll(PDO::FETCH_ASSOC);
 
     $affectiveData = array_map(function($item) {
@@ -207,10 +207,10 @@ try {
         $avgBehaviorRating = round($totalRating / count($affective), 1);
     }
 
-    // Get psychomotor domain (skills) from latest report card
-    $psychomotorQuery = "SELECT skill_name, rating FROM psychomotor_domain WHERE report_card_id = ?";
+    // Get psychomotor domain (skills) - uses student_id not report_card_id
+    $psychomotorQuery = "SELECT skill_name, rating FROM psychomotor_domain WHERE student_id = ?";
     $psychomotorStmt = $db->prepare($psychomotorQuery);
-    $psychomotorStmt->execute([$reportCardId]);
+    $psychomotorStmt->execute([$studentId]);
     $psychomotor = $psychomotorStmt->fetchAll(PDO::FETCH_ASSOC);
 
     $psychomotorData = array_map(function($item) {
@@ -267,7 +267,6 @@ try {
                 'admission_no' => $student['admission_no'],
                 'gender' => $student['gender'],
                 'photo' => $latestReport['student_photo'] ?? null,
-                'age' => $latestReport['age'] ?? null,
                 'school_name' => $student['school_name'],
                 'school_logo' => $student['school_logo']
             ],

@@ -144,9 +144,7 @@ try {
                 'id' => (int)$student['student_id'],
                 'name' => $student['name'],
                 'class' => $student['class'],
-                'admission_no' => $student['admission_no'],
-                'session' => $student['session'],
-                'term' => $student['term']
+                'admission_no' => $student['admission_no']
             ],
             'fees' => $formattedFees,
             'summary' => [
