@@ -58,10 +58,51 @@ try {
     // Start transaction
     $db->beginTransaction();
 
+    // Check if student exists in master students table
+    $checkStudentQuery = "SELECT id FROM students WHERE admission_no = :admission_no AND school_id = :school_id";
+    $checkStudentStmt = $db->prepare($checkStudentQuery);
+    $checkStudentStmt->execute([
+        ':admission_no' => $data['admissionNo'] ?? '',
+        ':school_id' => $schoolId
+    ]);
+    $existingStudent = $checkStudentStmt->fetch();
+
+    if ($existingStudent) {
+        $student_id = $existingStudent['id'];
+
+        // Update student info with latest data
+        $updateStudentQuery = "UPDATE students
+                              SET name = :name,
+                                  gender = :gender,
+                                  current_class = :class,
+                                  updated_at = CURRENT_TIMESTAMP
+                              WHERE id = :id";
+        $updateStudentStmt = $db->prepare($updateStudentQuery);
+        $updateStudentStmt->execute([
+            ':id' => $student_id,
+            ':name' => $data['name'] ?? '',
+            ':gender' => $data['gender'] ?? '',
+            ':class' => $data['class'] ?? ''
+        ]);
+    } else {
+        // Create new student in master table
+        $insertStudentQuery = "INSERT INTO students (school_id, admission_no, name, gender, current_class)
+                              VALUES (:school_id, :admission_no, :name, :gender, :class)";
+        $insertStudentStmt = $db->prepare($insertStudentQuery);
+        $insertStudentStmt->execute([
+            ':school_id' => $schoolId,
+            ':admission_no' => $data['admissionNo'] ?? '',
+            ':name' => $data['name'] ?? '',
+            ':gender' => $data['gender'] ?? '',
+            ':class' => $data['class'] ?? ''
+        ]);
+        $student_id = $db->lastInsertId();
+    }
+
     // Check if a report already exists for this student, session, and term
-    $checkQuery = "SELECT id FROM students
+    $checkQuery = "SELECT id FROM report_cards
                    WHERE school_id = :school_id
-                   AND admission_no = :admission_no
+                   AND student_admission_no = :admission_no
                    AND session = :session
                    AND term = :term";
 
@@ -76,24 +117,22 @@ try {
     $existingReport = $checkStmt->fetch();
 
     if ($existingReport) {
-        // UPDATE existing report
-        $student_id = $existingReport['id'];
+        $report_card_id = $existingReport['id'];
 
-        $query = "UPDATE students
-                  SET name = :name, class = :class, gender = :gender,
-                      guardian_email = :guardian_email,
+        $query = "UPDATE report_cards
+                  SET student_id = :student_id, student_name = :name, class = :class, student_gender = :gender,
                       height = :height, weight = :weight,
                       club_society = :club_society, fav_col = :fav_col,
-                      photo = :photo, updated_at = CURRENT_TIMESTAMP
+                      student_photo = :photo, updated_at = CURRENT_TIMESTAMP
                   WHERE id = :id";
 
         $stmt = $db->prepare($query);
         $stmt->execute([
-            ':id' => $student_id,
+            ':id' => $report_card_id,
+            ':student_id' => $student_id,
             ':name' => $data['name'] ?? '',
             ':class' => $data['class'] ?? '',
             ':gender' => $data['gender'] ?? '',
-            ':guardian_email' => $data['guardianEmail'] ?? null,
             ':height' => $data['height'] ?? '',
             ':weight' => $data['weight'] ?? '',
             ':club_society' => $data['clubSociety'] ?? '',
@@ -101,28 +140,26 @@ try {
             ':photo' => $data['photo'] ?? null
         ]);
 
-        // Delete existing related data before re-inserting
-        $db->prepare("DELETE FROM attendance WHERE student_id = ?")->execute([$student_id]);
-        $db->prepare("DELETE FROM subjects WHERE student_id = ?")->execute([$student_id]);
+        $db->prepare("DELETE FROM attendance WHERE report_card_id = ?")->execute([$report_card_id]);
+        $db->prepare("DELETE FROM subjects WHERE report_card_id = ?")->execute([$report_card_id]);
         $db->prepare("DELETE FROM affective_domain WHERE student_id = ?")->execute([$student_id]);
         $db->prepare("DELETE FROM psychomotor_domain WHERE student_id = ?")->execute([$student_id]);
-        $db->prepare("DELETE FROM remarks WHERE student_id = ?")->execute([$student_id]);
+        $db->prepare("DELETE FROM remarks WHERE report_card_id = ?")->execute([$report_card_id]);
 
     } else {
-        // INSERT new report
-        $query = "INSERT INTO students (school_id, name, class, session, admission_no, term, gender, guardian_email, height, weight, club_society, fav_col, photo)
-                  VALUES (:school_id, :name, :class, :session, :admission_no, :term, :gender, :guardian_email, :height, :weight, :club_society, :fav_col, :photo)";
+        $query = "INSERT INTO report_cards (school_id, student_id, student_admission_no, student_name, student_gender, class, session, term, height, weight, club_society, fav_col, student_photo)
+                  VALUES (:school_id, :student_id, :admission_no, :name, :gender, :class, :session, :term, :height, :weight, :club_society, :fav_col, :photo)";
 
         $stmt = $db->prepare($query);
         $stmt->execute([
             ':school_id' => $schoolId,
+            ':student_id' => $student_id,
+            ':admission_no' => $data['admissionNo'] ?? '',
             ':name' => $data['name'] ?? '',
+            ':gender' => $data['gender'] ?? '',
             ':class' => $data['class'] ?? '',
             ':session' => $data['session'] ?? '',
-            ':admission_no' => $data['admissionNo'] ?? '',
             ':term' => $data['term'] ?? '',
-            ':gender' => $data['gender'] ?? '',
-            ':guardian_email' => $data['guardianEmail'] ?? null,
             ':height' => $data['height'] ?? '',
             ':weight' => $data['weight'] ?? '',
             ':club_society' => $data['clubSociety'] ?? '',
@@ -130,39 +167,35 @@ try {
             ':photo' => $data['photo'] ?? null
         ]);
 
-        $student_id = $db->lastInsertId();
+        $report_card_id = $db->lastInsertId();
     }
 
-    // Insert attendance data
     if (isset($data['noOfTimesSchoolOpened'])) {
-        $query = "INSERT INTO attendance (student_id, no_of_times_school_opened, no_of_times_present, no_of_times_absent)
-                  VALUES (:student_id, :opened, :present, :absent)";
+        $query = "INSERT INTO attendance (report_card_id, no_of_times_school_opened, no_of_times_present, no_of_times_absent)
+                  VALUES (:report_card_id, :opened, :present, :absent)";
 
         $stmt = $db->prepare($query);
 
-        // Convert empty strings to 0 for integer fields
         $opened = ($data['noOfTimesSchoolOpened'] ?? '') === '' ? 0 : intval($data['noOfTimesSchoolOpened']);
         $present = ($data['noOfTimesPresent'] ?? '') === '' ? 0 : intval($data['noOfTimesPresent']);
         $absent = ($data['noOfTimesAbsent'] ?? '') === '' ? 0 : intval($data['noOfTimesAbsent']);
 
         $stmt->execute([
-            ':student_id' => $student_id,
+            ':report_card_id' => $report_card_id,
             ':opened' => $opened,
             ':present' => $present,
             ':absent' => $absent
         ]);
     }
 
-    // Insert subjects
     if (isset($data['subjects']) && is_array($data['subjects'])) {
-        $query = "INSERT INTO subjects (student_id, subject_name, ca, exam, total, grade, remark)
-                  VALUES (:student_id, :subject_name, :ca, :exam, :total, :grade, :remark)";
+        $query = "INSERT INTO subjects (report_card_id, subject_name, ca, exam, total, grade, remark)
+                  VALUES (:report_card_id, :subject_name, :ca, :exam, :total, :grade, :remark)";
 
         $stmt = $db->prepare($query);
 
         foreach ($data['subjects'] as $subject) {
             if (isset($subject['total']) && $subject['total'] !== '') {
-                // Calculate grade and remark
                 $total = floatval($subject['total']);
                 if ($total >= 70) {
                     $grade = 'A';
@@ -182,7 +215,7 @@ try {
                 }
 
                 $stmt->execute([
-                    ':student_id' => $student_id,
+                    ':report_card_id' => $report_card_id,
                     ':subject_name' => $subject['name'] ?? '',
                     ':ca' => $subject['ca'] ?? 0,
                     ':exam' => $subject['exam'] ?? 0,
@@ -230,21 +263,19 @@ try {
         }
     }
 
-    // Insert remarks
     if (isset($data['teacherName']) || isset($data['principalName'])) {
-        $query = "INSERT INTO remarks (student_id, teacher_name, teacher_remark, principal_name, principal_remark, next_term_begins)
-                  VALUES (:student_id, :teacher_name, :teacher_remark, :principal_name, :principal_remark, :next_term_begins)";
+        $query = "INSERT INTO remarks (report_card_id, teacher_name, teacher_remark, principal_name, principal_remark, next_term_begins)
+                  VALUES (:report_card_id, :teacher_name, :teacher_remark, :principal_name, :principal_remark, :next_term_begins)";
 
         $stmt = $db->prepare($query);
 
-        // Handle next_term_begins date - convert empty string to NULL or use valid date
         $nextTermBegins = $data['nextTermBegins'] ?? '';
         if (empty($nextTermBegins)) {
             $nextTermBegins = null;
         }
 
         $stmt->execute([
-            ':student_id' => $student_id,
+            ':report_card_id' => $report_card_id,
             ':teacher_name' => $data['teacherName'] ?? '',
             ':teacher_remark' => $data['teacherRemark'] ?? '',
             ':principal_name' => $data['principalName'] ?? '',
@@ -285,7 +316,7 @@ try {
                     $schoolId,
                     $studentInfo['student_id'],
                     $studentInfo['student_name'],
-                    $student_id, // report ID
+                    $report_card_id,
                     $data['term'] ?? '',
                     $data['session'] ?? ''
                 );
@@ -300,7 +331,7 @@ try {
     echo json_encode([
         'success' => true,
         'message' => 'Report card saved successfully',
-        'student_id' => $student_id
+        'report_card_id' => $report_card_id
     ]);
 
 } catch (Exception $e) {

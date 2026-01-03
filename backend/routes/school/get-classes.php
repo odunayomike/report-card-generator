@@ -21,22 +21,22 @@ $database = new Database();
 $db = $database->getConnection();
 
 try {
-    // Get unique class/session/term combinations from students
+    // Get unique class/session/term combinations from report_cards
     $query = "SELECT DISTINCT
-                s.class as class_name,
-                s.session,
-                s.term,
-                COUNT(s.id) as student_count
-              FROM students s
-              WHERE s.school_id = ?
-                AND s.class IS NOT NULL
-                AND s.class != ''
-                AND s.session IS NOT NULL
-                AND s.session != ''
-                AND s.term IS NOT NULL
-                AND s.term != ''
-              GROUP BY s.class, s.session, s.term
-              ORDER BY s.session DESC, s.term ASC, s.class ASC";
+                rc.class as class_name,
+                rc.session,
+                rc.term,
+                COUNT(DISTINCT rc.student_admission_no) as student_count
+              FROM report_cards rc
+              WHERE rc.school_id = ?
+                AND rc.class IS NOT NULL
+                AND rc.class != ''
+                AND rc.session IS NOT NULL
+                AND rc.session != ''
+                AND rc.term IS NOT NULL
+                AND rc.term != ''
+              GROUP BY rc.class, rc.session, rc.term
+              ORDER BY rc.session DESC, rc.term ASC, rc.class ASC";
 
     $stmt = $db->prepare($query);
     $stmt->execute([$_SESSION['school_id']]);

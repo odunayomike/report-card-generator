@@ -24,12 +24,11 @@ if (!$school_id) {
 }
 
 try {
-    // Get the most recent student record with this admission number
-    $query = "SELECT id, name, class, gender, admission_no, height, weight, club_society, fav_col, photo
+    // Get student from master table
+    $query = "SELECT id, name, current_class, gender, admission_no
               FROM students
               WHERE school_id = :school_id
               AND admission_no = :admission_no
-              ORDER BY created_at DESC
               LIMIT 1";
 
     $stmt = $db->prepare($query);
@@ -41,25 +40,41 @@ try {
     $student = $stmt->fetch();
 
     if ($student) {
+        // Get most recent report card for this student
+        $reportQuery = "SELECT id, student_photo as photo, height, weight, club_society, fav_col
+                        FROM report_cards
+                        WHERE school_id = :school_id
+                        AND student_admission_no = :admission_no
+                        ORDER BY created_at DESC
+                        LIMIT 1";
+
+        $reportStmt = $db->prepare($reportQuery);
+        $reportStmt->execute([
+            ':school_id' => $school_id,
+            ':admission_no' => $admission_no
+        ]);
+        $latestReport = $reportStmt->fetch();
+
         // Get subjects from the most recent report
-        $subjectsQuery = "SELECT subject_name, ca, exam, total
-                          FROM subjects
-                          WHERE student_id = :student_id
-                          ORDER BY id";
-
-        $subjectsStmt = $db->prepare($subjectsQuery);
-        $subjectsStmt->execute([':student_id' => $student['id']]);
-        $subjects = $subjectsStmt->fetchAll();
-
-        // Format subjects for frontend
         $formattedSubjects = [];
-        foreach ($subjects as $subject) {
-            $formattedSubjects[] = [
-                'name' => $subject['subject_name'],
-                'ca' => $subject['ca'],
-                'exam' => $subject['exam'],
-                'total' => $subject['total']
-            ];
+        if ($latestReport) {
+            $subjectsQuery = "SELECT subject_name, ca, exam, total
+                              FROM subjects
+                              WHERE report_card_id = :report_card_id
+                              ORDER BY id";
+
+            $subjectsStmt = $db->prepare($subjectsQuery);
+            $subjectsStmt->execute([':report_card_id' => $latestReport['id']]);
+            $subjects = $subjectsStmt->fetchAll();
+
+            foreach ($subjects as $subject) {
+                $formattedSubjects[] = [
+                    'name' => $subject['subject_name'],
+                    'ca' => $subject['ca'],
+                    'exam' => $subject['exam'],
+                    'total' => $subject['total']
+                ];
+            }
         }
 
         http_response_code(200);
@@ -68,14 +83,14 @@ try {
             'exists' => true,
             'student' => [
                 'name' => $student['name'],
-                'class' => $student['class'],
+                'class' => $student['current_class'],
                 'gender' => $student['gender'],
                 'admissionNo' => $student['admission_no'],
-                'height' => $student['height'],
-                'weight' => $student['weight'],
-                'clubSociety' => $student['club_society'],
-                'favCol' => $student['fav_col'],
-                'photo' => $student['photo'],
+                'height' => $latestReport['height'] ?? null,
+                'weight' => $latestReport['weight'] ?? null,
+                'clubSociety' => $latestReport['club_society'] ?? null,
+                'favCol' => $latestReport['fav_col'] ?? null,
+                'photo' => $latestReport['photo'] ?? null,
                 'subjects' => $formattedSubjects
             ]
         ]);

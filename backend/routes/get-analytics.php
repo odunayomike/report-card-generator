@@ -24,7 +24,7 @@ try {
     $totalStudents = $result ? $result['total'] : 0;
 
     // Get total reports count
-    $totalReportsQuery = "SELECT COUNT(*) as total FROM students WHERE school_id = ?";
+    $totalReportsQuery = "SELECT COUNT(*) as total FROM report_cards WHERE school_id = ?";
     $stmt = $db->prepare($totalReportsQuery);
     $stmt->execute([$school_id]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -38,7 +38,7 @@ try {
     $totalTeachers = $result ? $result['total'] : 0;
 
     // Get total classes count
-    $totalClassesQuery = "SELECT COUNT(DISTINCT class) as total FROM students WHERE school_id = ?";
+    $totalClassesQuery = "SELECT COUNT(DISTINCT current_class) as total FROM students WHERE school_id = ? AND current_class IS NOT NULL";
     $stmt = $db->prepare($totalClassesQuery);
     $stmt->execute([$school_id]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -69,21 +69,21 @@ try {
     // Get top students per class (based on average scores)
     $topStudentsQuery = "
         SELECT
-            s.id,
-            s.name,
-            s.class,
-            s.admission_no,
-            s.session,
-            s.term,
-            s.photo,
+            rc.id,
+            rc.student_name as name,
+            rc.class,
+            rc.student_admission_no as admission_no,
+            rc.session,
+            rc.term,
+            rc.student_photo as photo,
             AVG(sub.total) as average_score,
             COUNT(sub.id) as subject_count
-        FROM students s
-        LEFT JOIN subjects sub ON s.id = sub.student_id
-        WHERE s.school_id = :school_id
-        GROUP BY s.id, s.class
+        FROM report_cards rc
+        LEFT JOIN subjects sub ON rc.id = sub.report_card_id
+        WHERE rc.school_id = :school_id
+        GROUP BY rc.id, rc.class
         HAVING subject_count > 0
-        ORDER BY s.class, average_score DESC
+        ORDER BY rc.class, average_score DESC
     ";
 
     $stmt = $db->prepare($topStudentsQuery);
@@ -140,14 +140,14 @@ try {
     // Get class performance averages
     $classPerformanceQuery = "
         SELECT
-            s.class,
+            rc.class,
             AVG(sub.total) as average_score,
-            COUNT(DISTINCT s.id) as student_count,
+            COUNT(DISTINCT rc.student_admission_no) as student_count,
             COUNT(sub.id) as total_submissions
-        FROM students s
-        LEFT JOIN subjects sub ON s.id = sub.student_id
-        WHERE s.school_id = :school_id
-        GROUP BY s.class
+        FROM report_cards rc
+        LEFT JOIN subjects sub ON rc.id = sub.report_card_id
+        WHERE rc.school_id = :school_id
+        GROUP BY rc.class
         ORDER BY average_score DESC
     ";
 
@@ -175,9 +175,9 @@ try {
                 ELSE 'F'
             END as grade,
             COUNT(*) as count
-        FROM students s
-        JOIN subjects sub ON s.id = sub.student_id
-        WHERE s.school_id = :school_id
+        FROM report_cards rc
+        JOIN subjects sub ON rc.id = sub.report_card_id
+        WHERE rc.school_id = :school_id
         GROUP BY grade
         ORDER BY grade
     ";
@@ -189,15 +189,15 @@ try {
     // Get recent activity (last 10 report cards created)
     $recentActivityQuery = "
         SELECT
-            s.id,
-            s.name,
-            s.class,
-            s.session,
-            s.term,
-            s.created_at
-        FROM students s
-        WHERE s.school_id = :school_id
-        ORDER BY s.created_at DESC
+            rc.id,
+            rc.student_name as name,
+            rc.class,
+            rc.session,
+            rc.term,
+            rc.created_at
+        FROM report_cards rc
+        WHERE rc.school_id = :school_id
+        ORDER BY rc.created_at DESC
         LIMIT 10
     ";
 

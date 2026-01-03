@@ -29,19 +29,14 @@ try {
     $database = new Database();
     $db = $database->getConnection();
 
-    // Search by name or admission number
+    // Search by name or admission number in master students table
     $searchQuery = "SELECT
                         s.id,
                         s.name,
                         s.admission_no,
-                        s.class,
+                        s.current_class,
                         s.gender,
-                        s.height,
-                        s.weight,
-                        s.club_society,
-                        s.fav_col,
-                        s.photo,
-                        s.parent_email,
+                        s.guardian_email,
                         p.name as parent_name,
                         p.phone as parent_phone,
                         ps.relationship as parent_relationship
@@ -65,14 +60,9 @@ try {
                 'id' => (int)$student['id'],
                 'name' => $student['name'],
                 'admission_no' => $student['admission_no'],
-                'class' => $student['class'],
+                'current_class' => $student['current_class'],
                 'gender' => $student['gender'],
-                'height' => $student['height'],
-                'weight' => $student['weight'],
-                'club_society' => $student['club_society'],
-                'fav_col' => $student['fav_col'],
-                'photo' => $student['photo'],
-                'parent_email' => $student['parent_email'],
+                'guardian_email' => $student['guardian_email'],
                 'parent_name' => $student['parent_name'],
                 'parent_phone' => $student['parent_phone'],
                 'parent_relationship' => $student['parent_relationship'] ?? 'guardian'

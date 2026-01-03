@@ -21,25 +21,25 @@ $db = $database->getConnection();
 
 try {
     if ($userType === 'teacher') {
-        // Teachers only see students in their assigned classes (term-independent)
-        // Get unique students by admission number with their most recent report
-        $query = "SELECT s.admission_no, s.name, s.gender,
-                  MAX(s.created_at) as latest_report_date,
-                  COUNT(DISTINCT CASE
-                      WHEN EXISTS (SELECT 1 FROM subjects sub WHERE sub.student_id = s.id)
-                           OR EXISTS (SELECT 1 FROM attendance att WHERE att.student_id = s.id)
-                           OR EXISTS (SELECT 1 FROM remarks rem WHERE rem.student_id = s.id)
-                      THEN s.id
-                      END) as total_reports,
-                  GROUP_CONCAT(DISTINCT s.class ORDER BY s.created_at DESC SEPARATOR ', ') as classes,
-                  (SELECT s2.class FROM students s2 WHERE s2.admission_no = s.admission_no AND s2.school_id = :school_id ORDER BY s2.created_at DESC LIMIT 1) as current_class
+        // Teachers only see students in their assigned classes
+        // Get students from master table and count their reports
+        $query = "SELECT DISTINCT
+                  s.admission_no,
+                  s.name,
+                  s.gender,
+                  s.current_class,
+                  s.updated_at as latest_update_date,
+                  (SELECT COUNT(*) FROM report_cards rc WHERE rc.student_admission_no = s.admission_no AND rc.school_id = s.school_id) as total_reports,
+                  (SELECT GROUP_CONCAT(DISTINCT rc2.class ORDER BY rc2.created_at DESC SEPARATOR ', ')
+                   FROM report_cards rc2 WHERE rc2.student_admission_no = s.admission_no AND rc2.school_id = s.school_id) as classes
                   FROM students s
-                  INNER JOIN teacher_classes tc ON TRIM(LOWER(s.class)) = TRIM(LOWER(tc.class_name))
-                      AND TRIM(LOWER(s.session)) = TRIM(LOWER(tc.session))
+                  INNER JOIN report_cards rc ON s.admission_no = rc.student_admission_no AND s.school_id = rc.school_id
+                  INNER JOIN teacher_classes tc ON TRIM(LOWER(rc.class)) = TRIM(LOWER(tc.class_name))
+                      AND TRIM(LOWER(rc.session)) = TRIM(LOWER(tc.session))
                   WHERE s.school_id = :school_id
                       AND tc.teacher_id = :teacher_id
-                  GROUP BY s.admission_no, s.name, s.gender
-                  ORDER BY latest_report_date DESC";
+                  GROUP BY s.id
+                  ORDER BY s.updated_at DESC";
 
         $stmt = $db->prepare($query);
         $stmt->execute([
@@ -48,22 +48,20 @@ try {
         ]);
         $students = $stmt->fetchAll();
     } else {
-        // Schools see all unique students
-        // Get unique students by admission number with their most recent report info
-        $query = "SELECT s.admission_no, s.name, s.gender,
-                  MAX(s.created_at) as latest_report_date,
-                  COUNT(DISTINCT CASE
-                      WHEN EXISTS (SELECT 1 FROM subjects sub WHERE sub.student_id = s.id)
-                           OR EXISTS (SELECT 1 FROM attendance att WHERE att.student_id = s.id)
-                           OR EXISTS (SELECT 1 FROM remarks rem WHERE rem.student_id = s.id)
-                      THEN s.id
-                      END) as total_reports,
-                  GROUP_CONCAT(DISTINCT s.class ORDER BY s.created_at DESC SEPARATOR ', ') as classes,
-                  (SELECT s2.class FROM students s2 WHERE s2.admission_no = s.admission_no AND s2.school_id = :school_id ORDER BY s2.created_at DESC LIMIT 1) as current_class
+        // Schools see all students
+        // Get all students from master table with report count
+        $query = "SELECT
+                  s.admission_no,
+                  s.name,
+                  s.gender,
+                  s.current_class,
+                  s.updated_at as latest_update_date,
+                  (SELECT COUNT(*) FROM report_cards rc WHERE rc.student_admission_no = s.admission_no AND rc.school_id = s.school_id) as total_reports,
+                  (SELECT GROUP_CONCAT(DISTINCT rc2.class ORDER BY rc2.created_at DESC SEPARATOR ', ')
+                   FROM report_cards rc2 WHERE rc2.student_admission_no = s.admission_no AND rc2.school_id = s.school_id) as classes
                   FROM students s
                   WHERE s.school_id = :school_id
-                  GROUP BY s.admission_no, s.name, s.gender
-                  ORDER BY latest_report_date DESC";
+                  ORDER BY s.updated_at DESC";
 
         $stmt = $db->prepare($query);
         $stmt->execute([':school_id' => $school_id]);

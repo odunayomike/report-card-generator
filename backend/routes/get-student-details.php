@@ -35,12 +35,10 @@ try {
     $db = $database->getConnection();
     $schoolId = $_SESSION['school_id'];
 
-    // Get basic student info from most recent record
-    $studentQuery = "SELECT id, name, class, session, term, gender, admission_no,
-                     height, weight, club_society, fav_col, photo, created_at
+    // Get basic student info from master students table
+    $studentQuery = "SELECT id, name, gender, admission_no, current_class, guardian_email, created_at
                      FROM students
                      WHERE school_id = ? AND admission_no = ?
-                     ORDER BY created_at DESC
                      LIMIT 1";
     $studentStmt = $db->prepare($studentQuery);
     $studentStmt->execute([$schoolId, $admission_no]);
@@ -55,14 +53,18 @@ try {
     $studentId = $student['id'];
 
     // Get all report cards for this student
-    $reportsQuery = "SELECT id, name, class, session, term, gender, admission_no,
-                     height, weight, club_society, fav_col, photo, created_at
-                     FROM students
-                     WHERE school_id = ? AND admission_no = ?
+    $reportsQuery = "SELECT id, student_name as name, class, session, term, student_gender as gender,
+                     student_admission_no as admission_no, height, weight, club_society, fav_col,
+                     student_photo as photo, created_at
+                     FROM report_cards
+                     WHERE school_id = ? AND student_admission_no = ?
                      ORDER BY created_at DESC";
     $reportsStmt = $db->prepare($reportsQuery);
     $reportsStmt->execute([$schoolId, $admission_no]);
     $reports = $reportsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Get most recent report for current info
+    $latestReport = $reports[0] ?? null;
 
     // Get fee information (exclude archived fee structures)
     $feesQuery = "SELECT sf.id, sf.amount_due, sf.amount_paid,
@@ -113,10 +115,8 @@ try {
     $payments = $paymentsStmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Get attendance records
-    $attendanceQuery = "SELECT da.date, da.status, da.created_at,
-                        s.class, s.session, s.term
+    $attendanceQuery = "SELECT da.date, da.status, da.created_at
                         FROM daily_attendance da
-                        LEFT JOIN students s ON da.student_id = s.id
                         WHERE da.student_id = ?
                         ORDER BY da.date DESC
                         LIMIT 100";
@@ -225,14 +225,14 @@ try {
                 'name' => $student['name'],
                 'admission_no' => $student['admission_no'],
                 'gender' => $student['gender'],
-                'current_class' => $student['class'],
-                'current_session' => $student['session'],
-                'current_term' => $student['term'],
-                'height' => $student['height'],
-                'weight' => $student['weight'],
-                'club_society' => $student['club_society'],
-                'fav_col' => $student['fav_col'],
-                'photo' => $student['photo']
+                'current_class' => $student['current_class'],
+                'current_session' => $latestReport['session'] ?? null,
+                'current_term' => $latestReport['term'] ?? null,
+                'height' => $latestReport['height'] ?? null,
+                'weight' => $latestReport['weight'] ?? null,
+                'club_society' => $latestReport['club_society'] ?? null,
+                'fav_col' => $latestReport['fav_col'] ?? null,
+                'photo' => $latestReport['photo'] ?? null
             ],
             'reports' => $reports,
             'fees' => [

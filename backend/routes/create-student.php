@@ -33,7 +33,7 @@ if (!$data) {
 }
 
 // Validate required fields
-$requiredFields = ['name', 'admission_no', 'class', 'session', 'term', 'gender'];
+$requiredFields = ['name', 'admission_no', 'gender'];
 foreach ($requiredFields as $field) {
     if (empty($data[$field])) {
         http_response_code(400);
@@ -42,14 +42,13 @@ foreach ($requiredFields as $field) {
     }
 }
 
-// If teacher, verify they are assigned to this class (term-independent)
-if ($userType === 'teacher') {
+// If teacher, verify they are assigned to this class (if class is provided)
+if ($userType === 'teacher' && !empty($data['class'])) {
     $verifyQuery = "SELECT id FROM teacher_classes
                     WHERE teacher_id = ?
-                    AND TRIM(LOWER(class_name)) = LOWER(?)
-                    AND TRIM(LOWER(session)) = LOWER(?)";
+                    AND TRIM(LOWER(class_name)) = LOWER(?)";
     $verifyStmt = $db->prepare($verifyQuery);
-    $verifyStmt->execute([$_SESSION['teacher_id'], trim($data['class']), trim($data['session'])]);
+    $verifyStmt->execute([$_SESSION['teacher_id'], trim($data['class'])]);
 
     if (!$verifyStmt->fetch()) {
         http_response_code(403);
@@ -74,26 +73,19 @@ try {
         exit;
     }
 
-    // Insert new student
+    // Insert new student into master table
     $query = "INSERT INTO students
-              (school_id, name, admission_no, class, session, term, gender, guardian_email, height, weight, club_society, fav_col, photo)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+              (school_id, name, admission_no, gender, current_class, guardian_email)
+              VALUES (?, ?, ?, ?, ?, ?)";
 
     $stmt = $db->prepare($query);
     $success = $stmt->execute([
         $schoolId,
         $data['name'],
         $data['admission_no'],
-        $data['class'],
-        $data['session'],
-        $data['term'],
         $data['gender'],
-        $data['guardian_email'] ?? null,
-        $data['height'] ?? null,
-        $data['weight'] ?? null,
-        $data['club_society'] ?? null,
-        $data['fav_col'] ?? null,
-        $data['photo'] ?? null
+        $data['class'] ?? null,
+        $data['guardian_email'] ?? null
     ]);
 
     if ($success) {
@@ -107,9 +99,7 @@ try {
                 'id' => $student_id,
                 'name' => $data['name'],
                 'admission_no' => $data['admission_no'],
-                'class' => $data['class'],
-                'session' => $data['session'],
-                'term' => $data['term'],
+                'current_class' => $data['class'] ?? null,
                 'gender' => $data['gender']
             ]
         ]);

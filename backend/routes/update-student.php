@@ -57,15 +57,18 @@ try {
     $updateFields = [];
     $updateValues = [];
 
-    $allowedFields = [
-        'name', 'class', 'gender', 'height', 'weight',
-        'club_society', 'fav_col', 'photo'
+    // Map frontend field names to database column names
+    $fieldMap = [
+        'name' => 'name',
+        'class' => 'current_class',
+        'gender' => 'gender',
+        'guardian_email' => 'guardian_email'
     ];
 
-    foreach ($allowedFields as $field) {
-        if (isset($data[$field])) {
-            $updateFields[] = "$field = ?";
-            $updateValues[] = $data[$field];
+    foreach ($fieldMap as $frontendField => $dbField) {
+        if (isset($data[$frontendField])) {
+            $updateFields[] = "$dbField = ?";
+            $updateValues[] = $data[$frontendField];
         }
     }
 
@@ -74,6 +77,9 @@ try {
         echo json_encode(['success' => false, 'message' => 'No fields to update']);
         exit;
     }
+
+    // Add updated_at timestamp
+    $updateFields[] = "updated_at = CURRENT_TIMESTAMP";
 
     // Add student ID at the end for WHERE clause
     $updateValues[] = $studentId;
@@ -84,7 +90,7 @@ try {
 
     if ($success) {
         // Fetch updated student data
-        $fetchQuery = "SELECT id, name, admission_no, class, gender, height, weight, club_society, fav_col, photo
+        $fetchQuery = "SELECT id, name, admission_no, current_class, gender, guardian_email
                        FROM students WHERE id = ?";
         $fetchStmt = $db->prepare($fetchQuery);
         $fetchStmt->execute([$studentId]);
@@ -97,13 +103,9 @@ try {
                 'id' => (int)$updatedStudent['id'],
                 'name' => $updatedStudent['name'],
                 'admission_no' => $updatedStudent['admission_no'],
-                'class' => $updatedStudent['class'],
+                'current_class' => $updatedStudent['current_class'],
                 'gender' => $updatedStudent['gender'],
-                'height' => $updatedStudent['height'],
-                'weight' => $updatedStudent['weight'],
-                'club_society' => $updatedStudent['club_society'],
-                'fav_col' => $updatedStudent['fav_col'],
-                'photo' => $updatedStudent['photo']
+                'guardian_email' => $updatedStudent['guardian_email']
             ]
         ]);
     } else {

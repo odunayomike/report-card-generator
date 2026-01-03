@@ -24,21 +24,30 @@ if (!$school_id) {
 }
 
 try {
-    // Get all reports for this student
-    $query = "SELECT id, name, class, session, term, gender, admission_no,
-              height, weight, club_society, fav_col, photo, created_at
-              FROM students
-              WHERE school_id = :school_id
-              AND admission_no = :admission_no
-              ORDER BY created_at DESC";
+    $newReportsQuery = "SELECT id, student_name as name, class, session, term, student_gender as gender, student_admission_no as admission_no,
+                        height, weight, club_society, fav_col, student_photo as photo, created_at
+                        FROM report_cards
+                        WHERE school_id = :school_id
+                        AND student_admission_no = :admission_no
+                        ORDER BY created_at DESC";
+    $stmt = $db->prepare($newReportsQuery);
+    $stmt->execute([':school_id' => $school_id, ':admission_no' => $admission_no]);
+    $newReports = $stmt->fetchAll();
 
-    $stmt = $db->prepare($query);
-    $stmt->execute([
-        ':school_id' => $school_id,
-        ':admission_no' => $admission_no
-    ]);
+    $oldReportsQuery = "SELECT id, name, class, session, term, gender, admission_no,
+                        height, weight, club_society, fav_col, photo, created_at
+                        FROM students
+                        WHERE school_id = :school_id
+                        AND admission_no = :admission_no
+                        ORDER BY created_at DESC";
+    $stmt = $db->prepare($oldReportsQuery);
+    $stmt->execute([':school_id' => $school_id, ':admission_no' => $admission_no]);
+    $oldReports = $stmt->fetchAll();
 
-    $reports = $stmt->fetchAll();
+    $reports = array_merge($newReports, $oldReports);
+    usort($reports, function($a, $b) {
+        return strtotime($b['created_at']) - strtotime($a['created_at']);
+    });
 
     if ($reports && count($reports) > 0) {
         // Get the most recent student info
