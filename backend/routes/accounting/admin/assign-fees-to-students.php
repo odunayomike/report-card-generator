@@ -57,7 +57,7 @@ try {
         $params[] = $feeStructure['student_id'];
     } elseif ($feeStructure['class']) {
         // Specific class - handle both exact match and trimmed match
-        $studentsQuery .= " AND (class = ? OR TRIM(class) = ?)";
+        $studentsQuery .= " AND (current_class = ? OR TRIM(current_class) = ?)";
         $params[] = $feeStructure['class'];
         $params[] = $feeStructure['class'];
     }

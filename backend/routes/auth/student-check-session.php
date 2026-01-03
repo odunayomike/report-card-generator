@@ -12,7 +12,7 @@ require_once __DIR__ . '/../../middleware/subscription-check.php';
 
 if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'student' && isset($_SESSION['student_id'])) {
     // Fetch student data and school subscription status
-    $query = "SELECT s.id, s.admission_number, s.name, s.class, s.school_id,
+    $query = "SELECT s.id, s.admission_no, s.name, s.current_class, s.school_id,
                      sc.school_name, sc.subscription_status, sc.subscription_end_date, sc.trial_end_date
               FROM students s
               INNER JOIN schools sc ON s.school_id = sc.id
@@ -32,9 +32,9 @@ if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 'student' && iss
             'user_type' => 'student',
             'student' => [
                 'id' => $student['id'],
-                'admission_number' => $student['admission_number'],
+                'admission_no' => $student['admission_no'],
                 'name' => $student['name'],
-                'class' => $student['class'],
+                'class' => $student['current_class'],
                 'school_id' => $student['school_id'],
                 'school_name' => $student['school_name']
             ],

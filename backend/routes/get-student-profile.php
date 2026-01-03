@@ -24,30 +24,16 @@ if (!$school_id) {
 }
 
 try {
-    $newReportsQuery = "SELECT id, student_name as name, class, session, term, student_gender as gender, student_admission_no as admission_no,
+    // Get all report cards for this student
+    $reportsQuery = "SELECT id, student_name as name, class, session, term, student_gender as gender, student_admission_no as admission_no,
                         height, weight, club_society, fav_col, student_photo as photo, created_at
                         FROM report_cards
                         WHERE school_id = :school_id
                         AND student_admission_no = :admission_no
                         ORDER BY created_at DESC";
-    $stmt = $db->prepare($newReportsQuery);
+    $stmt = $db->prepare($reportsQuery);
     $stmt->execute([':school_id' => $school_id, ':admission_no' => $admission_no]);
-    $newReports = $stmt->fetchAll();
-
-    $oldReportsQuery = "SELECT id, name, class, session, term, gender, admission_no,
-                        height, weight, club_society, fav_col, photo, created_at
-                        FROM students
-                        WHERE school_id = :school_id
-                        AND admission_no = :admission_no
-                        ORDER BY created_at DESC";
-    $stmt = $db->prepare($oldReportsQuery);
-    $stmt->execute([':school_id' => $school_id, ':admission_no' => $admission_no]);
-    $oldReports = $stmt->fetchAll();
-
-    $reports = array_merge($newReports, $oldReports);
-    usort($reports, function($a, $b) {
-        return strtotime($b['created_at']) - strtotime($a['created_at']);
-    });
+    $reports = $stmt->fetchAll();
 
     if ($reports && count($reports) > 0) {
         // Get the most recent student info

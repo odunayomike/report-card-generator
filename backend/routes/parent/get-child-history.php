@@ -42,14 +42,16 @@ try {
     $db = $database->getConnection();
 
     // Get all report cards for this student
-    $query = "SELECT s.id, s.name, s.class, s.session, s.term, s.admission_no,
-                     s.created_at, sc.school_name, sc.grading_scale
-              FROM students s
-              INNER JOIN schools sc ON s.school_id = sc.id
+    $query = "SELECT rc.id, rc.student_name as name, rc.class, rc.session, rc.term,
+                     rc.student_admission_no as admission_no, rc.created_at,
+                     sc.school_name, sc.grading_scale
+              FROM report_cards rc
+              INNER JOIN schools sc ON rc.school_id = sc.id
+              INNER JOIN students s ON rc.student_admission_no = s.admission_no AND rc.school_id = s.school_id
               INNER JOIN parent_students ps ON s.id = ps.student_id
-              WHERE ps.parent_id = ? AND s.admission_no = ?
-              ORDER BY s.session DESC,
-                       FIELD(s.term, 'First Term', 'Second Term', 'Third Term') DESC";
+              WHERE ps.parent_id = ? AND rc.student_admission_no = ?
+              ORDER BY rc.session DESC,
+                       FIELD(rc.term, 'First Term', 'Second Term', 'Third Term') DESC";
 
     $stmt = $db->prepare($query);
     $stmt->execute([$_SESSION['parent_id'], $admissionNo]);
@@ -90,10 +92,10 @@ try {
     $history = [];
 
     foreach ($reportCards as $card) {
-        // Get subjects for this term
+        // Get subjects for this term (using report_card_id)
         $subjectsQuery = "SELECT subject_name, ca, exam, total
                           FROM subjects
-                          WHERE student_id = ?";
+                          WHERE report_card_id = ?";
         $subjectsStmt = $db->prepare($subjectsQuery);
         $subjectsStmt->execute([$card['id']]);
         $subjects = $subjectsStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -114,8 +116,8 @@ try {
             $grade = $gradeInfo['grade'];
         }
 
-        // Get attendance for this term
-        $attendanceQuery = "SELECT * FROM attendance WHERE student_id = ?";
+        // Get attendance for this term (using report_card_id)
+        $attendanceQuery = "SELECT * FROM attendance WHERE report_card_id = ?";
         $attendanceStmt = $db->prepare($attendanceQuery);
         $attendanceStmt->execute([$card['id']]);
         $attendance = $attendanceStmt->fetch(PDO::FETCH_ASSOC);

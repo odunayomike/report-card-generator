@@ -19,27 +19,18 @@ $database = new Database();
 $db = $database->getConnection();
 
 try {
-    // Get unique students by admission_no with their latest record's ID
+    // Get all students (one record per student in new structure)
     $query = "SELECT
-                s1.id,
-                s1.admission_no,
-                s1.name,
-                s1.class,
-                s1.session,
-                s1.term,
-                s1.gender,
-                s1.guardian_email,
-                s1.parent_email,
-                s1.created_at
-              FROM students s1
-              INNER JOIN (
-                SELECT admission_no, MAX(created_at) as max_date
-                FROM students
-                WHERE school_id = :school_id
-                GROUP BY admission_no
-              ) s2 ON s1.admission_no = s2.admission_no AND s1.created_at = s2.max_date
-              WHERE s1.school_id = :school_id
-              ORDER BY s1.name ASC";
+                id,
+                admission_no,
+                name,
+                current_class as class,
+                gender,
+                guardian_email,
+                created_at
+              FROM students
+              WHERE school_id = :school_id
+              ORDER BY name ASC";
 
     $stmt = $db->prepare($query);
     $stmt->execute([':school_id' => $school_id]);

@@ -47,7 +47,7 @@ try {
                 s.id,
                 s.admission_no,
                 s.name,
-                s.class,
+                s.current_class as class,
                 s.gender,
                 s.guardian_email,
                 ps.relationship,

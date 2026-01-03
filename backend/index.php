@@ -257,6 +257,22 @@ try {
             require __DIR__ . '/routes/school/get-classes.php';
             break;
 
+        case '/school/get-promotion-settings':
+            require __DIR__ . '/routes/school/get-promotion-settings.php';
+            break;
+
+        case '/school/update-promotion-settings':
+            require __DIR__ . '/routes/school/update-promotion-settings.php';
+            break;
+
+        case '/school/get-promotion-history':
+            require __DIR__ . '/routes/school/get-promotion-history.php';
+            break;
+
+        case '/school/bulk-promote-students':
+            require __DIR__ . '/routes/school/bulk-promote-students.php';
+            break;
+
         // PDF generation route
         case '/generate-pdf':
             require __DIR__ . '/routes/generate-pdf.php';

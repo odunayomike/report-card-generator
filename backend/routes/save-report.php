@@ -287,6 +287,25 @@ try {
     // Commit transaction
     $db->commit();
 
+    // Check for automatic promotion (Third Term reports only)
+    $promotionResult = null;
+    try {
+        require_once __DIR__ . '/../utils/PromotionHelper.php';
+        $promotionHelper = new PromotionHelper($db);
+
+        $promotionResult = $promotionHelper->checkAndPromoteStudent(
+            $report_card_id,
+            $schoolId,
+            $student_id,
+            $data['admissionNo'] ?? '',
+            $data['class'] ?? '',
+            $data['session'] ?? '',
+            $data['term'] ?? ''
+        );
+    } catch (Exception $e) {
+        error_log('Promotion check failed: ' . $e->getMessage());
+    }
+
     // Send notification to parent(s) about new report card
     try {
         require_once __DIR__ . '/../utils/NotificationHelper.php';
@@ -328,11 +347,27 @@ try {
     }
 
     http_response_code(201);
-    echo json_encode([
+    $response = [
         'success' => true,
         'message' => 'Report card saved successfully',
         'report_card_id' => $report_card_id
-    ]);
+    ];
+
+    // Include promotion information if available
+    if ($promotionResult) {
+        $response['promotion'] = $promotionResult;
+
+        // Update success message if promoted
+        if ($promotionResult['promoted']) {
+            $response['message'] = 'Report card saved and student promoted to ' . $promotionResult['to_class'];
+        } elseif ($promotionResult['retained']) {
+            $response['message'] = 'Report card saved. Student retained in ' . $promotionResult['from_class'];
+        } elseif ($promotionResult['completed']) {
+            $response['message'] = 'Report card saved. Student has completed ' . $promotionResult['from_class'];
+        }
+    }
+
+    echo json_encode($response);
 
 } catch (Exception $e) {
     // Rollback transaction on error

@@ -42,6 +42,21 @@ try {
     $feeData = $feeStmt->fetch(PDO::FETCH_ASSOC);
 
     // 2. Outstanding Fees (exclude archived fee structures)
+    // Determine current academic session intelligently
+    if (isset($_GET['session'])) {
+        $currentSession = $_GET['session'];
+    } else {
+        // Get the most recent session from student_fees table
+        $sessionQuery = "SELECT session FROM student_fees
+                         INNER JOIN students s ON student_fees.student_id = s.id
+                         WHERE s.school_id = ?
+                         ORDER BY created_at DESC LIMIT 1";
+        $sessionStmt = $db->prepare($sessionQuery);
+        $sessionStmt->execute([$schoolId]);
+        $sessionResult = $sessionStmt->fetch(PDO::FETCH_ASSOC);
+        $currentSession = $sessionResult ? $sessionResult['session'] : (date('Y') . '/' . (date('Y') + 1));
+    }
+
     $outstandingQuery = "SELECT
                             COUNT(DISTINCT sf.student_id) as students_with_balance,
                             SUM(sf.amount_due - sf.amount_paid) as total_outstanding
@@ -53,7 +68,6 @@ try {
                          AND sf.session = ?
                          AND fs.is_active = TRUE";
 
-    $currentSession = isset($_GET['session']) ? $_GET['session'] : date('Y') . '/' . (date('Y') + 1);
     $outstandingStmt = $db->prepare($outstandingQuery);
     $outstandingStmt->execute([$schoolId, $currentSession]);
     $outstandingData = $outstandingStmt->fetch(PDO::FETCH_ASSOC);

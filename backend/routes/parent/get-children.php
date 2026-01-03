@@ -34,14 +34,9 @@ try {
     $query = "SELECT
                 s.id,
                 s.name,
-                s.class,
-                s.session,
-                s.term,
+                s.current_class as class,
                 s.admission_no,
                 s.gender,
-                s.photo,
-                s.height,
-                s.weight,
                 sc.id as school_id,
                 sc.school_name,
                 sc.address as school_address,
@@ -60,19 +55,28 @@ try {
     $stmt->execute([$_SESSION['parent_id']]);
     $children = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Format response
-    $formattedChildren = array_map(function($child) {
+    // Enrich with latest report data and format response
+    $formattedChildren = array_map(function($child) use ($db) {
+        // Get latest report data for session/term/photo
+        $reportQuery = "SELECT session, term, student_photo, height, weight
+                        FROM report_cards
+                        WHERE student_admission_no = ? AND school_id = ?
+                        ORDER BY created_at DESC LIMIT 1";
+        $reportStmt = $db->prepare($reportQuery);
+        $reportStmt->execute([$child['admission_no'], $child['school_id']]);
+        $latestReport = $reportStmt->fetch(PDO::FETCH_ASSOC);
+
         return [
             'id' => (int)$child['id'],
             'name' => $child['name'],
             'class' => $child['class'],
-            'session' => $child['session'],
-            'term' => $child['term'],
+            'session' => $latestReport['session'] ?? null,
+            'term' => $latestReport['term'] ?? null,
             'admission_no' => $child['admission_no'],
             'gender' => $child['gender'],
-            'photo' => $child['photo'],
-            'height' => $child['height'],
-            'weight' => $child['weight'],
+            'photo' => $latestReport['student_photo'] ?? null,
+            'height' => $latestReport['height'] ?? null,
+            'weight' => $latestReport['weight'] ?? null,
             'relationship' => $child['relationship'],
             'is_primary' => (bool)$child['is_primary'],
             'school' => [

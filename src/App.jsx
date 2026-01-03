@@ -34,6 +34,7 @@ const StudentProfile = lazy(() => import('./pages/StudentProfile'));
 const SchoolProfile = lazy(() => import('./pages/SchoolProfile'));
 const EditSchoolProfile = lazy(() => import('./pages/EditSchoolProfile'));
 const SchoolSettings = lazy(() => import('./pages/SchoolSettings'));
+const PromotionSettings = lazy(() => import('./pages/PromotionSettings'));
 const ViewAttendance = lazy(() => import('./pages/ViewAttendance'));
 const ManageTeachers = lazy(() => import('./pages/ManageTeachers'));
 const AddStudent = lazy(() => import('./pages/AddStudent'));
@@ -90,7 +91,79 @@ function App() {
     try {
       const storedUserType = localStorage.getItem('userType');
 
+      // If no stored user type, check all session endpoints to restore session
       if (!storedUserType) {
+        try {
+          // Try school session first (most common)
+          const schoolResponse = await fetch(`${API_BASE_URL}/auth/check-session`, {
+            credentials: 'include'
+          });
+          if (schoolResponse.ok) {
+            const schoolData = await schoolResponse.json();
+            if (schoolData.authenticated) {
+              setSchool(schoolData.school);
+              localStorage.setItem('userType', 'school');
+              setLoading(false);
+              return;
+            }
+          }
+
+          // Try teacher session
+          const teacherResponse = await fetch(`${API_BASE_URL}/auth/teacher-check-session`, {
+            credentials: 'include'
+          });
+          if (teacherResponse.ok) {
+            const teacherData = await teacherResponse.json();
+            if (teacherData.authenticated) {
+              setTeacher({
+                ...teacherData.user,
+                school: teacherData.school
+              });
+              localStorage.setItem('userType', 'teacher');
+              setLoading(false);
+              return;
+            }
+          }
+
+          // Try student session
+          const studentResponse = await fetch(`${API_BASE_URL}/auth/student-check-session`, {
+            credentials: 'include'
+          });
+          if (studentResponse.ok) {
+            const studentData = await studentResponse.json();
+            if (studentData.authenticated) {
+              setStudent({
+                ...studentData.student,
+                subscription: studentData.subscription
+              });
+              localStorage.setItem('userType', 'student');
+              localStorage.setItem('studentData', JSON.stringify({
+                ...studentData.student,
+                subscription: studentData.subscription
+              }));
+              setLoading(false);
+              return;
+            }
+          }
+
+          // Try super admin session
+          const superAdminResponse = await fetch(`${API_BASE_URL}/super-admin/check-session`, {
+            credentials: 'include'
+          });
+          if (superAdminResponse.ok) {
+            const superAdminData = await superAdminResponse.json();
+            if (superAdminData.authenticated) {
+              setSuperAdmin(superAdminData.user);
+              localStorage.setItem('userType', 'super_admin');
+              localStorage.setItem('superAdminData', JSON.stringify(superAdminData.user));
+              setLoading(false);
+              return;
+            }
+          }
+        } catch (error) {
+          console.error('Session restore error:', error);
+        }
+
         setLoading(false);
         return;
       }
@@ -337,6 +410,7 @@ function App() {
           <Route path="profile" element={<ProtectedRoute school={school} allowedWithoutSubscription={true}><SchoolProfile /></ProtectedRoute>} />
           <Route path="profile/edit" element={<ProtectedRoute school={school} allowedWithoutSubscription={true}><EditSchoolProfile /></ProtectedRoute>} />
           <Route path="settings" element={<ProtectedRoute school={school} allowedWithoutSubscription={true}><SchoolSettings /></ProtectedRoute>} />
+          <Route path="promotion-settings" element={<ProtectedRoute school={school} allowedWithoutSubscription={true}><PromotionSettings /></ProtectedRoute>} />
           <Route path="attendance" element={<ProtectedRoute school={school}><ViewAttendance /></ProtectedRoute>} />
           <Route path="manage-teachers" element={<ProtectedRoute school={school}><ManageTeachers /></ProtectedRoute>} />
           <Route path="accounting/*" element={<ProtectedRoute school={school}><AccountingDashboard /></ProtectedRoute>} />

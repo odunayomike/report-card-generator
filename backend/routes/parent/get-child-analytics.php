@@ -54,7 +54,8 @@ try {
     }
 
     // Get student basic information
-    $studentQuery = "SELECT s.*, sc.school_name, sc.logo as school_logo, sc.grading_scale
+    $studentQuery = "SELECT s.id, s.name, s.admission_no, s.current_class, s.gender, s.school_id,
+                            sc.school_name, sc.logo as school_logo, sc.grading_scale
                      FROM students s
                      INNER JOIN schools sc ON s.school_id = sc.id
                      WHERE s.id = ?";
@@ -67,6 +68,23 @@ try {
         echo json_encode(['success' => false, 'message' => 'Student not found']);
         exit;
     }
+
+    // Get latest report card for session/term/photo/age
+    $reportQuery = "SELECT id as report_card_id, session, term, student_photo, age
+                    FROM report_cards
+                    WHERE student_admission_no = ? AND school_id = ?
+                    ORDER BY created_at DESC LIMIT 1";
+    $reportStmt = $db->prepare($reportQuery);
+    $reportStmt->execute([$student['admission_no'], $student['school_id']]);
+    $latestReport = $reportStmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$latestReport) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'No report cards found for this student']);
+        exit;
+    }
+
+    $reportCardId = $latestReport['report_card_id'];
 
     // Parse grading scale
     $gradingScale = null;
@@ -96,13 +114,13 @@ try {
         return ['grade' => 'F', 'remark' => 'FAIL'];
     }
 
-    // Get subjects and scores
+    // Get subjects and scores from latest report card
     $subjectsQuery = "SELECT subject_name, ca, exam, total
                       FROM subjects
-                      WHERE student_id = ?
+                      WHERE report_card_id = ?
                       ORDER BY total DESC";
     $subjectsStmt = $db->prepare($subjectsQuery);
-    $subjectsStmt->execute([$studentId]);
+    $subjectsStmt->execute([$reportCardId]);
     $subjects = $subjectsStmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Calculate performance metrics
@@ -149,10 +167,10 @@ try {
         ];
     }
 
-    // Get attendance data
-    $attendanceQuery = "SELECT * FROM attendance WHERE student_id = ?";
+    // Get attendance data from latest report card
+    $attendanceQuery = "SELECT * FROM attendance WHERE report_card_id = ?";
     $attendanceStmt = $db->prepare($attendanceQuery);
-    $attendanceStmt->execute([$studentId]);
+    $attendanceStmt->execute([$reportCardId]);
     $attendance = $attendanceStmt->fetch(PDO::FETCH_ASSOC);
 
     $attendanceData = [
@@ -169,10 +187,10 @@ try {
         );
     }
 
-    // Get affective domain (behavior/attitude)
-    $affectiveQuery = "SELECT trait_name, rating FROM affective_domain WHERE student_id = ?";
+    // Get affective domain (behavior/attitude) from latest report card
+    $affectiveQuery = "SELECT trait_name, rating FROM affective_domain WHERE report_card_id = ?";
     $affectiveStmt = $db->prepare($affectiveQuery);
-    $affectiveStmt->execute([$studentId]);
+    $affectiveStmt->execute([$reportCardId]);
     $affective = $affectiveStmt->fetchAll(PDO::FETCH_ASSOC);
 
     $affectiveData = array_map(function($item) {
@@ -189,10 +207,10 @@ try {
         $avgBehaviorRating = round($totalRating / count($affective), 1);
     }
 
-    // Get psychomotor domain (skills)
-    $psychomotorQuery = "SELECT skill_name, rating FROM psychomotor_domain WHERE student_id = ?";
+    // Get psychomotor domain (skills) from latest report card
+    $psychomotorQuery = "SELECT skill_name, rating FROM psychomotor_domain WHERE report_card_id = ?";
     $psychomotorStmt = $db->prepare($psychomotorQuery);
-    $psychomotorStmt->execute([$studentId]);
+    $psychomotorStmt->execute([$reportCardId]);
     $psychomotor = $psychomotorStmt->fetchAll(PDO::FETCH_ASSOC);
 
     $psychomotorData = array_map(function($item) {
@@ -202,10 +220,10 @@ try {
         ];
     }, $psychomotor);
 
-    // Get teacher and principal remarks
-    $remarksQuery = "SELECT * FROM remarks WHERE student_id = ?";
+    // Get teacher and principal remarks from latest report card
+    $remarksQuery = "SELECT * FROM remarks WHERE report_card_id = ?";
     $remarksStmt = $db->prepare($remarksQuery);
-    $remarksStmt->execute([$studentId]);
+    $remarksStmt->execute([$reportCardId]);
     $remarks = $remarksStmt->fetch(PDO::FETCH_ASSOC);
 
     $remarksData = null;
@@ -243,13 +261,13 @@ try {
             'student' => [
                 'id' => (int)$student['id'],
                 'name' => $student['name'],
-                'class' => $student['class'],
-                'session' => $student['session'],
-                'term' => $student['term'],
+                'class' => $student['current_class'],
+                'session' => $latestReport['session'] ?? null,
+                'term' => $latestReport['term'] ?? null,
                 'admission_no' => $student['admission_no'],
                 'gender' => $student['gender'],
-                'photo' => $student['photo'],
-                'age' => $student['age'] ?? null,
+                'photo' => $latestReport['student_photo'] ?? null,
+                'age' => $latestReport['age'] ?? null,
                 'school_name' => $student['school_name'],
                 'school_logo' => $student['school_logo']
             ],

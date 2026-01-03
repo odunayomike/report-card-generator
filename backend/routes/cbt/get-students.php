@@ -55,13 +55,13 @@ try {
         }
     }
 
-    // Get students in this class
-    $query = "SELECT DISTINCT s.id, s.name, s.admission_no, s.class as class_name
+    // Get students in this class (using current_class from students table)
+    $query = "SELECT DISTINCT s.id, s.name, s.admission_no, s.current_class as class_name
               FROM students s
-              WHERE s.school_id = ? AND s.class = ? AND s.session = ? AND s.term = ?
+              WHERE s.school_id = ? AND s.current_class = ?
               ORDER BY s.name ASC";
     $stmt = $db->prepare($query);
-    $stmt->execute([$schoolId, $className, $session, $term]);
+    $stmt->execute([$schoolId, $className]);
     $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode([

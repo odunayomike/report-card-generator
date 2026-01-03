@@ -93,10 +93,9 @@ try {
     $childrenQuery = "SELECT
                         s.id,
                         s.name,
-                        s.class,
+                        s.current_class as class,
                         s.admission_no,
                         s.gender,
-                        s.photo,
                         sc.school_name,
                         sc.id as school_id,
                         ps.relationship,
@@ -110,6 +109,18 @@ try {
     $childrenStmt = $db->prepare($childrenQuery);
     $childrenStmt->execute([$parent['id']]);
     $children = $childrenStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Enrich children with photos from latest report cards
+    foreach ($children as &$child) {
+        $photoQuery = "SELECT student_photo FROM report_cards
+                       WHERE student_admission_no = ? AND school_id = ?
+                       ORDER BY created_at DESC LIMIT 1";
+        $photoStmt = $db->prepare($photoQuery);
+        $photoStmt->execute([$child['admission_no'], $child['school_id']]);
+        $photoResult = $photoStmt->fetch(PDO::FETCH_ASSOC);
+        $child['photo'] = $photoResult['student_photo'] ?? null;
+    }
+    unset($child); // Break reference
 
     // Store parent session
     $_SESSION['parent_id'] = $parent['id'];

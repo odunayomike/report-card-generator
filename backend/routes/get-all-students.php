@@ -22,7 +22,7 @@ $db = $database->getConnection();
 try {
     if ($userType === 'teacher') {
         // Teachers only see students in their assigned classes
-        // Get students from master table and count their reports
+        // Get students whose current_class matches any of the teacher's assigned classes
         $query = "SELECT DISTINCT
                   s.admission_no,
                   s.name,
@@ -33,12 +33,10 @@ try {
                   (SELECT GROUP_CONCAT(DISTINCT rc2.class ORDER BY rc2.created_at DESC SEPARATOR ', ')
                    FROM report_cards rc2 WHERE rc2.student_admission_no = s.admission_no AND rc2.school_id = s.school_id) as classes
                   FROM students s
-                  INNER JOIN report_cards rc ON s.admission_no = rc.student_admission_no AND s.school_id = rc.school_id
-                  INNER JOIN teacher_classes tc ON TRIM(LOWER(rc.class)) = TRIM(LOWER(tc.class_name))
-                      AND TRIM(LOWER(rc.session)) = TRIM(LOWER(tc.session))
+                  INNER JOIN teacher_classes tc ON TRIM(LOWER(s.current_class)) = TRIM(LOWER(tc.class_name))
+                      AND s.school_id = tc.school_id
                   WHERE s.school_id = :school_id
                       AND tc.teacher_id = :teacher_id
-                  GROUP BY s.id
                   ORDER BY s.updated_at DESC";
 
         $stmt = $db->prepare($query);

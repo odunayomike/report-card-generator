@@ -41,7 +41,7 @@ try {
                 a.submitted_at,
                 s.name as student_name,
                 s.admission_no,
-                s.class,
+                s.current_class as class,
                 e.exam_title,
                 e.subject,
                 e.assessment_type,
@@ -63,7 +63,7 @@ try {
 
     // Apply filters
     if ($classFilter) {
-        $query .= " AND s.class = ?";
+        $query .= " AND s.current_class = ?";
         $params[] = $classFilter;
     }
 

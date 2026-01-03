@@ -26,14 +26,14 @@ if (!$reportId) {
 $database = new Database();
 $db = $database->getConnection();
 
-$query = "SELECT s.*,
+$query = "SELECT rc.*,
           sc.school_name, sc.address as school_address, sc.phone as school_phone,
           sc.email as school_email, sc.logo as school_logo, sc.grading_scale,
           sc.motto, sc.show_logo_on_report, sc.show_motto_on_report,
           sc.header_text, sc.footer_text
-          FROM students s
-          LEFT JOIN schools sc ON s.school_id = sc.id
-          WHERE s.id = ? AND s.school_id = ?";
+          FROM report_cards rc
+          LEFT JOIN schools sc ON rc.school_id = sc.id
+          WHERE rc.id = ? AND rc.school_id = ?";
 $stmt = $db->prepare($query);
 $stmt->execute([$reportId, $_SESSION['school_id']]);
 $report = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -44,28 +44,28 @@ if (!$report) {
     exit;
 }
 
-// Get all related data
-$attendance_query = "SELECT * FROM attendance WHERE student_id = ?";
+// Get all related data using report_card_id
+$attendance_query = "SELECT * FROM attendance WHERE report_card_id = ?";
 $attendance_stmt = $db->prepare($attendance_query);
 $attendance_stmt->execute([$reportId]);
 $attendance = $attendance_stmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
-$subjects_query = "SELECT * FROM subjects WHERE student_id = ?";
+$subjects_query = "SELECT * FROM subjects WHERE report_card_id = ?";
 $subjects_stmt = $db->prepare($subjects_query);
 $subjects_stmt->execute([$reportId]);
 $subjects = $subjects_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$affective_query = "SELECT * FROM affective_domain WHERE student_id = ?";
+$affective_query = "SELECT * FROM affective_domain WHERE report_card_id = ?";
 $affective_stmt = $db->prepare($affective_query);
 $affective_stmt->execute([$reportId]);
 $affective = $affective_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$psychomotor_query = "SELECT * FROM psychomotor_domain WHERE student_id = ?";
+$psychomotor_query = "SELECT * FROM psychomotor_domain WHERE report_card_id = ?";
 $psychomotor_stmt = $db->prepare($psychomotor_query);
 $psychomotor_stmt->execute([$reportId]);
 $psychomotor = $psychomotor_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$remarks_query = "SELECT * FROM remarks WHERE student_id = ?";
+$remarks_query = "SELECT * FROM remarks WHERE report_card_id = ?";
 $remarks_stmt = $db->prepare($remarks_query);
 $remarks_stmt->execute([$reportId]);
 $remarks = $remarks_stmt->fetch(PDO::FETCH_ASSOC) ?: [];

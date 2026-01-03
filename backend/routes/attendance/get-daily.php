@@ -51,59 +51,59 @@ try {
 
             // Get attendance for specific class
             $query = "SELECT da.id, da.student_id, da.date, da.status, da.created_at,
-                      s.name as student_name, s.admission_no, s.class, s.session, s.term,
+                      s.name as student_name, s.admission_no, s.current_class as class,
                       t.name as teacher_name
                       FROM daily_attendance da
                       INNER JOIN students s ON da.student_id = s.id
                       LEFT JOIN teachers t ON da.marked_by_teacher_id = t.id
-                      WHERE da.date = ? AND s.class = ? AND s.session = ? AND s.term = ?
+                      WHERE da.date = ? AND s.current_class = ?
                       AND s.school_id = ?
                       ORDER BY s.name ASC";
 
             $stmt = $db->prepare($query);
-            $stmt->execute([$date, $className, $session, $term, $_SESSION['school_id']]);
+            $stmt->execute([$date, $className, $_SESSION['school_id']]);
         } else {
             // Get attendance for all classes teacher is assigned to (term-independent)
             $query = "SELECT da.id, da.student_id, da.date, da.status, da.created_at,
-                      s.name as student_name, s.admission_no, s.class, s.session, s.term,
+                      s.name as student_name, s.admission_no, s.current_class as class,
                       t.name as teacher_name
                       FROM daily_attendance da
                       INNER JOIN students s ON da.student_id = s.id
-                      INNER JOIN teacher_classes tc ON TRIM(LOWER(s.class)) = TRIM(LOWER(tc.class_name))
-                          AND TRIM(LOWER(s.session)) = TRIM(LOWER(tc.session))
+                      INNER JOIN teacher_classes tc ON TRIM(LOWER(s.current_class)) = TRIM(LOWER(tc.class_name))
+                          AND TRIM(LOWER(tc.session)) = LOWER(?)
                       LEFT JOIN teachers t ON da.marked_by_teacher_id = t.id
                       WHERE da.date = ? AND tc.teacher_id = ? AND s.school_id = ?
-                      ORDER BY s.class ASC, s.name ASC";
+                      ORDER BY s.current_class ASC, s.name ASC";
 
             $stmt = $db->prepare($query);
-            $stmt->execute([$date, $_SESSION['teacher_id'], $_SESSION['school_id']]);
+            $stmt->execute([$session, $date, $_SESSION['teacher_id'], $_SESSION['school_id']]);
         }
     } else {
         // Schools can see all attendance
         if (!empty($className)) {
             // Get attendance for specific class
             $query = "SELECT da.id, da.student_id, da.date, da.status, da.created_at,
-                      s.name as student_name, s.admission_no, s.class, s.session, s.term,
+                      s.name as student_name, s.admission_no, s.current_class as class,
                       t.name as teacher_name
                       FROM daily_attendance da
                       INNER JOIN students s ON da.student_id = s.id
                       LEFT JOIN teachers t ON da.marked_by_teacher_id = t.id
-                      WHERE da.date = ? AND s.class = ? AND s.session = ? AND s.term = ?
+                      WHERE da.date = ? AND s.current_class = ?
                       AND s.school_id = ?
                       ORDER BY s.name ASC";
 
             $stmt = $db->prepare($query);
-            $stmt->execute([$date, $className, $session, $term, $_SESSION['school_id']]);
+            $stmt->execute([$date, $className, $_SESSION['school_id']]);
         } else {
             // Get attendance for all students in the school
             $query = "SELECT da.id, da.student_id, da.date, da.status, da.created_at,
-                      s.name as student_name, s.admission_no, s.class, s.session, s.term,
+                      s.name as student_name, s.admission_no, s.current_class as class,
                       t.name as teacher_name
                       FROM daily_attendance da
                       INNER JOIN students s ON da.student_id = s.id
                       LEFT JOIN teachers t ON da.marked_by_teacher_id = t.id
                       WHERE da.date = ? AND s.school_id = ?
-                      ORDER BY s.class ASC, s.name ASC";
+                      ORDER BY s.current_class ASC, s.name ASC";
 
             $stmt = $db->prepare($query);
             $stmt->execute([$date, $_SESSION['school_id']]);

@@ -86,8 +86,8 @@ try {
     // Get some stats for the profile
     $statsQuery = "SELECT
                     (SELECT COUNT(*) FROM students WHERE school_id = :school_id) as total_students,
-                    (SELECT COUNT(DISTINCT class) FROM students WHERE school_id = :school_id) as total_classes,
-                    (SELECT COUNT(DISTINCT session) FROM students WHERE school_id = :school_id) as total_sessions
+                    (SELECT COUNT(DISTINCT class) FROM report_cards WHERE school_id = :school_id) as total_classes,
+                    (SELECT COUNT(DISTINCT session) FROM report_cards WHERE school_id = :school_id) as total_sessions
                    ";
 
     $statsStmt = $db->prepare($statsQuery);

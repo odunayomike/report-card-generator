@@ -37,19 +37,12 @@ try {
     }
 
     if ($class) {
-        $whereClause .= " AND st.class = :class";
+        $whereClause .= " AND st.current_class = :class";
         $params[':class'] = $class;
     }
 
-    if ($session) {
-        $whereClause .= " AND st.session = :session";
-        $params[':session'] = $session;
-    }
-
-    if ($term) {
-        $whereClause .= " AND st.term = :term";
-        $params[':term'] = $term;
-    }
+    // Session and term filters removed - students table no longer tracks per-term data
+    // These would need to query report_cards table instead
 
     // Get total count
     $countStmt = $conn->prepare("
@@ -69,9 +62,7 @@ try {
         SELECT
             st.id,
             st.name,
-            st.class,
-            st.session,
-            st.term,
+            st.current_class as class,
             st.admission_no,
             st.gender,
             st.created_at,
@@ -80,10 +71,10 @@ try {
             s.school_name,
             s.email as school_email,
             s.subscription_status,
-            COUNT(DISTINCT sub.id) as total_subjects
+            COUNT(DISTINCT rc.id) as total_reports
         FROM students st
         JOIN schools s ON st.school_id = s.id
-        LEFT JOIN subjects sub ON st.id = sub.student_id
+        LEFT JOIN report_cards rc ON st.admission_no = rc.student_admission_no AND st.school_id = rc.school_id
         $whereClause
         GROUP BY st.id
         ORDER BY st.created_at DESC

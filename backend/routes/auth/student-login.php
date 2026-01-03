@@ -24,7 +24,7 @@ $db = $database->getConnection();
 
 try {
     // Find student by admission number
-    $query = "SELECT id, name, admission_no as admission_no, class, session, term, school_id
+    $query = "SELECT id, name, admission_no, current_class, school_id
               FROM students
               WHERE admission_no = ?
               LIMIT 1";
@@ -38,6 +38,14 @@ try {
         exit;
     }
 
+    // Get latest session/term from most recent report card
+    $reportQuery = "SELECT session, term FROM report_cards
+                    WHERE student_admission_no = ? AND school_id = ?
+                    ORDER BY created_at DESC LIMIT 1";
+    $reportStmt = $db->prepare($reportQuery);
+    $reportStmt->execute([$student['admission_no'], $student['school_id']]);
+    $latestReport = $reportStmt->fetch(PDO::FETCH_ASSOC);
+
     // Create session
     $_SESSION['user_type'] = 'student';
     $_SESSION['student_id'] = $student['id'];
@@ -50,9 +58,9 @@ try {
             'id' => $student['id'],
             'name' => $student['name'],
             'admission_no' => $student['admission_no'],
-            'class' => $student['class'],
-            'session' => $student['session'],
-            'term' => $student['term']
+            'class' => $student['current_class'],
+            'session' => $latestReport['session'] ?? null,
+            'term' => $latestReport['term'] ?? null
         ]
     ]);
 

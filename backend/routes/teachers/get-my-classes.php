@@ -16,12 +16,11 @@ try {
     $db = $database->getConnection();
 
     // Get classes assigned to this teacher with student counts
+    // Note: student_count shows current students in this class (not session/term specific)
     $query = "SELECT tc.id, tc.class_name, tc.session, tc.term, tc.created_at,
               COUNT(DISTINCT s.id) as student_count
               FROM teacher_classes tc
-              LEFT JOIN students s ON tc.class_name = s.class
-                  AND tc.session = s.session
-                  AND tc.term = s.term
+              LEFT JOIN students s ON tc.class_name = s.current_class
                   AND s.school_id = tc.school_id
               WHERE tc.teacher_id = ?
               GROUP BY tc.id, tc.class_name, tc.session, tc.term

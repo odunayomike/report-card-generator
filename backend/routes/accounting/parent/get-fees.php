@@ -48,7 +48,7 @@ try {
     $db = $database->getConnection();
 
     // Verify that this student belongs to the logged-in parent
-    $verifyQuery = "SELECT ps.student_id, s.name, s.class, s.admission_no, s.session, s.term
+    $verifyQuery = "SELECT ps.student_id, s.name, s.current_class as class, s.admission_no
                     FROM parent_students ps
                     INNER JOIN students s ON ps.student_id = s.id
                     WHERE ps.parent_id = ? AND ps.student_id = ?";
