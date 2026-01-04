@@ -41,14 +41,39 @@ try {
         exit;
     }
 
-    // Get all students in this class (using current_class from students table)
-    $query = "SELECT id, name, admission_no, gender
-              FROM students
-              WHERE school_id = ? AND current_class = ?
-              ORDER BY name ASC";
+    // Get students in this class
+    // If teacher has subject assignment, filter by subject enrollment
+    // Otherwise show all students in class
+    $teacherSubject = null;
+    $teacherSubjectQuery = "SELECT subject FROM teacher_classes
+                            WHERE teacher_id = ? AND class_name = ? AND session = ?
+                            LIMIT 1";
+    $teacherSubjectStmt = $db->prepare($teacherSubjectQuery);
+    $teacherSubjectStmt->execute([$_SESSION['teacher_id'], $className, $session]);
+    $result = $teacherSubjectStmt->fetch(PDO::FETCH_ASSOC);
+    $teacherSubject = $result ? $result['subject'] : null;
 
-    $stmt = $db->prepare($query);
-    $stmt->execute([$_SESSION['school_id'], $className]);
+    $query = "SELECT DISTINCT s.id, s.name, s.admission_no, s.gender
+              FROM students s
+              WHERE s.school_id = ? AND s.current_class = ?";
+
+    // If teacher has a specific subject, filter by enrollment
+    if ($teacherSubject) {
+        $query .= " AND EXISTS (
+                        SELECT 1 FROM student_subject_enrollment sse
+                        WHERE sse.student_id = s.id
+                        AND sse.subject_name = ?
+                        AND sse.session = ?
+                    )";
+        $query .= " ORDER BY s.name ASC";
+        $stmt = $db->prepare($query);
+        $stmt->execute([$_SESSION['school_id'], $className, $teacherSubject, $session]);
+    } else {
+        $query .= " ORDER BY s.name ASC";
+        $stmt = $db->prepare($query);
+        $stmt->execute([$_SESSION['school_id'], $className]);
+    }
+
     $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Get photos from the most recent report card for each student

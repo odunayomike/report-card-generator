@@ -37,6 +37,8 @@ const SchoolSettings = lazy(() => import('./pages/SchoolSettings'));
 const PromotionSettings = lazy(() => import('./pages/PromotionSettings'));
 const ViewAttendance = lazy(() => import('./pages/ViewAttendance'));
 const ManageTeachers = lazy(() => import('./pages/ManageTeachers'));
+const ManageClassSubjects = lazy(() => import('./pages/ManageClassSubjects'));
+const ManageStudentSubjects = lazy(() => import('./pages/ManageStudentSubjects'));
 const AddStudent = lazy(() => import('./pages/AddStudent'));
 const ManageParents = lazy(() => import('./pages/ManageParents'));
 const ViewParents = lazy(() => import('./pages/ViewParents'));
@@ -413,6 +415,8 @@ function App() {
           <Route path="promotion-settings" element={<ProtectedRoute school={school} allowedWithoutSubscription={true}><PromotionSettings /></ProtectedRoute>} />
           <Route path="attendance" element={<ProtectedRoute school={school}><ViewAttendance /></ProtectedRoute>} />
           <Route path="manage-teachers" element={<ProtectedRoute school={school}><ManageTeachers /></ProtectedRoute>} />
+          <Route path="manage-class-subjects" element={<ProtectedRoute school={school}><ManageClassSubjects /></ProtectedRoute>} />
+          <Route path="manage-student-subjects" element={<ProtectedRoute school={school}><ManageStudentSubjects /></ProtectedRoute>} />
           <Route path="accounting/*" element={<ProtectedRoute school={school}><AccountingDashboard /></ProtectedRoute>} />
           <Route path="cbt" element={<ProtectedRoute school={school}><CBTDashboard /></ProtectedRoute>} />
           <Route path="cbt/questions" element={<ProtectedRoute school={school}><QuestionBank /></ProtectedRoute>} />

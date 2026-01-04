@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { subjects, affectiveDomains, psychomotorDomains } from '../data/subjects';
-import { checkStudent, searchStudents } from '../services/api';
+import { checkStudent, searchStudents, getSchoolProfile, getSchoolClasses } from '../services/api';
 
 export default function StudentForm({ onSubmit, saving = false, school, initialData = null }) {
   const [currentStep, setCurrentStep] = useState(1);
@@ -15,6 +15,8 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
   const [searching, setSearching] = useState(false);
   const searchDebounceTimer = useRef(null);
   const dropdownRef = useRef(null);
+  const [availableSessions, setAvailableSessions] = useState([]);
+  const [currentSession, setCurrentSession] = useState('');
 
   const [formData, setFormData] = useState({
     // Student Info
@@ -68,6 +70,43 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
         setActiveSubjects(initialData.subjects.map(s => s.name));
       }
     }
+  }, [initialData]);
+
+  // Load sessions from school settings
+  useEffect(() => {
+    const loadSessions = async () => {
+      try {
+        // Get sessions from report cards
+        const classesResponse = await getSchoolClasses();
+        if (classesResponse.success) {
+          const uniqueSessions = [...new Set((classesResponse.classes || []).map(c => c.session))];
+          setAvailableSessions(uniqueSessions);
+        }
+
+        // Get current session from school profile
+        const profileResponse = await getSchoolProfile();
+        if (profileResponse.success && profileResponse.data.current_session) {
+          setCurrentSession(profileResponse.data.current_session);
+
+          // Add current session to available sessions if not already there and pre-select it
+          setAvailableSessions(prev => {
+            if (!prev.includes(profileResponse.data.current_session)) {
+              return [profileResponse.data.current_session, ...prev];
+            }
+            return prev;
+          });
+
+          // Pre-fill session if creating a new report (not editing)
+          if (!initialData) {
+            setFormData(prev => ({ ...prev, session: profileResponse.data.current_session }));
+          }
+        }
+      } catch (err) {
+        console.error('Error loading sessions:', err);
+      }
+    };
+
+    loadSessions();
   }, [initialData]);
 
   // Close dropdown when clicking outside
@@ -407,14 +446,20 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
 
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Session</label>
-              <input
-                type="text"
+              <select
                 name="session"
-                placeholder="e.g., 2024/2025"
                 value={formData.session}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
-              />
+              >
+                <option value="">Select session</option>
+                {availableSessions.map((session, idx) => (
+                  <option key={idx} value={session}>
+                    {session}
+                    {session === currentSession ? ' (Current)' : ''}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>

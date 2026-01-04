@@ -47,6 +47,8 @@ try {
                 show_motto_on_report,
                 header_text,
                 footer_text,
+                current_session,
+                current_term,
                 created_at
               FROM schools
               WHERE id = :school_id AND is_active = 1";

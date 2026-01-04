@@ -38,9 +38,6 @@ const ExamManagement = () => {
   const [showAddAssessmentType, setShowAddAssessmentType] = useState(false);
   const [newAssessmentTypeName, setNewAssessmentTypeName] = useState('');
   const [assessmentTypeError, setAssessmentTypeError] = useState('');
-  const [showAddSubject, setShowAddSubject] = useState(false);
-  const [newSubjectName, setNewSubjectName] = useState('');
-  const [subjectError, setSubjectError] = useState('');
   const [questionFilter, setQuestionFilter] = useState({
     subject: '',
     difficulty: '',
@@ -155,50 +152,6 @@ const ExamManagement = () => {
     }
   };
 
-  const handleAddNewSubject = async () => {
-    setSubjectError('');
-
-    if (!newSubjectName.trim()) {
-      return;
-    }
-
-    const uppercaseSubject = newSubjectName.trim().toUpperCase();
-
-    // Check if already exists
-    if (availableSubjects.includes(uppercaseSubject)) {
-      setSubjectError('This subject already exists');
-      return;
-    }
-
-    try {
-      const updatedSubjects = [...availableSubjects, uppercaseSubject];
-
-      const response = await fetch(`${API_BASE_URL}/school/update-settings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ available_subjects: updatedSubjects })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setAvailableSubjects(updatedSubjects);
-        setExamForm({
-          ...examForm,
-          subject: uppercaseSubject
-        });
-        setNewSubjectName('');
-        setShowAddSubject(false);
-        setSubjectError('');
-      } else {
-        setSubjectError('Failed to add subject: ' + data.message);
-      }
-    } catch (err) {
-      console.error('Error adding subject:', err);
-      setSubjectError('Failed to add subject. Please try again.');
-    }
-  };
 
   const loadExams = async () => {
     setLoading(true);
@@ -812,86 +765,61 @@ const ExamManagement = () => {
                     />
                   </div>
 
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Class *</label>
+                    <select
+                      value={examForm.class_name}
+                      onChange={(e) => {
+                        setExamForm({ ...examForm, class_name: e.target.value, subject: '' });
+                        // Clear subject when class changes
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      required
+                    >
+                      <option value="">-- Select class --</option>
+                      {[...new Set(classes.map(c => c.class_name))].filter(Boolean).map((className, idx) => (
+                        <option key={idx} value={className}>
+                          {className}
+                        </option>
+                      ))}
+                    </select>
+                    {classes.length === 0 && (
+                      <p className="mt-1 text-sm text-gray-500">No classes assigned to you.</p>
+                    )}
+                  </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
-                      <div className="flex gap-2">
-                        <select
-                          value={examForm.subject}
-                          onChange={(e) => setExamForm({ ...examForm, subject: e.target.value })}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                          required
-                        >
-                          <option value="">-- Select a subject --</option>
-                          {availableSubjects.map((subject, index) => (
+                      <select
+                        value={examForm.subject}
+                        onChange={(e) => setExamForm({ ...examForm, subject: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        required
+                        disabled={!examForm.class_name}
+                      >
+                        <option value="">-- Select a subject --</option>
+                        {examForm.class_name && (() => {
+                          // Get unique subjects for the selected class from teacher's assignments
+                          const classSubjects = classes
+                            .filter(c => c.class_name === examForm.class_name && c.subject)
+                            .map(c => c.subject);
+
+                          // If teacher has no subject-specific assignments for this class, show all subjects
+                          const subjectsToShow = classSubjects.length > 0 ? [...new Set(classSubjects)] : availableSubjects;
+
+                          return subjectsToShow.map((subject, index) => (
                             <option key={index} value={subject}>
                               {subject}
                             </option>
-                          ))}
-                        </select>
-                        <button
-                          type="button"
-                          onClick={() => setShowAddSubject(!showAddSubject)}
-                          className="px-4 py-2 bg-primary-50 text-primary-700 border border-primary-300 rounded-lg hover:bg-primary-100 transition-colors whitespace-nowrap"
-                          title="Add new subject"
-                        >
-                          + Add New
-                        </button>
-                      </div>
-
-                      {/* Inline Add Subject Form */}
-                      {showAddSubject && (
-                        <div className="mt-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                          <h5 className="text-sm font-semibold text-gray-900 mb-2">Add New Subject</h5>
-                          {subjectError && (
-                            <div className="mb-3 p-2 bg-red-50 border border-red-200 text-red-700 text-sm rounded">
-                              {subjectError}
-                            </div>
-                          )}
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              value={newSubjectName}
-                              onChange={(e) => {
-                                setNewSubjectName(e.target.value);
-                                setSubjectError('');
-                              }}
-                              onKeyPress={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.preventDefault();
-                                  handleAddNewSubject();
-                                }
-                              }}
-                              placeholder="e.g., Mathematics, Physics"
-                              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                            />
-                            <button
-                              type="button"
-                              onClick={handleAddNewSubject}
-                              className="px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg hover:from-primary-600 hover:to-primary-700 shadow-sm hover:shadow transition-colors"
-                            >
-                              Add
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setShowAddSubject(false);
-                                setNewSubjectName('');
-                                setSubjectError('');
-                              }}
-                              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                          <p className="text-xs text-gray-600 mt-2">
-                            Subject will be saved in UPPERCASE and available for all exams and questions.
-                          </p>
-                        </div>
+                          ));
+                        })()}
+                      </select>
+                      {!examForm.class_name && (
+                        <p className="mt-1 text-sm text-gray-500">Please select a class first.</p>
                       )}
-
-                      {availableSubjects.length === 0 && !showAddSubject && (
-                        <p className="mt-1 text-sm text-gray-500">No subjects configured. Click "+ Add New" to add subjects.</p>
+                      {examForm.class_name && classes.filter(c => c.class_name === examForm.class_name && c.subject).length === 0 && (
+                        <p className="mt-1 text-sm text-gray-500">You have full class access - all subjects available.</p>
                       )}
                     </div>
                     <div>
@@ -971,26 +899,7 @@ const ExamManagement = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Class *</label>
-                      <select
-                        value={examForm.class_name}
-                        onChange={(e) => setExamForm({ ...examForm, class_name: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        required
-                      >
-                        <option value="">-- Select class --</option>
-                        {[...new Set(classes.map(c => c.class_name))].filter(Boolean).map((className, idx) => (
-                          <option key={idx} value={className}>
-                            {className}
-                          </option>
-                        ))}
-                      </select>
-                      {classes.length === 0 && (
-                        <p className="mt-1 text-sm text-gray-500">No classes available.</p>
-                      )}
-                    </div>
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Session *</label>
                       <select

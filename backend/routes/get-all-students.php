@@ -21,9 +21,11 @@ $db = $database->getConnection();
 
 try {
     if ($userType === 'teacher') {
-        // Teachers only see students in their assigned classes
-        // Get students whose current_class matches any of the teacher's assigned classes
+        // Teachers see students based on their class/subject assignment
+        // If subject is specified, only show students enrolled in that subject
+        // If subject is NULL, show all students in the class
         $query = "SELECT DISTINCT
+                  s.id,
                   s.admission_no,
                   s.name,
                   s.gender,
@@ -35,8 +37,12 @@ try {
                   FROM students s
                   INNER JOIN teacher_classes tc ON TRIM(LOWER(s.current_class)) = TRIM(LOWER(tc.class_name))
                       AND s.school_id = tc.school_id
+                  LEFT JOIN student_subject_enrollment sse ON s.id = sse.student_id
+                      AND sse.subject_name = tc.subject
+                      AND sse.session = tc.session
                   WHERE s.school_id = :school_id
                       AND tc.teacher_id = :teacher_id
+                      AND (tc.subject IS NULL OR sse.id IS NOT NULL)
                   ORDER BY s.updated_at DESC";
 
         $stmt = $db->prepare($query);
@@ -49,6 +55,7 @@ try {
         // Schools see all students
         // Get all students from master table with report count
         $query = "SELECT
+                  s.id,
                   s.admission_no,
                   s.name,
                   s.gender,

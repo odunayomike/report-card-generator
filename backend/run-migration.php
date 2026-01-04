@@ -1,7 +1,7 @@
 <?php
 /**
- * Migration Runner
- * Run this script to execute the contact_messages table migration
+ * Database Migration Runner
+ * Run this script to apply database migrations
  */
 
 require_once __DIR__ . '/config/database.php';

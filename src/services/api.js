@@ -250,6 +250,47 @@ export const getSchoolProfile = async () => {
 };
 
 /**
+ * Get all classes configured for the school
+ * @returns {Promise} - API response with classes array
+ */
+export const getSchoolClasses = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/school/get-classes`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching school classes:', error);
+    throw error;
+  }
+};
+
+/**
+ * Update school's current session and term
+ * @param {string} currentSession - The current academic session (e.g., "2024/2025")
+ * @param {string} currentTerm - The current term (First Term, Second Term, Third Term)
+ * @returns {Promise} - API response
+ */
+export const updateSchoolSession = async (currentSession, currentTerm) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/school/update-session`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ current_session: currentSession, current_term: currentTerm })
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error updating school session:', error);
+    throw error;
+  }
+};
+
+/**
  * Update school basic profile information
  * @param {Object} profileData - Profile data to update (school_name, email, phone, address, motto, colors)
  * @returns {Promise} - API response
@@ -486,6 +527,29 @@ export const assignTeacherClasses = async (assignmentData) => {
     return data;
   } catch (error) {
     console.error('Error assigning classes:', error);
+    throw error;
+  }
+};
+
+/**
+ * Unassign a class/subject from a teacher
+ * @param {Object} unassignData - Teacher ID, class name, session, term, and optional subject
+ * @returns {Promise} - API response
+ */
+export const unassignTeacherClass = async (unassignData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/teachers/unassign-class`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(unassignData)
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error unassigning class:', error);
     throw error;
   }
 };
@@ -1053,6 +1117,159 @@ export const removeParentStudent = async (studentId, parentId) => {
     return data;
   } catch (error) {
     console.error('Error removing parent-student relationship:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get default subject templates for a class
+ * @param {string} className - The class name
+ * @returns {Promise} - API response with default subjects
+ */
+export const getDefaultSubjects = async (className) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/subjects/get-default-subjects?class_name=${encodeURIComponent(className)}`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching default subjects:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get configured subjects for a class
+ * @param {string} className - The class name
+ * @returns {Promise} - API response with class subjects
+ */
+export const getClassSubjects = async (className) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/subjects/get-class-subjects?class_name=${encodeURIComponent(className)}`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching class subjects:', error);
+    throw error;
+  }
+};
+
+/**
+ * Configure subjects for a class
+ * @param {string} className - The class name
+ * @param {Array} subjects - Array of subject objects {name, is_core}
+ * @returns {Promise} - API response
+ */
+export const configureClassSubjects = async (className, subjects) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/subjects/configure-class-subjects`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ class_name: className, subjects })
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error configuring class subjects:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get student's enrolled subjects
+ * @param {number} studentId - The student ID
+ * @param {string} session - The session
+ * @returns {Promise} - API response with student subjects
+ */
+export const getStudentSubjects = async (studentId, session) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/subjects/get-student-subjects?student_id=${studentId}&session=${encodeURIComponent(session)}`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching student subjects:', error);
+    throw error;
+  }
+};
+
+/**
+ * Enroll a student in subjects
+ * @param {number} studentId - The student ID
+ * @param {Array} subjects - Array of subject names
+ * @param {string} session - The session
+ * @returns {Promise} - API response
+ */
+export const enrollStudent = async (studentId, subjects, session) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/subjects/enroll-student`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ student_id: studentId, subjects, session })
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error enrolling student:', error);
+    throw error;
+  }
+};
+
+/**
+ * Bulk enroll students in subjects
+ * @param {Array} enrollments - Array of {student_id, subjects}
+ * @param {string} session - The session
+ * @param {string} className - The class name
+ * @returns {Promise} - API response
+ */
+export const bulkEnrollStudents = async (enrollments, session, className) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/subjects/bulk-enroll-students`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ enrollments, session, class_name: className })
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error bulk enrolling students:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get students enrolled in a subject
+ * @param {string} subjectName - The subject name
+ * @param {string} session - The session
+ * @param {string} className - Optional class name filter
+ * @returns {Promise} - API response with students
+ */
+export const getSubjectStudents = async (subjectName, session, className = '') => {
+  try {
+    let url = `${API_BASE_URL}/subjects/get-subject-students?subject_name=${encodeURIComponent(subjectName)}&session=${encodeURIComponent(session)}`;
+    if (className) {
+      url += `&class_name=${encodeURIComponent(className)}`;
+    }
+    const response = await fetch(url, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching subject students:', error);
     throw error;
   }
 };

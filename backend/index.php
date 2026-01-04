@@ -150,8 +150,41 @@ try {
             require __DIR__ . '/routes/teachers/assign-class.php';
             break;
 
+        case '/teachers/unassign-class':
+            require __DIR__ . '/routes/teachers/unassign-class.php';
+            break;
+
         case '/teachers/get-my-classes':
             require __DIR__ . '/routes/teachers/get-my-classes.php';
+            break;
+
+        // Subject Management routes
+        case '/subjects/get-default-subjects':
+            require __DIR__ . '/routes/subjects/get-default-subjects.php';
+            break;
+
+        case '/subjects/get-class-subjects':
+            require __DIR__ . '/routes/subjects/get-class-subjects.php';
+            break;
+
+        case '/subjects/configure-class-subjects':
+            require __DIR__ . '/routes/subjects/configure-class-subjects.php';
+            break;
+
+        case '/subjects/get-student-subjects':
+            require __DIR__ . '/routes/subjects/get-student-subjects.php';
+            break;
+
+        case '/subjects/enroll-student':
+            require __DIR__ . '/routes/subjects/enroll-student.php';
+            break;
+
+        case '/subjects/bulk-enroll-students':
+            require __DIR__ . '/routes/subjects/bulk-enroll-students.php';
+            break;
+
+        case '/subjects/get-subject-students':
+            require __DIR__ . '/routes/subjects/get-subject-students.php';
             break;
 
         // Attendance routes (for teachers)
@@ -251,6 +284,10 @@ try {
 
         case '/school/change-password':
             require __DIR__ . '/routes/school/change-password.php';
+            break;
+
+        case '/school/update-session':
+            require __DIR__ . '/routes/school/update-session.php';
             break;
 
         case '/school/get-classes':

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getSchoolProfile, updateSchoolSettings } from '../services/api';
+import { getSchoolProfile, updateSchoolSettings, updateSchoolSession } from '../services/api';
 import { useToastContext } from '../context/ToastContext';
 
 export default function SchoolSettings() {
@@ -39,6 +39,10 @@ export default function SchoolSettings() {
     header_text: '',
     footer_text: ''
   });
+
+  const [currentSession, setCurrentSession] = useState('');
+  const [currentTerm, setCurrentTerm] = useState('First Term');
+  const [savingSession, setSavingSession] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -85,12 +89,44 @@ export default function SchoolSettings() {
           header_text: response.data.header_text || '',
           footer_text: response.data.footer_text || ''
         });
+
+        // Load current session and term
+        if (response.data.current_session) {
+          setCurrentSession(response.data.current_session);
+        }
+        if (response.data.current_term) {
+          setCurrentTerm(response.data.current_term);
+        }
       }
     } catch (error) {
       console.error('Error:', error);
       toast.error('Failed to load settings.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveSession = async () => {
+    if (!currentSession.trim()) {
+      toast.error('Please enter a session (e.g., 2024/2025)');
+      return;
+    }
+
+    try {
+      setSavingSession(true);
+      const response = await updateSchoolSession(currentSession, currentTerm);
+
+      if (response.success) {
+        toast.success('Current session updated successfully!');
+        loadSettings(); // Reload to get updated data
+      } else {
+        toast.error(response.message || 'Failed to update session');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Failed to update session');
+    } finally {
+      setSavingSession(false);
     }
   };
 
@@ -704,6 +740,62 @@ export default function SchoolSettings() {
               >
                 {saving ? 'Saving...' : 'Save Academic Year'}
               </button>
+
+              {/* Current Session/Term Section */}
+              <div className="mt-12 pt-12 border-t border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Session & Term</h3>
+                <p className="text-sm text-gray-600 mb-6">
+                  Set the current academic session and term. This will be used as the default throughout the system.
+                  Update this when the session or term changes.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Current Session <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={currentSession}
+                      onChange={(e) => setCurrentSession(e.target.value)}
+                      placeholder="e.g., 2024/2025"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Format: YYYY/YYYY (e.g., 2024/2025)</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Current Term <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={currentTerm}
+                      onChange={(e) => setCurrentTerm(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500"
+                    >
+                      <option value="First Term">First Term</option>
+                      <option value="Second Term">Second Term</option>
+                      <option value="Third Term">Third Term</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleSaveSession}
+                  disabled={savingSession}
+                  className="mt-6 px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors disabled:bg-gray-400"
+                >
+                  {savingSession ? 'Saving...' : 'Save Session & Term'}
+                </button>
+
+                {currentSession && currentTerm && (
+                  <div className="mt-4 p-4 bg-primary-50 border border-primary-200 rounded-lg">
+                    <p className="text-sm text-primary-900">
+                      <strong>Current:</strong> {currentSession} - {currentTerm}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

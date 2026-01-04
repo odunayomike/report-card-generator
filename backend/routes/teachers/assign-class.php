@@ -52,25 +52,27 @@ try {
         exit;
     }
 
-    // Delete existing class assignments for this teacher
-    $deleteQuery = "DELETE FROM teacher_classes WHERE teacher_id = ?";
-    $deleteStmt = $db->prepare($deleteQuery);
-    $deleteStmt->execute([$teacherId]);
-
-    // Insert new class assignments
+    // Insert new class assignments (using INSERT IGNORE to skip duplicates due to unique constraint)
     if (!empty($classes)) {
-        $insertQuery = "INSERT INTO teacher_classes (teacher_id, class_name, school_id, session, term)
-                        VALUES (?, ?, ?, ?, ?)";
+        $insertQuery = "INSERT IGNORE INTO teacher_classes (teacher_id, class_name, school_id, session, term, subject)
+                        VALUES (?, ?, ?, ?, ?, ?)";
         $insertStmt = $db->prepare($insertQuery);
 
         foreach ($classes as $class) {
             // Trim and normalize whitespace
             $className = trim($class['class_name'] ?? '');
             $session = trim($class['session'] ?? '');
-            $term = trim($class['term'] ?? '');
+            $term = isset($class['term']) && !empty(trim($class['term'])) ? trim($class['term']) : null;
+            $subject = isset($class['subject']) ? trim($class['subject']) : null;
 
-            if (!empty($className) && !empty($session) && !empty($term)) {
-                $insertStmt->execute([$teacherId, $className, $_SESSION['school_id'], $session, $term]);
+            // If subject is empty string, convert to NULL for full class assignment
+            if ($subject === '') {
+                $subject = null;
+            }
+
+            // Term is now optional, only class_name and session are required
+            if (!empty($className) && !empty($session)) {
+                $insertStmt->execute([$teacherId, $className, $_SESSION['school_id'], $session, $term, $subject]);
             }
         }
     }

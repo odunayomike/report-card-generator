@@ -91,6 +91,33 @@ try {
     if ($success) {
         $student_id = $db->lastInsertId();
 
+        // Auto-enroll student in class default subjects if class and session are provided
+        if (!empty($data['class']) && !empty($data['session'])) {
+            try {
+                // Get class subjects configured for this school and class
+                $subjectsQuery = "SELECT subject_name FROM class_subjects
+                                 WHERE school_id = ? AND class_name = ?";
+                $subjectsStmt = $db->prepare($subjectsQuery);
+                $subjectsStmt->execute([$schoolId, $data['class']]);
+                $classSubjects = $subjectsStmt->fetchAll(PDO::FETCH_COLUMN);
+
+                // If class has configured subjects, enroll student in them
+                if (!empty($classSubjects)) {
+                    $enrollQuery = "INSERT INTO student_subject_enrollment
+                                   (student_id, subject_name, school_id, session)
+                                   VALUES (?, ?, ?, ?)";
+                    $enrollStmt = $db->prepare($enrollQuery);
+
+                    foreach ($classSubjects as $subject) {
+                        $enrollStmt->execute([$student_id, $subject, $schoolId, $data['session']]);
+                    }
+                }
+            } catch (Exception $e) {
+                // Log enrollment error but don't fail student creation
+                error_log("Auto-enrollment failed for student $student_id: " . $e->getMessage());
+            }
+        }
+
         echo json_encode([
             'success' => true,
             'message' => 'Student profile created successfully',

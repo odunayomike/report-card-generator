@@ -21,36 +21,82 @@ $database = new Database();
 $db = $database->getConnection();
 
 try {
-    // Get unique class/session/term combinations from report_cards
+    // Get unique class names from students table
     $query = "SELECT DISTINCT
-                rc.class as class_name,
-                rc.session,
-                rc.term,
-                COUNT(DISTINCT rc.student_admission_no) as student_count
-              FROM report_cards rc
-              WHERE rc.school_id = ?
-                AND rc.class IS NOT NULL
-                AND rc.class != ''
-                AND rc.session IS NOT NULL
-                AND rc.session != ''
-                AND rc.term IS NOT NULL
-                AND rc.term != ''
-              GROUP BY rc.class, rc.session, rc.term
-              ORDER BY rc.session DESC, rc.term ASC, rc.class ASC";
+                s.current_class as class_name,
+                COUNT(DISTINCT s.id) as student_count
+              FROM students s
+              WHERE s.school_id = ?
+                AND s.current_class IS NOT NULL
+                AND s.current_class != ''
+              GROUP BY s.current_class
+              ORDER BY s.current_class ASC";
 
     $stmt = $db->prepare($query);
     $stmt->execute([$_SESSION['school_id']]);
-    $classes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $classResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Add IDs to classes
-    foreach ($classes as $index => &$class) {
-        $class['id'] = "{$class['class_name']}-{$class['session']}-{$class['term']}";
+    // Get unique sessions from report_cards
+    $sessionQuery = "SELECT DISTINCT session
+                     FROM report_cards
+                     WHERE school_id = ?
+                       AND session IS NOT NULL
+                       AND session != ''
+                     ORDER BY session DESC";
+
+    $sessionStmt = $db->prepare($sessionQuery);
+    $sessionStmt->execute([$_SESSION['school_id']]);
+    $sessions = $sessionStmt->fetchAll(PDO::FETCH_COLUMN);
+
+    // Get current session from school settings
+    $schoolQuery = "SELECT current_session, current_term FROM schools WHERE id = ?";
+    $schoolStmt = $db->prepare($schoolQuery);
+    $schoolStmt->execute([$_SESSION['school_id']]);
+    $schoolData = $schoolStmt->fetch(PDO::FETCH_ASSOC);
+
+    // Build response with class/session/term combinations
+    $classes = [];
+    foreach ($classResults as $classData) {
+        // Add entry for current session/term from school settings
+        if ($schoolData && $schoolData['current_session'] && $schoolData['current_term']) {
+            $classes[] = [
+                'class_name' => $classData['class_name'],
+                'session' => $schoolData['current_session'],
+                'term' => $schoolData['current_term'],
+                'student_count' => $classData['student_count'],
+                'id' => "{$classData['class_name']}-{$schoolData['current_session']}-{$schoolData['current_term']}"
+            ];
+        }
+
+        // Add entries for historical sessions from report_cards
+        foreach ($sessions as $session) {
+            foreach (['First Term', 'Second Term', 'Third Term'] as $term) {
+                $classes[] = [
+                    'class_name' => $classData['class_name'],
+                    'session' => $session,
+                    'term' => $term,
+                    'student_count' => $classData['student_count'],
+                    'id' => "{$classData['class_name']}-{$session}-{$term}"
+                ];
+            }
+        }
+    }
+
+    // Remove duplicates
+    $uniqueClasses = [];
+    $seen = [];
+    foreach ($classes as $class) {
+        $key = $class['id'];
+        if (!isset($seen[$key])) {
+            $uniqueClasses[] = $class;
+            $seen[$key] = true;
+        }
     }
 
     echo json_encode([
         'success' => true,
-        'classes' => $classes,
-        'total' => count($classes)
+        'classes' => $uniqueClasses,
+        'total' => count($uniqueClasses)
     ]);
 
 } catch (PDOException $e) {

@@ -1,60 +1,78 @@
 <?php
 /**
- * Run Database Migration
+ * Migration Runner Script
+ * Run this script to execute a migration file
  */
 
-require_once 'config/database.php';
+require_once __DIR__ . '/config/database.php';
+
+// Check if migration file is provided
+if ($argc < 2) {
+    echo "Usage: php run_migration.php <migration_file_path>\n";
+    echo "Example: php run_migration.php migrations/make_teacher_classes_term_optional.sql\n";
+    exit(1);
+}
+
+$migrationFile = $argv[1];
+$fullPath = __DIR__ . '/' . $migrationFile;
+
+// Check if file exists
+if (!file_exists($fullPath)) {
+    echo "Error: Migration file not found: $fullPath\n";
+    exit(1);
+}
+
+echo "Running migration: $migrationFile\n";
+echo str_repeat("-", 50) . "\n";
 
 try {
+    // Get database connection
     $database = new Database();
     $db = $database->getConnection();
 
-    // Read the migration file
-    $migrationSQL = file_get_contents(__DIR__ . '/migration_school_profile_settings.sql');
+    // Read SQL file
+    $sql = file_get_contents($fullPath);
 
-    // Remove SQL comments
-    $lines = explode("\n", $migrationSQL);
-    $cleanedSQL = '';
-    foreach ($lines as $line) {
-        $line = trim($line);
-        // Skip empty lines and comment lines
-        if (empty($line) || strpos($line, '--') === 0) {
-            continue;
+    // Split SQL statements by semicolon
+    $statements = array_filter(
+        array_map('trim', explode(';', $sql)),
+        function($stmt) {
+            // Remove empty statements and comments
+            $stmt = trim($stmt);
+            return !empty($stmt) && strpos($stmt, '--') !== 0;
         }
-        $cleanedSQL .= ' ' . $line;
-    }
+    );
 
-    // Split by semicolon to get individual statements
-    $statements = explode(';', $cleanedSQL);
-    $statements = array_filter(array_map('trim', $statements));
-
-    echo "Starting migration...\n";
-    echo "Number of statements to execute: " . count($statements) . "\n\n";
+    // Execute each statement
+    $db->beginTransaction();
 
     foreach ($statements as $index => $statement) {
         if (empty(trim($statement))) {
             continue;
         }
 
+        echo "\nExecuting statement " . ($index + 1) . "...\n";
+        echo substr($statement, 0, 100) . (strlen($statement) > 100 ? '...' : '') . "\n";
+
         try {
-            echo "Executing statement " . ($index + 1) . "...\n";
-            echo substr($statement, 0, 80) . "...\n";
             $db->exec($statement);
-            echo "✓ Success\n\n";
+            echo "✓ Success\n";
         } catch (PDOException $e) {
-            // Check if error is about duplicate column (column already exists)
-            if (strpos($e->getMessage(), 'Duplicate column name') !== false) {
-                echo "⚠ Column already exists, skipping...\n\n";
-            } else {
-                echo "✗ Error: " . $e->getMessage() . "\n\n";
-                throw $e;
-            }
+            echo "✗ Error: " . $e->getMessage() . "\n";
+            throw $e;
         }
     }
 
+    $db->commit();
+
+    echo "\n" . str_repeat("-", 50) . "\n";
     echo "Migration completed successfully!\n";
 
 } catch (Exception $e) {
+    if (isset($db)) {
+        $db->rollBack();
+    }
+    echo "\n" . str_repeat("-", 50) . "\n";
     echo "Migration failed: " . $e->getMessage() . "\n";
     exit(1);
 }

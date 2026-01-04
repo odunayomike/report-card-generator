@@ -55,13 +55,41 @@ try {
         }
     }
 
-    // Get students in this class (using current_class from students table)
+    // Get students in this class
+    // If teacher has subject assignment, filter by subject enrollment
+    // Otherwise show all students in class
+    $teacherSubject = null;
+    if ($isTeacher) {
+        $teacherSubjectQuery = "SELECT subject FROM teacher_classes
+                                WHERE teacher_id = ? AND class_name = ? AND session = ?
+                                LIMIT 1";
+        $teacherSubjectStmt = $db->prepare($teacherSubjectQuery);
+        $teacherSubjectStmt->execute([$userId, $className, $session]);
+        $result = $teacherSubjectStmt->fetch(PDO::FETCH_ASSOC);
+        $teacherSubject = $result ? $result['subject'] : null;
+    }
+
     $query = "SELECT DISTINCT s.id, s.name, s.admission_no, s.current_class as class_name
               FROM students s
-              WHERE s.school_id = ? AND s.current_class = ?
-              ORDER BY s.name ASC";
-    $stmt = $db->prepare($query);
-    $stmt->execute([$schoolId, $className]);
+              WHERE s.school_id = ? AND s.current_class = ?";
+
+    // If teacher has a specific subject, filter by enrollment
+    if ($isTeacher && $teacherSubject) {
+        $query .= " AND EXISTS (
+                        SELECT 1 FROM student_subject_enrollment sse
+                        WHERE sse.student_id = s.id
+                        AND sse.subject_name = ?
+                        AND sse.session = ?
+                    )";
+        $query .= " ORDER BY s.name ASC";
+        $stmt = $db->prepare($query);
+        $stmt->execute([$schoolId, $className, $teacherSubject, $session]);
+    } else {
+        $query .= " ORDER BY s.name ASC";
+        $stmt = $db->prepare($query);
+        $stmt->execute([$schoolId, $className]);
+    }
+
     $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode([

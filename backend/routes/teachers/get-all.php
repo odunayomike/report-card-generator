@@ -18,7 +18,7 @@ try {
     // Get all teachers for this school with their assigned classes
     $query = "SELECT t.id, t.name, t.email, t.phone, t.is_active, t.created_at,
               GROUP_CONCAT(
-                  DISTINCT CONCAT(tc.class_name, '|', tc.session, '|', tc.term)
+                  DISTINCT CONCAT(tc.class_name, '|', tc.session, '|', IFNULL(tc.term, ''), '|', IFNULL(tc.subject, ''))
                   SEPARATOR ';;'
               ) as classes
               FROM teachers t
@@ -39,12 +39,17 @@ try {
             $classesList = explode(';;', $teacher['classes']);
             foreach ($classesList as $classInfo) {
                 $parts = explode('|', $classInfo);
-                if (count($parts) === 3) {
-                    $classesArray[] = [
+                if (count($parts) === 4) {
+                    $classData = [
                         'class_name' => $parts[0],
                         'session' => $parts[1],
                         'term' => $parts[2]
                     ];
+                    // Only add subject if it's not empty
+                    if (!empty($parts[3])) {
+                        $classData['subject'] = $parts[3];
+                    }
+                    $classesArray[] = $classData;
                 }
             }
         }
