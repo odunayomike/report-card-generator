@@ -23,8 +23,12 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . /var/www/html/
 
-# Create config files from templates
-RUN cp /var/www/html/config/env.template.php /var/www/html/config/env.php && \
+# Create config files from templates (force overwrite if they exist)
+RUN rm -f /var/www/html/config/env.php \
+           /var/www/html/config/cors.php \
+           /var/www/html/config/database.php \
+           /var/www/html/config/paystack.php && \
+    cp /var/www/html/config/env.template.php /var/www/html/config/env.php && \
     cp /var/www/html/config/cors.template.php /var/www/html/config/cors.php && \
     cp /var/www/html/config/database.template.php /var/www/html/config/database.php && \
     cp /var/www/html/config/paystack.template.php /var/www/html/config/paystack.php
