@@ -1,18 +1,18 @@
 # Enable Rewrite Engine
 RewriteEngine On
 
-# Set the base directory
-RewriteBase /backend/
+# Set the base directory (root for Docker deployment, /backend/ for local)
+RewriteBase /
 
 # TEST: Check if .htaccess is working
 RewriteRule ^htaccess-test$ test-htaccess.php [L]
 
 # Allow access to temp directory for PDF files
-RewriteCond %{REQUEST_URI} ^/backend/temp/.*\.pdf$ [NC]
+RewriteCond %{REQUEST_URI} ^/temp/.*\.pdf$ [NC]
 RewriteRule ^ - [L]
 
 # Allow access to uploads directory
-RewriteCond %{REQUEST_URI} ^/backend/uploads/ [NC]
+RewriteCond %{REQUEST_URI} ^/uploads/ [NC]
 RewriteRule ^ - [L]
 
 # If the request is for a real file or directory, serve it directly
