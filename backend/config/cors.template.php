@@ -7,6 +7,10 @@
 $allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
+    'https://schoolhub.tech',
+    'http://schoolhub.tech',
+    'https://www.schoolhub.tech',
+    'http://www.schoolhub.tech',
     'http://uoocs48oss8ss0k0gw8wcsk8.159.195.43.234.sslip.io',
     'https://uoocs48oss8ss0k0gw8wcsk8.159.195.43.234.sslip.io'
 ];
