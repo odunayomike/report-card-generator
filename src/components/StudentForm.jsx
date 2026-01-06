@@ -17,6 +17,10 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
   const dropdownRef = useRef(null);
   const [availableSessions, setAvailableSessions] = useState([]);
   const [currentSession, setCurrentSession] = useState('');
+  const [useCABreakdown, setUseCABreakdown] = useState(false);
+  const [caComponents, setCAComponents] = useState([]);
+  const [caMaxMarks, setCAMaxMarks] = useState(40);
+  const [examMaxMarks, setExamMaxMarks] = useState(60);
 
   const [formData, setFormData] = useState({
     // Student Info
@@ -83,22 +87,38 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
           setAvailableSessions(uniqueSessions);
         }
 
-        // Get current session from school profile
+        // Get current session and CA configuration from school profile
         const profileResponse = await getSchoolProfile();
-        if (profileResponse.success && profileResponse.data.current_session) {
-          setCurrentSession(profileResponse.data.current_session);
+        if (profileResponse.success) {
+          if (profileResponse.data.current_session) {
+            setCurrentSession(profileResponse.data.current_session);
 
-          // Add current session to available sessions if not already there and pre-select it
-          setAvailableSessions(prev => {
-            if (!prev.includes(profileResponse.data.current_session)) {
-              return [profileResponse.data.current_session, ...prev];
+            // Add current session to available sessions if not already there and pre-select it
+            setAvailableSessions(prev => {
+              if (!prev.includes(profileResponse.data.current_session)) {
+                return [profileResponse.data.current_session, ...prev];
+              }
+              return prev;
+            });
+
+            // Pre-fill session if creating a new report (not editing)
+            if (!initialData) {
+              setFormData(prev => ({ ...prev, session: profileResponse.data.current_session }));
             }
-            return prev;
-          });
+          }
 
-          // Pre-fill session if creating a new report (not editing)
-          if (!initialData) {
-            setFormData(prev => ({ ...prev, session: profileResponse.data.current_session }));
+          // Load CA breakdown configuration
+          if (profileResponse.data.use_ca_breakdown) {
+            setUseCABreakdown(true);
+            setCAComponents(profileResponse.data.ca_components || []);
+          }
+
+          // Load CA and Exam max marks
+          if (profileResponse.data.ca_max_marks) {
+            setCAMaxMarks(profileResponse.data.ca_max_marks);
+          }
+          if (profileResponse.data.exam_max_marks) {
+            setExamMaxMarks(profileResponse.data.exam_max_marks);
           }
         }
       } catch (err) {
@@ -267,29 +287,28 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
       const subjects = [...(prev.subjects || [])];
       const index = subjects.findIndex(s => s.name === subjectName);
 
-      // Validate CA and Exam scores
-      let validatedValue = value;
-      if (field === 'ca') {
-        const numValue = parseFloat(value);
-        if (numValue > 40) validatedValue = '40';
-        if (numValue < 0) validatedValue = '0';
-      } else if (field === 'exam') {
-        const numValue = parseFloat(value);
-        if (numValue > 60) validatedValue = '60';
-        if (numValue < 0) validatedValue = '0';
-      }
-
       let updatedSubject;
       if (index >= 0) {
-        updatedSubject = { ...subjects[index], [field]: validatedValue };
+        updatedSubject = { ...subjects[index], [field]: value };
       } else {
-        updatedSubject = { name: subjectName, [field]: validatedValue };
+        updatedSubject = { name: subjectName, [field]: value };
       }
 
-      // Auto-calculate total when CA or Exam is entered
-      if (field === 'ca' || field === 'exam') {
-        const ca = field === 'ca' ? parseFloat(validatedValue) || 0 : parseFloat(updatedSubject.ca) || 0;
-        const exam = field === 'exam' ? parseFloat(validatedValue) || 0 : parseFloat(updatedSubject.exam) || 0;
+      // Auto-calculate total
+      if (useCABreakdown) {
+        // Sum all CA components + Exam
+        let totalCA = 0;
+        caComponents.forEach((_, idx) => {
+          const componentField = `ca_component_${idx}`;
+          totalCA += parseFloat(updatedSubject[componentField] || 0);
+        });
+        const exam = parseFloat(updatedSubject.exam || 0);
+        updatedSubject.ca = totalCA.toString(); // Store total CA for compatibility
+        updatedSubject.total = (totalCA + exam).toString();
+      } else {
+        // Simple CA + Exam
+        const ca = parseFloat(updatedSubject.ca || 0);
+        const exam = parseFloat(updatedSubject.exam || 0);
         updatedSubject.total = (ca + exam).toString();
       }
 
@@ -714,7 +733,11 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
         {currentStep === 2 && (
           <section className="border-b pb-6">
           <h3 className="text-base font-semibold text-gray-700 mb-3">Subject Grades (Cognitive Domain)</h3>
-          <p className="text-xs text-gray-600 mb-3">Enter CA (Continuous Assessment - max 40) and Exam (max 60). Total will be calculated automatically.</p>
+          <p className="text-xs text-gray-600 mb-3">
+            {useCABreakdown
+              ? `Enter individual CA components and Exam scores. Total will be calculated automatically.`
+              : `Enter CA (max ${caMaxMarks}) and Exam (max ${examMaxMarks}). Total will be calculated automatically.`}
+          </p>
 
           {/* Add Subjects Interface */}
           <div className="mb-4 space-y-4">
@@ -775,8 +798,21 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 <thead className="bg-gray-100">
                   <tr>
                     <th className="px-4 py-2 text-left text-xs font-semibold text-gray-700 border-r">Subject</th>
-                    <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700 border-r">CA (40)</th>
-                    <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700 border-r">Exam (60)</th>
+                    {useCABreakdown ? (
+                      <>
+                        {caComponents.map((component, idx) => (
+                          <th key={idx} className="px-4 py-2 text-center text-xs font-semibold text-gray-700 border-r">
+                            {component.name} ({component.max_marks})
+                          </th>
+                        ))}
+                        <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700 border-r bg-blue-50">
+                          Total CA ({caMaxMarks})
+                        </th>
+                      </>
+                    ) : (
+                      <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700 border-r">CA ({caMaxMarks})</th>
+                    )}
+                    <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700 border-r">Exam ({examMaxMarks})</th>
                     <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700 border-r">Total (100)</th>
                     <th className="px-4 py-2 text-center text-xs font-semibold text-gray-700">Action</th>
                   </tr>
@@ -784,25 +820,62 @@ export default function StudentForm({ onSubmit, saving = false, school, initialD
                 <tbody>
                   {activeSubjects.map((subjectName) => {
                     const subjectData = formData.subjects.find(s => s.name === subjectName);
+
+                    // Calculate total CA from components
+                    let totalCA = 0;
+                    if (useCABreakdown) {
+                      caComponents.forEach((_, idx) => {
+                        totalCA += parseFloat(subjectData?.[`ca_component_${idx}`] || 0);
+                      });
+                    }
+
                     return (
                       <tr key={subjectName} className="border-b hover:bg-gray-50">
                         <td className="px-4 py-2 text-xs text-gray-700 border-r font-medium">{subjectName}</td>
+
+                        {useCABreakdown ? (
+                          <>
+                            {caComponents.map((component, idx) => (
+                              <td key={idx} className="px-4 py-2 border-r">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="0.5"
+                                  placeholder={component.name}
+                                  value={subjectData?.[`ca_component_${idx}`] || ''}
+                                  onChange={(e) => handleSubjectChange(subjectName, `ca_component_${idx}`, e.target.value)}
+                                  className="w-full px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
+                                />
+                              </td>
+                            ))}
+                            <td className="px-4 py-2 border-r bg-blue-50">
+                              <input
+                                type="text"
+                                value={totalCA.toFixed(2)}
+                                readOnly
+                                className="w-full px-2 py-1 bg-blue-100 border border-blue-300 rounded text-center font-semibold text-xs"
+                              />
+                            </td>
+                          </>
+                        ) : (
+                          <td className="px-4 py-2 border-r">
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.5"
+                              placeholder="CA"
+                              value={subjectData?.ca || ''}
+                              onChange={(e) => handleSubjectChange(subjectName, 'ca', e.target.value)}
+                              className="w-full px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
+                            />
+                          </td>
+                        )}
+
                         <td className="px-4 py-2 border-r">
                           <input
                             type="number"
                             min="0"
-                            max="40"
-                            placeholder="CA"
-                            value={subjectData?.ca || ''}
-                            onChange={(e) => handleSubjectChange(subjectName, 'ca', e.target.value)}
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-center focus:outline-none focus:ring-2 focus:ring-primary-500 text-xs"
-                          />
-                        </td>
-                        <td className="px-4 py-2 border-r">
-                          <input
-                            type="number"
-                            min="0"
-                            max="60"
+                            step="0.5"
                             placeholder="Exam"
                             value={subjectData?.exam || ''}
                             onChange={(e) => handleSubjectChange(subjectName, 'exam', e.target.value)}

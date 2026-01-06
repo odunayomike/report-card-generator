@@ -85,6 +85,17 @@ try {
         $params[':exam_max_marks'] = intval($input['exam_max_marks']);
     }
 
+    // Handle CA breakdown configuration
+    if (isset($input['use_ca_breakdown'])) {
+        $updateFields[] = "use_ca_breakdown = :use_ca_breakdown";
+        $params[':use_ca_breakdown'] = $input['use_ca_breakdown'] ? 1 : 0;
+    }
+
+    if (isset($input['ca_components'])) {
+        $updateFields[] = "ca_components = :ca_components";
+        $params[':ca_components'] = json_encode($input['ca_components']);
+    }
+
     // Handle report customization
     if (isset($input['report_template'])) {
         $updateFields[] = "report_template = :report_template";
@@ -140,6 +151,8 @@ try {
                         assessment_types,
                         ca_max_marks,
                         exam_max_marks,
+                        use_ca_breakdown,
+                        ca_components,
                         report_template,
                         show_logo_on_report,
                         show_motto_on_report,
@@ -165,6 +178,12 @@ try {
         if ($updatedSettings['assessment_types']) {
             $updatedSettings['assessment_types'] = json_decode($updatedSettings['assessment_types'], true);
         }
+        if ($updatedSettings['ca_components']) {
+            $updatedSettings['ca_components'] = json_decode($updatedSettings['ca_components'], true);
+        }
+
+        // Convert boolean fields
+        $updatedSettings['use_ca_breakdown'] = (bool)$updatedSettings['use_ca_breakdown'];
 
         echo json_encode([
             'success' => true,

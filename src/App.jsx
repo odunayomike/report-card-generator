@@ -7,6 +7,7 @@ import CookieBanner from './components/CookieBanner';
 import ScrollToTop from './components/ScrollToTop';
 import LandingPage from './components/LandingPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import SkeletonLoader from './components/SkeletonLoader';
 
 const Login = lazy(() => import('./components/Login'));
 const Register = lazy(() => import('./components/Register'));
@@ -351,7 +352,7 @@ function App() {
         <Router>
           <ScrollToTop />
           <CookieBanner />
-          <Suspense fallback={<div id="app-loading"></div>}>
+          <Suspense fallback={<SkeletonLoader />}>
             <Routes>
         <Route
           path="/"
@@ -450,6 +451,8 @@ function App() {
           <Route path="create-report" element={<ProtectedRoute school={teacher?.school}><CreateReport school={teacher?.school_id ? { id: teacher.school_id } : school} /></ProtectedRoute>} />
           <Route path="reports/:id" element={<ProtectedRoute school={teacher?.school}><ViewReport school={teacher?.school_id ? { id: teacher.school_id } : school} /></ProtectedRoute>} />
           <Route path="reports/:id/edit" element={<ProtectedRoute school={teacher?.school}><EditReport school={teacher?.school_id ? { id: teacher.school_id } : school} /></ProtectedRoute>} />
+          <Route path="manage-class-subjects" element={<ProtectedRoute school={teacher?.school}><ManageClassSubjects /></ProtectedRoute>} />
+          <Route path="manage-student-subjects" element={<ProtectedRoute school={teacher?.school}><ManageStudentSubjects /></ProtectedRoute>} />
           <Route path="cbt" element={<ProtectedRoute school={teacher?.school}><CBTDashboard /></ProtectedRoute>} />
           <Route path="cbt/questions" element={<ProtectedRoute school={teacher?.school}><QuestionBank /></ProtectedRoute>} />
           <Route path="cbt/exams" element={<ProtectedRoute school={teacher?.school}><ExamManagement /></ProtectedRoute>} />

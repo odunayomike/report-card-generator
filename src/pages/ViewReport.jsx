@@ -48,13 +48,29 @@ export default function ViewReport({ school }) {
       const response = await generateReportPDF(id);
 
       if (response.success && response.url) {
-        // Create a temporary link and trigger download
+        // Fetch the PDF as a blob to ensure proper binary download
+        const pdfResponse = await fetch(response.url, {
+          credentials: 'include'
+        });
+
+        if (!pdfResponse.ok) {
+          throw new Error('Failed to fetch PDF file');
+        }
+
+        // Get the PDF as a blob
+        const blob = await pdfResponse.blob();
+
+        // Create a blob URL and trigger download
+        const blobUrl = URL.createObjectURL(blob);
         const link = document.createElement('a');
-        link.href = response.url;
-        link.download = response.filename;
+        link.href = blobUrl;
+        link.download = response.filename || 'report-card.pdf';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+
+        // Clean up the blob URL after a short delay
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
 
         // Show success message with method used
         const method = response.method === 'tcpdf' ? 'TCPDF (Pure PHP)' : 'Puppeteer';

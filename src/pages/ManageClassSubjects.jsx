@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getDefaultSubjects, getClassSubjects, configureClassSubjects, getSchoolClasses } from '../services/api';
+import { getDefaultSubjects, getClassSubjects, configureClassSubjects, getSchoolClasses, getTeacherAssignedClasses } from '../services/api';
 
 const ManageClassSubjects = () => {
   const [selectedClass, setSelectedClass] = useState('');
@@ -9,6 +9,7 @@ const ManageClassSubjects = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isTeacher, setIsTeacher] = useState(false);
 
   useEffect(() => {
     loadClasses();
@@ -16,11 +17,26 @@ const ManageClassSubjects = () => {
 
   const loadClasses = async () => {
     try {
-      const response = await getSchoolClasses();
-      if (response.success) {
-        // Extract unique class names from the response
-        const uniqueClasses = [...new Set((response.classes || []).map(c => c.class_name))];
-        setAvailableClasses(uniqueClasses);
+      // Check if user is a teacher by checking localStorage
+      const userType = localStorage.getItem('userType');
+      const isTeacherUser = userType === 'teacher';
+      setIsTeacher(isTeacherUser);
+
+      let response;
+      if (isTeacherUser) {
+        // Load only assigned classes for teachers
+        response = await getTeacherAssignedClasses();
+        if (response.success) {
+          setAvailableClasses(response.classes || []);
+        }
+      } else {
+        // Load all school classes for admins
+        response = await getSchoolClasses();
+        if (response.success) {
+          // Extract unique class names from the response
+          const uniqueClasses = [...new Set((response.classes || []).map(c => c.class_name))];
+          setAvailableClasses(uniqueClasses);
+        }
       }
     } catch (err) {
       console.error('Error loading classes:', err);
@@ -124,8 +140,29 @@ const ManageClassSubjects = () => {
       {/* Header */}
       <div className="mb-4">
         <h2 className="text-2xl font-bold text-gray-900 mb-1">Manage Class Subjects</h2>
-        <p className="text-gray-600">Configure which subjects are offered for each class</p>
+        <p className="text-gray-600">
+          {isTeacher
+            ? 'Configure subjects for your assigned classes'
+            : 'Configure which subjects are offered for each class'}
+        </p>
       </div>
+
+      {/* Teacher Info Banner */}
+      {isTeacher && availableClasses.length === 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+          <div className="flex items-start gap-3">
+            <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <h4 className="text-sm font-semibold text-blue-900">No Classes Assigned</h4>
+              <p className="text-sm text-blue-700 mt-1">
+                You don't have any classes assigned yet. Please contact your school administrator to assign classes to you.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Alerts */}
       {error && (

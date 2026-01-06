@@ -1273,3 +1273,37 @@ export const getSubjectStudents = async (subjectName, session, className = '') =
     throw error;
   }
 };
+
+/**
+ * Get classes assigned to the authenticated teacher
+ * @returns {Promise} - API response with array of class names
+ */
+export const getTeacherAssignedClasses = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/teachers/get-assigned-classes`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching teacher assigned classes:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get subjects assigned to the authenticated teacher
+ * @returns {Promise} - API response with array of subject names
+ */
+export const getTeacherAssignedSubjects = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/teachers/get-assigned-subjects`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching teacher assigned subjects:', error);
+    throw error;
+  }
+};

@@ -42,6 +42,8 @@ try {
                 assessment_types,
                 ca_max_marks,
                 exam_max_marks,
+                use_ca_breakdown,
+                ca_components,
                 report_template,
                 show_logo_on_report,
                 show_motto_on_report,
@@ -84,6 +86,12 @@ try {
         // Provide default if not set
         $school['assessment_types'] = ['CA', 'Exam'];
     }
+    if ($school['ca_components']) {
+        $school['ca_components'] = json_decode($school['ca_components'], true);
+    }
+
+    // Convert boolean fields
+    $school['use_ca_breakdown'] = (bool)$school['use_ca_breakdown'];
 
     // Get some stats for the profile
     $statsQuery = "SELECT

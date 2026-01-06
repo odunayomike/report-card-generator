@@ -59,10 +59,11 @@ try {
         // Handle both object and string formats
         if (is_array($subject)) {
             $subjectName = $subject['name'] ?? ($subject['subject_name'] ?? '');
-            $isCore = isset($subject['is_core']) ? (bool)$subject['is_core'] : true;
+            // Convert to integer: true/1 -> 1, false/0 -> 0
+            $isCore = isset($subject['is_core']) ? (int)(bool)$subject['is_core'] : 1;
         } else {
             $subjectName = $subject;
-            $isCore = true;
+            $isCore = 1;
         }
 
         $subjectName = trim($subjectName);

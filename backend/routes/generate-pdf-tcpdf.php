@@ -4,10 +4,18 @@
  * Pure PHP solution - works on all hosting environments
  */
 
+// Start output buffering to catch any errors
+ob_start();
+
+// Suppress error display in favor of clean JSON responses
+ini_set('display_errors', '0');
+error_reporting(E_ALL);
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// Check if user is authenticated
-if (!isset($_SESSION['school_id'])) {
+// Check if user is authenticated (school or teacher)
+if (!isset($_SESSION['school_id']) && !isset($_SESSION['teacher_id'])) {
+    ob_clean();
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
@@ -17,6 +25,7 @@ if (!isset($_SESSION['school_id'])) {
 $reportId = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 if (!$reportId) {
+    ob_clean();
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Report ID is required']);
     exit;
@@ -25,6 +34,17 @@ if (!$reportId) {
 // Get complete report data (same as generate-pdf.php)
 $database = new Database();
 $db = $database->getConnection();
+
+// Get the school_id (from session or teacher's school)
+$schoolId = $_SESSION['school_id'] ?? null;
+if (!$schoolId && isset($_SESSION['teacher_id'])) {
+    // Get school_id from teacher record
+    $teacherQuery = "SELECT school_id FROM teachers WHERE id = ?";
+    $teacherStmt = $db->prepare($teacherQuery);
+    $teacherStmt->execute([$_SESSION['teacher_id']]);
+    $teacher = $teacherStmt->fetch(PDO::FETCH_ASSOC);
+    $schoolId = $teacher['school_id'] ?? null;
+}
 
 $query = "SELECT rc.*,
           sc.school_name, sc.address as school_address, sc.phone as school_phone,
@@ -35,10 +55,11 @@ $query = "SELECT rc.*,
           LEFT JOIN schools sc ON rc.school_id = sc.id
           WHERE rc.id = ? AND rc.school_id = ?";
 $stmt = $db->prepare($query);
-$stmt->execute([$reportId, $_SESSION['school_id']]);
+$stmt->execute([$reportId, $schoolId]);
 $report = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$report) {
+    ob_clean();
     http_response_code(404);
     echo json_encode(['success' => false, 'message' => 'Report not found']);
     exit;
@@ -55,15 +76,27 @@ $subjects_stmt = $db->prepare($subjects_query);
 $subjects_stmt->execute([$reportId]);
 $subjects = $subjects_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$affective_query = "SELECT * FROM affective_domain WHERE report_card_id = ?";
-$affective_stmt = $db->prepare($affective_query);
-$affective_stmt->execute([$reportId]);
-$affective = $affective_stmt->fetchAll(PDO::FETCH_ASSOC);
+// Get student_id from admission number for affective/psychomotor domains
+$student_query = "SELECT id FROM students WHERE admission_no = ? AND school_id = ? LIMIT 1";
+$student_stmt = $db->prepare($student_query);
+$student_stmt->execute([$report['student_admission_no'], $schoolId]);
+$student_record = $student_stmt->fetch(PDO::FETCH_ASSOC);
+$studentId = $student_record ? $student_record['id'] : null;
 
-$psychomotor_query = "SELECT * FROM psychomotor_domain WHERE report_card_id = ?";
-$psychomotor_stmt = $db->prepare($psychomotor_query);
-$psychomotor_stmt->execute([$reportId]);
-$psychomotor = $psychomotor_stmt->fetchAll(PDO::FETCH_ASSOC);
+// Affective and psychomotor domains use student_id, not report_card_id
+$affective = [];
+$psychomotor = [];
+if ($studentId) {
+    $affective_query = "SELECT * FROM affective_domain WHERE student_id = ?";
+    $affective_stmt = $db->prepare($affective_query);
+    $affective_stmt->execute([$studentId]);
+    $affective = $affective_stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $psychomotor_query = "SELECT * FROM psychomotor_domain WHERE student_id = ?";
+    $psychomotor_stmt = $db->prepare($psychomotor_query);
+    $psychomotor_stmt->execute([$studentId]);
+    $psychomotor = $psychomotor_stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
 $remarks_query = "SELECT * FROM remarks WHERE report_card_id = ?";
 $remarks_stmt = $db->prepare($remarks_query);
@@ -250,11 +283,15 @@ $html .= '</div>';
 // Write HTML to PDF
 $pdf->writeHTML($html, true, false, true, false, '');
 
-// Generate filename
-$safeName = preg_replace('/[^a-zA-Z0-9]/', '_', $report['name']);
-$safeTerm = preg_replace('/[^a-zA-Z0-9]/', '_', $report['term']);
-$safeSession = preg_replace('/[^a-zA-Z0-9]/', '_', $report['session']);
-$filename = $safeName . '_' . $safeTerm . '_' . $safeSession . '_' . time() . '.pdf';
+// Generate filename with student name, term, and session
+$studentName = $report['student_name'] ?? $report['name'] ?? 'Student';
+$term = $report['term'] ?? 'Term';
+$session = $report['session'] ?? 'Session';
+
+$safeName = preg_replace('/[^a-zA-Z0-9]/', '_', $studentName);
+$safeTerm = preg_replace('/[^a-zA-Z0-9]/', '_', $term);
+$safeSession = preg_replace('/[^a-zA-Z0-9]/', '_', $session);
+$filename = $safeName . '_' . $safeTerm . '_' . $safeSession . '.pdf';
 
 // Ensure temp directory exists
 $tempDir = __DIR__ . '/../temp/';
@@ -266,6 +303,9 @@ $outputPath = $tempDir . $filename;
 
 // Output PDF to file
 $pdf->Output($outputPath, 'F');
+
+// Clean output buffer before sending JSON
+ob_clean();
 
 // Return success with file URL
 if (file_exists($outputPath)) {
@@ -286,6 +326,7 @@ if (file_exists($outputPath)) {
         }
     }
 } else {
+    ob_clean();
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Failed to create PDF file']);
 }

@@ -158,6 +158,14 @@ try {
             require __DIR__ . '/routes/teachers/get-my-classes.php';
             break;
 
+        case '/teachers/get-assigned-classes':
+            require __DIR__ . '/routes/teachers/get-assigned-classes.php';
+            break;
+
+        case '/teachers/get-assigned-subjects':
+            require __DIR__ . '/routes/teachers/get-assigned-subjects.php';
+            break;
+
         // Subject Management routes
         case '/subjects/get-default-subjects':
             require __DIR__ . '/routes/subjects/get-default-subjects.php';
@@ -313,6 +321,11 @@ try {
         // PDF generation route
         case '/generate-pdf':
             require __DIR__ . '/routes/generate-pdf.php';
+            break;
+
+        // TCPDF generation route (fallback)
+        case '/generate-pdf-tcpdf':
+            require __DIR__ . '/routes/generate-pdf-tcpdf.php';
             break;
 
         // PDF view route (for Puppeteer)

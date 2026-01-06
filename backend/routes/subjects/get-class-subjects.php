@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-$className = $_GET['class_name'] ?? '';
+$className = trim($_GET['class_name'] ?? '');
 
 if (empty($className)) {
     http_response_code(400);
@@ -41,7 +41,26 @@ try {
     $stmt->execute([$schoolId, $className]);
     $subjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Format response
+    // If no configured subjects exist, return default subjects
+    if (empty($subjects)) {
+        // Load default subjects configuration
+        $defaultSubjectsConfig = require __DIR__ . '/../../config/default-subjects.php';
+        $defaultSubjects = $defaultSubjectsConfig[$className] ?? [];
+
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'data' => [
+                'class_name' => $className,
+                'subjects' => $defaultSubjects,
+                'total' => count($defaultSubjects),
+                'is_default' => true
+            ]
+        ]);
+        exit;
+    }
+
+    // Format response for configured subjects
     $formattedSubjects = array_map(function($subject) {
         return [
             'id' => (int)$subject['id'],
@@ -58,7 +77,8 @@ try {
         'data' => [
             'class_name' => $className,
             'subjects' => $formattedSubjects,
-            'total' => count($formattedSubjects)
+            'total' => count($formattedSubjects),
+            'is_default' => false
         ]
     ]);
 

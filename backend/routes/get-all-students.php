@@ -21,9 +21,18 @@ $db = $database->getConnection();
 
 try {
     if ($userType === 'teacher') {
-        // Teachers see students based on their class/subject assignment
-        // If subject is specified, only show students enrolled in that subject
-        // If subject is NULL, show all students in the class
+        // Check if teacher_id is set
+        if (!isset($_SESSION['teacher_id'])) {
+            http_response_code(401);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Teacher ID not found in session. Please login again.'
+            ]);
+            exit();
+        }
+
+        // Teachers see all students in their assigned classes
+        // They can manage subject enrollment for any student in their classes
         $query = "SELECT DISTINCT
                   s.id,
                   s.admission_no,
@@ -35,15 +44,11 @@ try {
                   (SELECT GROUP_CONCAT(DISTINCT rc2.class ORDER BY rc2.created_at DESC SEPARATOR ', ')
                    FROM report_cards rc2 WHERE rc2.student_admission_no = s.admission_no AND rc2.school_id = s.school_id) as classes
                   FROM students s
-                  INNER JOIN teacher_classes tc ON TRIM(LOWER(s.current_class)) = TRIM(LOWER(tc.class_name))
+                  INNER JOIN teacher_classes tc ON LOWER(TRIM(s.current_class)) = LOWER(TRIM(tc.class_name))
                       AND s.school_id = tc.school_id
-                  LEFT JOIN student_subject_enrollment sse ON s.id = sse.student_id
-                      AND sse.subject_name = tc.subject
-                      AND sse.session = tc.session
                   WHERE s.school_id = :school_id
                       AND tc.teacher_id = :teacher_id
-                      AND (tc.subject IS NULL OR sse.id IS NOT NULL)
-                  ORDER BY s.updated_at DESC";
+                  ORDER BY s.current_class ASC, s.name ASC";
 
         $stmt = $db->prepare($query);
         $stmt->execute([

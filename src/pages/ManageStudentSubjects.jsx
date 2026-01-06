@@ -6,7 +6,9 @@ import {
   enrollStudent,
   bulkEnrollStudents,
   getSchoolClasses,
-  getSchoolProfile
+  getSchoolProfile,
+  getTeacherAssignedClasses,
+  getMyClasses
 } from '../services/api';
 
 const ManageStudentSubjects = () => {
@@ -24,6 +26,7 @@ const ManageStudentSubjects = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isTeacher, setIsTeacher] = useState(false);
 
   useEffect(() => {
     loadClasses();
@@ -31,40 +34,64 @@ const ManageStudentSubjects = () => {
 
   const loadClasses = async () => {
     try {
-      const response = await getSchoolClasses();
-      if (response.success) {
-        // Extract unique class names and sessions from the response
-        const uniqueClasses = [...new Set((response.classes || []).map(c => c.class_name))];
-        const uniqueSessions = [...new Set((response.classes || []).map(c => c.session))];
+      // Check if user is a teacher by checking localStorage
+      const userType = localStorage.getItem('userType');
+      const isTeacherUser = userType === 'teacher';
+      setIsTeacher(isTeacherUser);
 
-        setAvailableClasses(uniqueClasses);
-        setAvailableSessions(uniqueSessions);
+      let response;
+      let uniqueClasses;
 
-        // Try to get current session from school profile first
-        try {
-          const profileResponse = await getSchoolProfile();
-          if (profileResponse.success && profileResponse.data.current_session) {
-            const currentSession = profileResponse.data.current_session;
+      if (isTeacherUser) {
+        // Load only assigned classes for teachers
+        response = await getTeacherAssignedClasses();
+        if (response.success) {
+          uniqueClasses = response.classes || [];
+          setAvailableClasses(uniqueClasses);
+        }
 
-            // Store the official current session
-            setCurrentSessionFromSettings(currentSession);
+        // For teachers, get sessions from their assigned classes using getMyClasses
+        const myClassesResponse = await getMyClasses();
+        if (myClassesResponse.success) {
+          const uniqueSessions = [...new Set((myClassesResponse.classes || []).map(c => c.session))];
+          setAvailableSessions(uniqueSessions);
+        }
+      } else {
+        // Load all school classes for admins
+        response = await getSchoolClasses();
+        if (response.success) {
+          // Extract unique class names and sessions from the response
+          uniqueClasses = [...new Set((response.classes || []).map(c => c.class_name))];
+          const uniqueSessions = [...new Set((response.classes || []).map(c => c.session))];
 
-            // Add current_session to available sessions if it's not already there
-            if (!uniqueSessions.includes(currentSession)) {
-              uniqueSessions.unshift(currentSession); // Add to beginning of array
-              setAvailableSessions(uniqueSessions);
-            }
+          setAvailableClasses(uniqueClasses);
+          setAvailableSessions(uniqueSessions);
+        }
+      }
 
-            setSelectedSession(currentSession);
-          } else if (uniqueSessions.length > 0) {
-            // Fallback to most recent session if no current_session is set
-            setSelectedSession(uniqueSessions[0]);
+      // Try to get current session from school profile first
+      try {
+        const profileResponse = await getSchoolProfile();
+        if (profileResponse.success && profileResponse.data.current_session) {
+          const currentSession = profileResponse.data.current_session;
+
+          // Store the official current session
+          setCurrentSessionFromSettings(currentSession);
+
+          // Add current_session to available sessions if it's not already there
+          if (availableSessions.length > 0 && !availableSessions.includes(currentSession)) {
+            setAvailableSessions(prev => [currentSession, ...prev]);
           }
-        } catch (err) {
-          // If profile fetch fails, just use the first available session
-          if (uniqueSessions.length > 0) {
-            setSelectedSession(uniqueSessions[0]);
-          }
+
+          setSelectedSession(currentSession);
+        } else if (availableSessions.length > 0) {
+          // Fallback to most recent session if no current_session is set
+          setSelectedSession(availableSessions[0]);
+        }
+      } catch (err) {
+        // If profile fetch fails, just use the first available session
+        if (availableSessions.length > 0) {
+          setSelectedSession(availableSessions[0]);
         }
       }
     } catch (err) {
@@ -79,9 +106,9 @@ const ManageStudentSubjects = () => {
     try {
       const response = await getAllStudents();
       if (response.success) {
-        // Filter students by selected class
+        // Filter students by selected class (trim to handle trailing spaces)
         const classStudents = response.data.filter(
-          s => s.current_class?.toLowerCase() === className.toLowerCase()
+          s => s.current_class?.trim().toLowerCase() === className.trim().toLowerCase()
         );
         setStudents(classStudents);
       }

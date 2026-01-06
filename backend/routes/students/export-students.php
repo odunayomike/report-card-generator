@@ -17,33 +17,19 @@ try {
     $database = new Database();
     $db = $database->getConnection();
 
-    // Get all students for this school with latest class per admission_no
+    // Get all students for this school
     $query = "SELECT
                 s.admission_no,
                 s.name,
                 s.gender,
-                s.class,
-                s.session,
-                s.term,
-                s.guardian_email,
-                s.height,
-                s.weight,
-                s.club_society,
-                s.fav_col
+                s.current_class,
+                s.guardian_email
               FROM students s
-              INNER JOIN (
-                  SELECT admission_no, MAX(created_at) as latest
-                  FROM students
-                  WHERE school_id = ?
-                  GROUP BY admission_no
-              ) latest_students
-              ON s.admission_no = latest_students.admission_no
-              AND s.created_at = latest_students.latest
               WHERE s.school_id = ?
-              ORDER BY s.class, s.name";
+              ORDER BY s.current_class, s.name";
 
     $stmt = $db->prepare($query);
-    $stmt->execute([$school_id, $school_id]);
+    $stmt->execute([$school_id]);
     $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Set headers for CSV download
@@ -63,14 +49,8 @@ try {
         'Admission No',
         'Name',
         'Gender',
-        'Class',
-        'Session',
-        'Term',
-        'Guardian Email',
-        'Height',
-        'Weight',
-        'Club/Society',
-        'Favourite Color'
+        'Current Class',
+        'Guardian Email'
     ];
 
     fputcsv($output, $headers);
@@ -81,14 +61,8 @@ try {
             $student['admission_no'],
             $student['name'],
             $student['gender'],
-            $student['class'],
-            $student['session'],
-            $student['term'],
-            $student['guardian_email'] ?? '',
-            $student['height'] ?? '',
-            $student['weight'] ?? '',
-            $student['club_society'] ?? '',
-            $student['fav_col'] ?? ''
+            $student['current_class'] ?? '',
+            $student['guardian_email'] ?? ''
         ];
 
         fputcsv($output, $row);
