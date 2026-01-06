@@ -31,6 +31,7 @@ dist-ssr
 # Backend configuration files (contains sensitive API keys and credentials)
 backend/config/env.php
 backend/config/paystack.php
+backend/config/paystack-functions.php
 backend/config/database.php
 backend/config/cors.php
 

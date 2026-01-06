@@ -23,6 +23,12 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . /var/www/html/
 
+# Create config files from templates
+RUN cp /var/www/html/config/env.template.php /var/www/html/config/env.php && \
+    cp /var/www/html/config/cors.template.php /var/www/html/config/cors.php && \
+    cp /var/www/html/config/database.template.php /var/www/html/config/database.php && \
+    cp /var/www/html/config/paystack.template.php /var/www/html/config/paystack.php
+
 # Create necessary directories
 RUN mkdir -p /var/www/html/temp /var/www/html/uploads && \
     chmod -R 755 /var/www/html/temp /var/www/html/uploads && \
@@ -86,6 +92,9 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 ENV APACHE_DOCUMENT_ROOT /var/www/html
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# Set ServerName to suppress warning
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Update Apache configuration for .htaccess support
 RUN echo '<Directory /var/www/html>' >> /etc/apache2/apache2.conf && \
