@@ -158,7 +158,20 @@ foreach ($validSubjects as $subject) {
 }
 
 // Create PDF using TCPDF
-$pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+try {
+    $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+} catch (Exception $e) {
+    ob_clean();
+    error_log('TCPDF initialization error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Failed to initialize PDF generator: ' . $e->getMessage()
+    ]);
+    exit;
+}
+
+try {
 
 // Set document information
 $pdf->SetCreator('SchoolHub');
@@ -301,20 +314,35 @@ if (!file_exists($tempDir)) {
 
 $outputPath = $tempDir . $filename;
 
-// Output PDF to file
-$pdf->Output($outputPath, 'F');
+    // Output PDF to file
+    $pdf->Output($outputPath, 'F');
+
+} catch (Exception $e) {
+    ob_clean();
+    error_log('TCPDF generation error: ' . $e->getMessage());
+    error_log('TCPDF trace: ' . $e->getTraceAsString());
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Failed to generate PDF: ' . $e->getMessage(),
+        'error' => $e->getMessage(),
+        'trace' => $e->getTraceAsString()
+    ]);
+    exit;
+}
 
 // Clean output buffer before sending JSON
 ob_clean();
 
-// Return success with file URL
-if (file_exists($outputPath)) {
-    $fileUrl = BACKEND_URL . '/temp/' . $filename;
+// Return success with file URL via serve-pdf endpoint
+if (file_exists($outputPath) && filesize($outputPath) > 1024) { // At least 1KB
+    $fileUrl = BACKEND_URL . '/api/serve-pdf?file=' . urlencode($filename);
     echo json_encode([
         'success' => true,
         'url' => $fileUrl,
         'filename' => $filename,
-        'method' => 'tcpdf'
+        'method' => 'tcpdf',
+        'filesize' => filesize($outputPath)
     ]);
 
     // Clean up old PDFs (older than 1 hour)
@@ -328,6 +356,13 @@ if (file_exists($outputPath)) {
 } else {
     ob_clean();
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Failed to create PDF file']);
+    $errorMsg = !file_exists($outputPath) ? 'PDF file was not created' : 'PDF file is too small (' . filesize($outputPath) . ' bytes)';
+    echo json_encode([
+        'success' => false,
+        'message' => $errorMsg,
+        'path' => $outputPath,
+        'exists' => file_exists($outputPath),
+        'size' => file_exists($outputPath) ? filesize($outputPath) : 0
+    ]);
 }
 ?>

@@ -210,8 +210,8 @@ ob_clean();
 if ($returnCode === 0 && $result && $result['success']) {
     // PDF generated successfully
     if (file_exists($outputPath)) {
-        // Return the PDF file URL for download
-        $fileUrl = BACKEND_URL . '/temp/' . $filename;
+        // Return the PDF file URL for download via serve-pdf endpoint
+        $fileUrl = BACKEND_URL . '/api/serve-pdf?file=' . urlencode($filename);
         echo json_encode([
             'success' => true,
             'url' => $fileUrl,

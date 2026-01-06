@@ -350,7 +350,11 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
             {/* Parent Menu with Submenu */}
             <div>
               <button
-                onClick={() => setShowParentSubmenu(!showParentSubmenu)}
+                onClick={() => {
+                  setShowParentSubmenu(!showParentSubmenu);
+                  setShowCBTSubmenu(false);
+                  setShowAccountingSubmenu(false);
+                }}
                 className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
               >
                 <div className="flex items-center gap-2">
@@ -457,7 +461,11 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
             {/* CBT Menu with Submenu */}
             <div>
               <button
-                onClick={() => setShowCBTSubmenu(!showCBTSubmenu)}
+                onClick={() => {
+                  setShowCBTSubmenu(!showCBTSubmenu);
+                  setShowParentSubmenu(false);
+                  setShowAccountingSubmenu(false);
+                }}
                 className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
               >
                 <div className="flex items-center gap-2">
@@ -549,7 +557,11 @@ export default function DashboardLayout({ school, onLogout, refreshSchool }) {
             {/* School Accounting Menu with Submenu */}
             <div>
               <button
-                onClick={() => setShowAccountingSubmenu(!showAccountingSubmenu)}
+                onClick={() => {
+                  setShowAccountingSubmenu(!showAccountingSubmenu);
+                  setShowParentSubmenu(false);
+                  setShowCBTSubmenu(false);
+                }}
                 className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors text-gray-700 hover:bg-gray-50"
               >
                 <div className="flex items-center gap-2">

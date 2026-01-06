@@ -328,6 +328,11 @@ try {
             require __DIR__ . '/routes/generate-pdf-tcpdf.php';
             break;
 
+        // Serve PDF files
+        case '/serve-pdf':
+            require __DIR__ . '/routes/serve-pdf.php';
+            break;
+
         // PDF view route (for Puppeteer)
         case '/pdf-view':
             require __DIR__ . '/routes/pdf-view.php';
