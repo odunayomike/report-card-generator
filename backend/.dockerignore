@@ -1,0 +1,25 @@
+# Git files
+.git
+.gitignore
+
+# Temporary files
+temp/*
+!temp/.gitkeep
+
+# Configuration files (will be set via environment variables)
+config/env.php
+config/database.php
+config/paystack.php
+
+# Node modules (will be installed in Docker)
+node_modules
+
+# Composer vendor (will be installed in Docker)
+vendor
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
