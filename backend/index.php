@@ -328,6 +328,14 @@ try {
             require __DIR__ . '/routes/school/get-classes.php';
             break;
 
+        case '/school/update-registration-slug':
+            require __DIR__ . '/routes/school/update-registration-slug.php';
+            break;
+
+        case '/school/get-public-info':
+            require __DIR__ . '/routes/school/get-public-info.php';
+            break;
+
         case '/school/get-promotion-settings':
             require __DIR__ . '/routes/school/get-promotion-settings.php';
             break;
@@ -531,6 +539,43 @@ try {
 
         case '/parent/verify-paystack-payment':
             require __DIR__ . '/routes/accounting/parent/verify-paystack-payment.php';
+            break;
+
+        // External Students routes (for entrance examinations)
+        case '/external-students/public-register':
+            require __DIR__ . '/routes/external-students/public-register.php';
+            break;
+
+        case '/external-students/enroll':
+            require __DIR__ . '/routes/external-students/enroll.php';
+            break;
+
+        case '/external-students/login':
+            require __DIR__ . '/routes/external-students/login.php';
+            break;
+
+        case '/external-students/logout':
+            require __DIR__ . '/routes/external-students/logout.php';
+            break;
+
+        case '/external-students/check-session':
+            require __DIR__ . '/routes/external-students/check-session.php';
+            break;
+
+        case '/external-students/list':
+            require __DIR__ . '/routes/external-students/list.php';
+            break;
+
+        case '/external-students/assign-exam':
+            require __DIR__ . '/routes/external-students/assign-exam.php';
+            break;
+
+        case '/external-students/convert':
+            require __DIR__ . '/routes/external-students/convert.php';
+            break;
+
+        case '/external-students/results':
+            require __DIR__ . '/routes/external-students/results.php';
             break;
 
         // Accounting Fee Categories routes

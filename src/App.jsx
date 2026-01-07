@@ -59,6 +59,13 @@ const AttendanceMarker = lazy(() => import('./pages/AttendanceMarker'));
 const StudentLogin = lazy(() => import('./pages/StudentLogin'));
 const StudentDashboardHome = lazy(() => import('./pages/StudentDashboardHome'));
 
+// External Student pages
+const PublicRegister = lazy(() => import('./pages/PublicRegister'));
+const ExternalStudentLogin = lazy(() => import('./pages/external-students/ExternalStudentLogin'));
+const ExternalStudentDashboardLayout = lazy(() => import('./components/ExternalStudentDashboardLayout'));
+const ExternalStudentDashboardHome = lazy(() => import('./pages/external-students/ExternalStudentDashboardHome'));
+const ExternalStudentExams = lazy(() => import('./pages/external-students/ExternalStudentExams'));
+
 // Super Admin pages
 const SuperAdminLogin = lazy(() => import('./pages/SuperAdminLogin'));
 const SuperAdminDashboard = lazy(() => import('./pages/SuperAdminDashboard'));
@@ -75,6 +82,7 @@ const ExamResultsList = lazy(() => import('./pages/cbt/ExamResultsList'));
 const StudentExams = lazy(() => import('./pages/cbt/StudentExams'));
 const TakeExam = lazy(() => import('./pages/cbt/TakeExam'));
 const ExamResults = lazy(() => import('./pages/cbt/ExamResults'));
+const ManageExternalStudents = lazy(() => import('./pages/ManageExternalStudents'));
 
 // Shared pages
 const ComingSoon = lazy(() => import('./pages/ComingSoon'));
@@ -83,6 +91,7 @@ function App() {
   const [school, setSchool] = useState(null);
   const [teacher, setTeacher] = useState(null);
   const [student, setStudent] = useState(null);
+  const [externalStudent, setExternalStudent] = useState(null);
   const [superAdmin, setSuperAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -164,6 +173,21 @@ function App() {
               return;
             }
           }
+
+          // Try external student session
+          const externalStudentResponse = await fetch(`${API_BASE_URL}/external-students/check-session`, {
+            credentials: 'include'
+          });
+          if (externalStudentResponse.ok) {
+            const externalStudentData = await externalStudentResponse.json();
+            if (externalStudentData.authenticated) {
+              setExternalStudent(externalStudentData.data.external_student);
+              localStorage.setItem('userType', 'external_student');
+              localStorage.setItem('externalStudentData', JSON.stringify(externalStudentData.data.external_student));
+              setLoading(false);
+              return;
+            }
+          }
         } catch (error) {
           console.error('Session restore error:', error);
         }
@@ -224,6 +248,30 @@ function App() {
             console.error('Super admin session check error:', error);
             localStorage.removeItem('userType');
             localStorage.removeItem('superAdminData');
+          }
+          break;
+
+        case 'external_student':
+          try {
+            const externalStudentResponse = await fetch(`${API_BASE_URL}/external-students/check-session`, {
+              credentials: 'include'
+            });
+
+            if (externalStudentResponse.ok) {
+              const externalStudentData = await externalStudentResponse.json();
+
+              if (externalStudentData.authenticated) {
+                setExternalStudent(externalStudentData.data.external_student);
+                localStorage.setItem('externalStudentData', JSON.stringify(externalStudentData.data.external_student));
+              } else {
+                localStorage.removeItem('userType');
+                localStorage.removeItem('externalStudentData');
+              }
+            }
+          } catch (error) {
+            console.error('External student session check error:', error);
+            localStorage.removeItem('userType');
+            localStorage.removeItem('externalStudentData');
           }
           break;
 
@@ -318,6 +366,16 @@ function App() {
     setStudent(null);
   };
 
+  const handleExternalStudentLogin = (externalStudentData) => {
+    setExternalStudent(externalStudentData.external_student);
+  };
+
+  const handleExternalStudentLogout = () => {
+    setExternalStudent(null);
+    localStorage.removeItem('userType');
+    localStorage.removeItem('externalStudentData');
+  };
+
   const refreshSchool = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/check-session`, {
@@ -364,7 +422,7 @@ function App() {
           element={school ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />}
         />
         <Route
-          path="/register"
+          path="/school-register"
           element={school ? <Navigate to="/dashboard" /> : <Register onRegister={handleRegister} />}
         />
 
@@ -376,6 +434,10 @@ function App() {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
         <Route path="/parent-api-docs" element={<ParentAPIDocs />} />
+
+        {/* Public Registration for External Students (No Auth Required) */}
+        <Route path="/register/:slug" element={<PublicRegister />} />
+        <Route path="/register" element={<PublicRegister />} />
 
         {/* Super Admin Routes */}
         <Route
@@ -425,6 +487,7 @@ function App() {
           <Route path="cbt/questions" element={<ProtectedRoute school={school}><QuestionBank /></ProtectedRoute>} />
           <Route path="cbt/exams" element={<ProtectedRoute school={school}><ExamManagement /></ProtectedRoute>} />
           <Route path="cbt/results" element={<ProtectedRoute school={school}><ExamResultsList /></ProtectedRoute>} />
+          <Route path="external-students" element={<ProtectedRoute school={school}><ManageExternalStudents /></ProtectedRoute>} />
           <Route path="subscription" element={<ProtectedRoute school={school} allowedWithoutSubscription={true}><Subscription /></ProtectedRoute>} />
         </Route>
 
@@ -475,6 +538,21 @@ function App() {
           <Route path="exams" element={<ProtectedRoute school={student?.subscription}><StudentExams /></ProtectedRoute>} />
           <Route path="take-exam/:examId" element={<ProtectedRoute school={student?.subscription}><TakeExam /></ProtectedRoute>} />
           <Route path="results/:examId" element={<ProtectedRoute school={student?.subscription}><ExamResults /></ProtectedRoute>} />
+        </Route>
+
+        {/* External Student Routes (for entrance examinations) */}
+        <Route
+          path="/external-student/login"
+          element={externalStudent ? <Navigate to="/external-student/dashboard" /> : <ExternalStudentLogin onLogin={handleExternalStudentLogin} />}
+        />
+        <Route
+          path="/external-student"
+          element={externalStudent ? <ExternalStudentDashboardLayout externalStudent={externalStudent} onLogout={handleExternalStudentLogout} /> : <Navigate to="/external-student/login" />}
+        >
+          <Route path="dashboard" element={<ExternalStudentDashboardHome externalStudent={externalStudent} />} />
+          <Route path="exams" element={<ExternalStudentExams />} />
+          <Route path="take-exam/:examId" element={<TakeExam />} />
+          <Route path="results/:examId" element={<ExamResults />} />
         </Route>
 
         {/* StudentForm for school admin */}

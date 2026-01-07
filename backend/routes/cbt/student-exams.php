@@ -8,8 +8,12 @@
 // Set timezone to match local time (West Africa Time - Lagos)
 date_default_timezone_set('Africa/Lagos');
 
-// Check if student is authenticated
-if (!isset($_SESSION['user_type']) || $_SESSION['user_type'] !== 'student' || !isset($_SESSION['student_id'])) {
+// Load Student Type Helper
+require_once __DIR__ . '/../../utils/StudentTypeHelper.php';
+
+// Check if student is authenticated (regular or external)
+$studentInfo = StudentTypeHelper::getStudentFromSession();
+if (!$studentInfo) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized - Student access required']);
     exit;
@@ -34,7 +38,9 @@ try {
 
             switch ($action) {
                 case 'list':
-                    // Get all exams assigned to this student
+                    // Get all exams assigned to this student (regular or external)
+                    $whereClause = StudentTypeHelper::getAssignmentWhereClause($studentInfo);
+
                     $query = "SELECT e.*, ea.has_submitted,
                               NOW() as server_time,
                               CASE
@@ -45,10 +51,10 @@ try {
                               END as status
                               FROM cbt_exam_assignments ea
                               JOIN cbt_exams e ON ea.exam_id = e.id
-                              WHERE ea.student_id = ? AND e.is_published = 1
+                              WHERE {$whereClause['clause']} AND e.is_published = 1
                               ORDER BY e.start_datetime DESC";
                     $stmt = $db->prepare($query);
-                    $stmt->execute([$_SESSION['student_id']]);
+                    $stmt->execute([$whereClause['param']]);
                     $exams = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     // Debug: log the times
@@ -74,12 +80,14 @@ try {
                     }
 
                     // Check if student is assigned to this exam
+                    $whereClause = StudentTypeHelper::getAssignmentWhereClause($studentInfo);
+
                     $assignQuery = "SELECT ea.*, e.*
                                     FROM cbt_exam_assignments ea
                                     JOIN cbt_exams e ON ea.exam_id = e.id
-                                    WHERE ea.exam_id = ? AND ea.student_id = ? AND e.is_published = 1";
+                                    WHERE ea.exam_id = ? AND {$whereClause['clause']} AND e.is_published = 1";
                     $assignStmt = $db->prepare($assignQuery);
-                    $assignStmt->execute([$examId, $_SESSION['student_id']]);
+                    $assignStmt->execute([$examId, $whereClause['param']]);
                     $assignment = $assignStmt->fetch(PDO::FETCH_ASSOC);
 
                     if (!$assignment) {
@@ -110,20 +118,27 @@ try {
                     }
 
                     // Create or get existing attempt
-                    $attemptQuery = "SELECT id FROM cbt_student_attempts
-                                     WHERE exam_id = ? AND student_id = ? AND status = 'in_progress'
-                                     ORDER BY id DESC LIMIT 1";
+                    $attemptWhereClause = StudentTypeHelper::getAttemptWhereClause($studentInfo);
+                    $attemptQuery = "SELECT sa.id FROM cbt_student_attempts sa
+                                     WHERE sa.exam_id = ? AND {$attemptWhereClause['clause']} AND sa.status = 'in_progress'
+                                     ORDER BY sa.id DESC LIMIT 1";
                     $attemptStmt = $db->prepare($attemptQuery);
-                    $attemptStmt->execute([$examId, $_SESSION['student_id']]);
+                    $attemptStmt->execute([$examId, $attemptWhereClause['param']]);
                     $attempt = $attemptStmt->fetch(PDO::FETCH_ASSOC);
 
                     if (!$attempt) {
                         // Create new attempt
+                        $studentData = StudentTypeHelper::getStudentDataForInsert($studentInfo);
                         $createAttemptQuery = "INSERT INTO cbt_student_attempts
-                                              (exam_id, student_id, attempt_number, started_at, status)
-                                              VALUES (?, ?, 1, NOW(), 'in_progress')";
+                                              (exam_id, student_id, external_student_id, attempt_number, started_at, status, school_id)
+                                              VALUES (?, ?, ?, 1, NOW(), 'in_progress', ?)";
                         $createAttemptStmt = $db->prepare($createAttemptQuery);
-                        $createAttemptStmt->execute([$examId, $_SESSION['student_id']]);
+                        $createAttemptStmt->execute([
+                            $examId,
+                            $studentData['student_id'],
+                            $studentData['external_student_id'],
+                            $studentInfo['school_id']
+                        ]);
                         $attemptId = $db->lastInsertId();
                     } else {
                         $attemptId = $attempt['id'];
@@ -234,11 +249,12 @@ try {
                     }
 
                     // Get the latest attempt for this exam
-                    $attemptQuery = "SELECT * FROM cbt_student_attempts
-                                     WHERE exam_id = ? AND student_id = ? AND status = 'submitted'
-                                     ORDER BY submitted_at DESC LIMIT 1";
+                    $attemptWhereClause = StudentTypeHelper::getAttemptWhereClause($studentInfo);
+                    $attemptQuery = "SELECT sa.* FROM cbt_student_attempts sa
+                                     WHERE sa.exam_id = ? AND {$attemptWhereClause['clause']} AND sa.status = 'submitted'
+                                     ORDER BY sa.submitted_at DESC LIMIT 1";
                     $attemptStmt = $db->prepare($attemptQuery);
-                    $attemptStmt->execute([$examId, $_SESSION['student_id']]);
+                    $attemptStmt->execute([$examId, $attemptWhereClause['param']]);
                     $attempt = $attemptStmt->fetch(PDO::FETCH_ASSOC);
 
                     if (!$attempt) {
