@@ -178,27 +178,38 @@ try {
     $emailSent = false;
     if ($parentEmail) {
         try {
-            $emailService = new EmailService();
-            $loginUrl = 'https://schoolhub.tech/external-student/login';
+            // Check if EmailService is available
+            if (class_exists('EmailService')) {
+                $emailService = new EmailService();
+                $loginUrl = 'https://schoolhub.tech/external-student/login';
 
-            $emailSent = $emailService->sendRegistrationEmail(
-                $parentEmail,
-                $name,
-                $school['school_name'],
-                $school['email'], // School's email address
-                $examCode,
-                $defaultPassword,
-                $loginUrl
-            );
+                $emailSent = $emailService->sendRegistrationEmail(
+                    $parentEmail,
+                    $name,
+                    $school['school_name'],
+                    $school['email'], // School's email address
+                    $examCode,
+                    $defaultPassword,
+                    $loginUrl
+                );
 
-            if ($emailSent) {
-                // Log email sent activity
-                logActivity($db, $externalStudentId, $schoolId, 'email_sent', "Registration email sent to $parentEmail", $_SERVER['REMOTE_ADDR'] ?? null);
+                if ($emailSent) {
+                    // Log email sent activity
+                    logActivity($db, $externalStudentId, $schoolId, 'email_sent', "Registration email sent to $parentEmail", $_SERVER['REMOTE_ADDR'] ?? null);
+                }
+            } else {
+                // Email service not available (PHPMailer not installed)
+                error_log("EmailService not available - PHPMailer may not be installed");
+                logActivity($db, $externalStudentId, $schoolId, 'email_skipped', "Email service not available for $parentEmail", $_SERVER['REMOTE_ADDR'] ?? null);
             }
         } catch (Exception $e) {
             // Log email failure but don't fail the registration
             error_log("Failed to send registration email: " . $e->getMessage());
             logActivity($db, $externalStudentId, $schoolId, 'email_failed', "Failed to send email to $parentEmail: " . $e->getMessage(), $_SERVER['REMOTE_ADDR'] ?? null);
+        } catch (Error $e) {
+            // Catch fatal errors (like class not found)
+            error_log("Email service error: " . $e->getMessage());
+            logActivity($db, $externalStudentId, $schoolId, 'email_error', "Email service error for $parentEmail: " . $e->getMessage(), $_SERVER['REMOTE_ADDR'] ?? null);
         }
     }
 

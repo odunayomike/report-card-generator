@@ -20,7 +20,19 @@ RUN a2enmod rewrite headers
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
+# Install Composer first
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Copy composer files for dependency installation (better layer caching)
+COPY composer.json composer.lock ./
+
+# Install PHP dependencies before copying all files
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist \
+    && composer dump-autoload --optimize \
+    && ls -la vendor/ \
+    && echo "Composer dependencies installed successfully"
+
+# Now copy all application files
 COPY . /var/www/html/
 
 # Create config files from templates (force overwrite if they exist)
@@ -33,16 +45,12 @@ RUN rm -f /var/www/html/config/env.php \
     cp /var/www/html/config/database.template.php /var/www/html/config/database.php && \
     cp /var/www/html/config/paystack.template.php /var/www/html/config/paystack.php
 
-# Create necessary directories
+# Create necessary directories and set permissions
 RUN mkdir -p /var/www/html/temp /var/www/html/uploads && \
-    chmod -R 755 /var/www/html/temp /var/www/html/uploads && \
-    chown -R www-data:www-data /var/www/html
-
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
+    chmod -R 755 /var/www/html/temp /var/www/html/uploads /var/www/html/vendor && \
+    chown -R www-data:www-data /var/www/html && \
+    echo "Verifying vendor directory:" && \
+    ls -la /var/www/html/vendor/phpmailer/ || echo "PHPMailer not found!"
 
 # Install Node.js dependencies for Puppeteer
 RUN cd /var/www/html && npm install

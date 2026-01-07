@@ -6,6 +6,9 @@
  * composer require phpmailer/phpmailer
  */
 
+// Load Composer autoloader
+require_once __DIR__ . '/../vendor/autoload.php';
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
