@@ -66,9 +66,7 @@ try {
         $params[] = $type;
     }
 
-    $query .= " ORDER BY n.created_at DESC LIMIT ? OFFSET ?";
-    $params[] = $limit;
-    $params[] = $offset;
+    $query .= " ORDER BY n.created_at DESC LIMIT $limit OFFSET $offset";
 
     $stmt = $db->prepare($query);
     $stmt->execute($params);
