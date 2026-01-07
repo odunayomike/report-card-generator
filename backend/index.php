@@ -11,12 +11,17 @@ ini_set('session.cookie_lifetime', 0); // Session cookie (until browser closes)
 ini_set('session.gc_maxlifetime', 86400); // 24 hours server-side
 ini_set('session.cookie_path', '/');
 
+// Detect if HTTPS is enabled
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+    || (!empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
+
 // Set SameSite attribute for session cookie
 session_set_cookie_params([
     'lifetime' => 0, // Session cookie
     'path' => '/',
     'domain' => '',
-    'secure' => false,
+    'secure' => $isHttps, // Enable secure flag when using HTTPS
     'httponly' => true,
     'samesite' => 'Lax'
 ]);
@@ -106,6 +111,27 @@ try {
 
         case '/super-admin/check-session':
             require __DIR__ . '/routes/super-admin/check-session.php';
+            break;
+
+        // Super Admin MFA routes
+        case '/super-admin/mfa-setup':
+            require __DIR__ . '/routes/super-admin/mfa-setup.php';
+            break;
+
+        case '/super-admin/mfa-enable':
+            require __DIR__ . '/routes/super-admin/mfa-enable.php';
+            break;
+
+        case '/super-admin/mfa-verify':
+            require __DIR__ . '/routes/super-admin/mfa-verify.php';
+            break;
+
+        case '/super-admin/mfa-disable':
+            require __DIR__ . '/routes/super-admin/mfa-disable.php';
+            break;
+
+        case '/super-admin/mfa-status':
+            require __DIR__ . '/routes/super-admin/mfa-status.php';
             break;
 
         // Super Admin Management routes

@@ -743,22 +743,134 @@ export const submitContactForm = async (contactData) => {
  * Super Admin Login
  * @param {string} email - Admin email
  * @param {string} password - Admin password
- * @returns {Promise} - API response with user data
+ * @param {string} deviceToken - Optional trusted device token
+ * @returns {Promise} - API response with user data or MFA requirement
  */
-export const superAdminLogin = async (email, password) => {
+export const superAdminLogin = async (email, password, deviceToken = null) => {
   try {
+    const body = { email, password };
+    if (deviceToken) {
+      body.device_token = deviceToken;
+    }
+
     const response = await fetch(`${API_BASE_URL}/super-admin/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       credentials: 'include',
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify(body)
     });
     const data = await response.json();
     return data;
   } catch (error) {
     console.error('Error logging in as super admin:', error);
+    throw error;
+  }
+};
+
+/**
+ * Verify MFA Code during Login
+ * @param {string} email - Admin email
+ * @param {string} code - 6-digit MFA code or backup code
+ * @param {boolean} rememberDevice - Whether to trust this device
+ * @returns {Promise} - API response with user data
+ */
+export const superAdminVerifyMFA = async (email, code, rememberDevice = false) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/super-admin/mfa-verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ email, code, remember_device: rememberDevice })
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error verifying MFA:', error);
+    throw error;
+  }
+};
+
+/**
+ * Setup MFA - Generate secret and QR code
+ * @returns {Promise} - API response with secret, QR URL, and backup codes
+ */
+export const superAdminMFASetup = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/super-admin/mfa-setup`, {
+      method: 'POST',
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error setting up MFA:', error);
+    throw error;
+  }
+};
+
+/**
+ * Enable MFA - Verify setup and activate
+ * @param {string} code - 6-digit verification code
+ * @returns {Promise} - API response
+ */
+export const superAdminMFAEnable = async (code) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/super-admin/mfa-enable`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ code })
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error enabling MFA:', error);
+    throw error;
+  }
+};
+
+/**
+ * Disable MFA
+ * @param {string} password - Admin password for confirmation
+ * @returns {Promise} - API response
+ */
+export const superAdminMFADisable = async (password) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/super-admin/mfa-disable`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ password })
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error disabling MFA:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get MFA Status
+ * @returns {Promise} - API response with MFA status
+ */
+export const superAdminMFAStatus = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/super-admin/mfa-status`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error getting MFA status:', error);
     throw error;
   }
 };

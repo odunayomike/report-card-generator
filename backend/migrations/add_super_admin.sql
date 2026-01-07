@@ -36,24 +36,10 @@ CREATE INDEX idx_activity_log_school ON super_admin_activity_log(school_id);
 CREATE INDEX idx_activity_log_created ON super_admin_activity_log(created_at);
 CREATE INDEX idx_activity_log_action ON super_admin_activity_log(action_type);
 
--- Insert default super admin
--- Email: superadmin@schoolhub.tech
--- Password: SuperAdmin123!
--- IMPORTANT: Change this password immediately after first login!
-INSERT INTO super_admins (name, email, password, phone, is_active)
-VALUES (
-    'System Administrator',
-    'superadmin@schoolhub.tech',
-    '$2y$10$FpKeDGzcyQOreZo904VGvO2/aqYN/b4NDT9QAWAocQKyJ/1pc3pSC',
-    NULL,
-    TRUE
-)
-ON DUPLICATE KEY UPDATE email = email;
-
--- Default Credentials:
--- Email: superadmin@schoolhub.tech
--- Password: SuperAdmin123!
+-- IMPORTANT SECURITY NOTICE:
+-- No default super admin account is created for security reasons.
+-- After running this migration, create your super admin account using:
 --
--- For security, you should:
--- 1. Change this password immediately after first login
--- 2. Or create a new super admin using: php scripts/create-super-admin.php
+--   php backend/scripts/create-super-admin.php
+--
+-- This ensures you set a strong, unique password that only you know.

@@ -65,6 +65,7 @@ const SuperAdminDashboard = lazy(() => import('./pages/SuperAdminDashboard'));
 const ManageSchools = lazy(() => import('./pages/ManageSchools'));
 const AllStudentsAdmin = lazy(() => import('./pages/AllStudentsAdmin'));
 const ContactMessagesAdmin = lazy(() => import('./pages/ContactMessagesAdmin'));
+const SuperAdminMFASettings = lazy(() => import('./pages/SuperAdminMFASettings'));
 
 // CBT pages
 const CBTDashboard = lazy(() => import('./pages/cbt/CBTDashboard'));
@@ -391,6 +392,7 @@ function App() {
           <Route path="contact-messages" element={<ContactMessagesAdmin />} />
           <Route path="analytics" element={<SuperAdminDashboard />} />
           <Route path="activity-log" element={<ComingSoon feature="Activity Log" />} />
+          <Route path="settings/mfa" element={<SuperAdminMFASettings />} />
         </Route>
 
         {/* Dashboard Routes with Nested Layout */}

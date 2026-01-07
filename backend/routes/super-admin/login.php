@@ -26,10 +26,37 @@ $password = $data['password'];
 $database = new Database();
 $db = $database->getConnection();
 
+// Initialize rate limiter
+require_once __DIR__ . '/../../utils/RateLimiter.php';
+$rateLimiter = new RateLimiter($db, 5, 15, 30); // 5 attempts, 15 min window, 30 min lockout
+
 try {
+    // Check rate limit for email
+    $emailLimit = $rateLimiter->checkLimit($email, 'email', 'super_admin');
+    if ($emailLimit['locked']) {
+        http_response_code(429);
+        echo json_encode([
+            'error' => 'Too many failed login attempts. Please try again later.',
+            'locked_until' => $emailLimit['locked_until']
+        ]);
+        exit();
+    }
+
+    // Check rate limit for IP address
+    $ipAddress = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    $ipLimit = $rateLimiter->checkLimit($ipAddress, 'ip', 'super_admin');
+    if ($ipLimit['locked']) {
+        http_response_code(429);
+        echo json_encode([
+            'error' => 'Too many failed login attempts from this IP address. Please try again later.',
+            'locked_until' => $ipLimit['locked_until']
+        ]);
+        exit();
+    }
+
     // Fetch super admin by email
     $stmt = $db->prepare("
-        SELECT id, name, email, password, phone, is_active
+        SELECT id, name, email, password, phone, is_active, mfa_enabled
         FROM super_admins
         WHERE email = :email
     ");
@@ -39,15 +66,37 @@ try {
     $superAdmin = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$superAdmin) {
+        // Record failed attempt
+        $result = $rateLimiter->recordFailedAttempt($email, 'email', 'super_admin');
+        $rateLimiter->recordFailedAttempt($ipAddress, 'ip', 'super_admin');
+
         http_response_code(401);
-        echo json_encode(['error' => 'Invalid credentials']);
+        $response = ['error' => 'Invalid credentials'];
+
+        // Include attempts remaining if not yet locked
+        if (!$result['locked'] && $result['attempts_remaining'] <= 2) {
+            $response['attempts_remaining'] = $result['attempts_remaining'];
+        }
+
+        echo json_encode($response);
         exit;
     }
 
     // Verify password
     if (!password_verify($password, $superAdmin['password'])) {
+        // Record failed attempt
+        $result = $rateLimiter->recordFailedAttempt($email, 'email', 'super_admin');
+        $rateLimiter->recordFailedAttempt($ipAddress, 'ip', 'super_admin');
+
         http_response_code(401);
-        echo json_encode(['error' => 'Invalid credentials']);
+        $response = ['error' => 'Invalid credentials'];
+
+        // Include attempts remaining if not yet locked
+        if (!$result['locked'] && $result['attempts_remaining'] <= 2) {
+            $response['attempts_remaining'] = $result['attempts_remaining'];
+        }
+
+        echo json_encode($response);
         exit;
     }
 
@@ -58,11 +107,63 @@ try {
         exit;
     }
 
+    // Check if MFA is enabled
+    if ($superAdmin['mfa_enabled']) {
+        // Check for trusted device token
+        $deviceToken = $data['device_token'] ?? null;
+        $trustedDevice = false;
+
+        if ($deviceToken) {
+            $stmt = $db->prepare("
+                SELECT id FROM trusted_devices
+                WHERE super_admin_id = :admin_id
+                AND device_token = :token
+                AND trusted_until > NOW()
+                LIMIT 1
+            ");
+            $stmt->execute([
+                ':admin_id' => $superAdmin['id'],
+                ':token' => $deviceToken
+            ]);
+            $trustedDevice = $stmt->fetch(PDO::FETCH_ASSOC) !== false;
+
+            // Update last used time
+            if ($trustedDevice) {
+                $stmt = $db->prepare("
+                    UPDATE trusted_devices
+                    SET last_used_at = NOW()
+                    WHERE device_token = :token
+                ");
+                $stmt->execute([':token' => $deviceToken]);
+            }
+        }
+
+        // If not a trusted device, require MFA verification
+        if (!$trustedDevice) {
+            // Don't clear rate limits yet - wait for MFA verification
+            http_response_code(200);
+            echo json_encode([
+                'message' => 'Password verified. MFA required.',
+                'mfa_required' => true,
+                'email' => $superAdmin['email']
+            ]);
+            exit;
+        }
+    }
+
+    // Clear failed login attempts on successful login
+    $rateLimiter->clearAttempts($email, 'email', 'super_admin');
+    $rateLimiter->clearAttempts($ipAddress, 'ip', 'super_admin');
+
+    // Regenerate session ID to prevent session fixation attacks
+    session_regenerate_id(true);
+
     // Set session variables
     $_SESSION['user_type'] = 'super_admin';
     $_SESSION['super_admin_id'] = $superAdmin['id'];
     $_SESSION['super_admin_name'] = $superAdmin['name'];
     $_SESSION['super_admin_email'] = $superAdmin['email'];
+    $_SESSION['mfa_verified'] = !$superAdmin['mfa_enabled'] || true; // true if trusted device
 
     // Log the login activity
     $ip_address = $_SERVER['REMOTE_ADDR'] ?? null;
@@ -82,12 +183,14 @@ try {
     http_response_code(200);
     echo json_encode([
         'message' => 'Login successful',
+        'mfa_required' => false,
         'user' => [
             'id' => $superAdmin['id'],
             'name' => $superAdmin['name'],
             'email' => $superAdmin['email'],
             'phone' => $superAdmin['phone'],
-            'user_type' => 'super_admin'
+            'user_type' => 'super_admin',
+            'mfa_enabled' => (bool)$superAdmin['mfa_enabled']
         ]
     ]);
 

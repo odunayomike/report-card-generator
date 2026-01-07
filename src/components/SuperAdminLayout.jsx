@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   Mail,
+  Shield,
 } from 'lucide-react';
 import { superAdminLogout } from '../services/api';
 import { useToastContext } from '../context/ToastContext';
@@ -84,6 +85,11 @@ export default function SuperAdminLayout() {
       path: '/super-admin/activity-log',
       icon: Users,
     },
+    {
+      name: 'Security & MFA',
+      path: '/super-admin/settings/mfa',
+      icon: Shield,
+    },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -133,6 +139,14 @@ export default function SuperAdminLayout() {
                       <p className="text-sm font-medium text-gray-900">{superAdmin.name}</p>
                       <p className="text-xs text-gray-500">{superAdmin.email}</p>
                     </div>
+                    <Link
+                      to="/super-admin/settings/mfa"
+                      onClick={() => setShowDropdown(false)}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
+                    >
+                      <Shield className="h-4 w-4 mr-2" />
+                      Security & MFA
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
