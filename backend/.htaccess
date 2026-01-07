@@ -4,14 +4,6 @@ RewriteEngine On
 # Set the base directory (root for Docker deployment, /backend/ for local)
 RewriteBase /
 
-# IMPORTANT: Don't redirect OPTIONS requests (CORS preflight)
-# Force HTTPS (except for localhost development and OPTIONS requests)
-RewriteCond %{REQUEST_METHOD} !OPTIONS
-RewriteCond %{HTTPS} off
-RewriteCond %{HTTP_HOST} !^localhost [NC]
-RewriteCond %{HTTP_HOST} !^127\.0\.0\.1 [NC]
-RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-
 # TEST: Check if .htaccess is working
 RewriteRule ^htaccess-test$ test-htaccess.php [L]
 
