@@ -11,6 +11,8 @@ $allowedOrigins = [
     'http://schoolhub.tech',
     'https://www.schoolhub.tech',
     'http://www.schoolhub.tech',
+    'https://api.schoolhub.tech',
+    'http://api.schoolhub.tech',
     'http://uoocs48oss8ss0k0gw8wcsk8.159.195.43.234.sslip.io',
     'https://uoocs48oss8ss0k0gw8wcsk8.159.195.43.234.sslip.io'
 ];

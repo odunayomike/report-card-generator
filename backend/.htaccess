@@ -4,7 +4,9 @@ RewriteEngine On
 # Set the base directory (root for Docker deployment, /backend/ for local)
 RewriteBase /
 
-# Force HTTPS (except for localhost development)
+# IMPORTANT: Don't redirect OPTIONS requests (CORS preflight)
+# Force HTTPS (except for localhost development and OPTIONS requests)
+RewriteCond %{REQUEST_METHOD} !OPTIONS
 RewriteCond %{HTTPS} off
 RewriteCond %{HTTP_HOST} !^localhost [NC]
 RewriteCond %{HTTP_HOST} !^127\.0\.0\.1 [NC]
