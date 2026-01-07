@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, LogIn, GraduationCap } from 'lucide-react';
 import { externalStudentLogin } from '../../services/externalStudentApi';
-import { useToastContext } from '../../contexts/ToastContext';
+import { useToastContext } from '../../context/ToastContext';
 
 const ExternalStudentLogin = ({ onLogin }) => {
   const [examCode, setExamCode] = useState('');

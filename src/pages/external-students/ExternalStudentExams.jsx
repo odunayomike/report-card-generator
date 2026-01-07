@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FileText, Clock, Calendar, CheckCircle, AlertCircle, Trophy, TrendingUp } from 'lucide-react';
 import { getExternalStudentExams } from '../../services/externalStudentApi';
-import { useToastContext } from '../../contexts/ToastContext';
+import { useToastContext } from '../../context/ToastContext';
 
 const ExternalStudentExams = () => {
   const [exams, setExams] = useState([]);
