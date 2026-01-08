@@ -78,13 +78,9 @@ try {
     $reportStmt->execute([$student['admission_no'], $student['school_id']]);
     $latestReport = $reportStmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$latestReport) {
-        http_response_code(404);
-        echo json_encode(['success' => false, 'message' => 'No report cards found for this student']);
-        exit;
-    }
-
-    $reportCardId = $latestReport['report_card_id'];
+    // Handle case where no report cards exist yet
+    $hasReportCards = !empty($latestReport);
+    $reportCardId = $hasReportCards ? $latestReport['report_card_id'] : null;
 
     // Parse grading scale
     $gradingScale = null;
@@ -115,13 +111,16 @@ try {
     }
 
     // Get subjects and scores from latest report card
-    $subjectsQuery = "SELECT subject_name, ca, exam, total
-                      FROM subjects
-                      WHERE report_card_id = ?
-                      ORDER BY total DESC";
-    $subjectsStmt = $db->prepare($subjectsQuery);
-    $subjectsStmt->execute([$reportCardId]);
-    $subjects = $subjectsStmt->fetchAll(PDO::FETCH_ASSOC);
+    $subjects = [];
+    if ($hasReportCards) {
+        $subjectsQuery = "SELECT subject_name, ca, exam, total
+                          FROM subjects
+                          WHERE report_card_id = ?
+                          ORDER BY total DESC";
+        $subjectsStmt = $db->prepare($subjectsQuery);
+        $subjectsStmt->execute([$reportCardId]);
+        $subjects = $subjectsStmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     // Calculate performance metrics
     $validSubjects = array_filter($subjects, function($s) {
@@ -168,10 +167,13 @@ try {
     }
 
     // Get attendance data from latest report card
-    $attendanceQuery = "SELECT * FROM attendance WHERE report_card_id = ?";
-    $attendanceStmt = $db->prepare($attendanceQuery);
-    $attendanceStmt->execute([$reportCardId]);
-    $attendance = $attendanceStmt->fetch(PDO::FETCH_ASSOC);
+    $attendance = null;
+    if ($hasReportCards) {
+        $attendanceQuery = "SELECT * FROM attendance WHERE report_card_id = ?";
+        $attendanceStmt = $db->prepare($attendanceQuery);
+        $attendanceStmt->execute([$reportCardId]);
+        $attendance = $attendanceStmt->fetch(PDO::FETCH_ASSOC);
+    }
 
     $attendanceData = [
         'school_opened' => $attendance ? (int)$attendance['no_of_times_school_opened'] : 0,
@@ -221,10 +223,13 @@ try {
     }, $psychomotor);
 
     // Get teacher and principal remarks from latest report card
-    $remarksQuery = "SELECT * FROM remarks WHERE report_card_id = ?";
-    $remarksStmt = $db->prepare($remarksQuery);
-    $remarksStmt->execute([$reportCardId]);
-    $remarks = $remarksStmt->fetch(PDO::FETCH_ASSOC);
+    $remarks = null;
+    if ($hasReportCards) {
+        $remarksQuery = "SELECT * FROM remarks WHERE report_card_id = ?";
+        $remarksStmt = $db->prepare($remarksQuery);
+        $remarksStmt->execute([$reportCardId]);
+        $remarks = $remarksStmt->fetch(PDO::FETCH_ASSOC);
+    }
 
     $remarksData = null;
     if ($remarks) {
@@ -257,16 +262,18 @@ try {
     // Prepare final response
     $response = [
         'success' => true,
+        'has_report_cards' => $hasReportCards,
+        'message' => $hasReportCards ? null : 'No report cards available yet for this student',
         'data' => [
             'student' => [
                 'id' => (int)$student['id'],
                 'name' => $student['name'],
                 'class' => $student['current_class'],
-                'session' => $latestReport['session'] ?? null,
-                'term' => $latestReport['term'] ?? null,
+                'session' => $hasReportCards ? ($latestReport['session'] ?? null) : null,
+                'term' => $hasReportCards ? ($latestReport['term'] ?? null) : null,
                 'admission_no' => $student['admission_no'],
                 'gender' => $student['gender'],
-                'photo' => $latestReport['student_photo'] ?? null,
+                'photo' => $hasReportCards ? ($latestReport['student_photo'] ?? null) : null,
                 'school_name' => $student['school_name'],
                 'school_logo' => $student['school_logo']
             ],

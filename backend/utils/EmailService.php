@@ -6,8 +6,21 @@
  * composer require phpmailer/phpmailer
  */
 
-// Load Composer autoloader
-require_once __DIR__ . '/../vendor/autoload.php';
+// Load Composer autoloader if not already loaded
+if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+    $autoloadPaths = [
+        __DIR__ . '/../vendor/autoload.php',
+        __DIR__ . '/../../vendor/autoload.php',
+        dirname(__DIR__) . '/vendor/autoload.php',
+    ];
+
+    foreach ($autoloadPaths as $autoloadPath) {
+        if (file_exists($autoloadPath)) {
+            require_once $autoloadPath;
+            break;
+        }
+    }
+}
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -17,6 +30,11 @@ class EmailService {
     private $config;
 
     public function __construct() {
+        // Check if PHPMailer is available
+        if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+            throw new Exception('PHPMailer not found. Please install it using: composer require phpmailer/phpmailer');
+        }
+
         $this->config = require __DIR__ . '/../config/email.php';
         $this->mailer = new PHPMailer(true);
         $this->configureSMTP();
@@ -32,6 +50,10 @@ class EmailService {
             $this->mailer->Password = $this->config['smtp_password'];
             $this->mailer->SMTPSecure = $this->config['smtp_secure'];
             $this->mailer->Port = $this->config['smtp_port'];
+
+            // Set timeouts to prevent hanging
+            $this->mailer->Timeout = 10; // Connection timeout (seconds)
+            $this->mailer->SMTPKeepAlive = false; // Don't keep connection alive
 
             // Encoding
             $this->mailer->CharSet = 'UTF-8';
