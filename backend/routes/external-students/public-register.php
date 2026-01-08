@@ -194,7 +194,9 @@ try {
         fastcgi_finish_request();
     } else {
         // For non-FPM environments
-        ob_end_flush();
+        if (ob_get_level() > 0) {
+            ob_end_flush();
+        }
         flush();
     }
 
@@ -235,6 +237,7 @@ try {
         'success' => false,
         'message' => 'Registration failed. Please try again later.'
     ]);
+    exit;
 }
 
 /**

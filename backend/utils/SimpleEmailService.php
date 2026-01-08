@@ -1,8 +1,27 @@
 <?php
 /**
- * Simple Email Service using Gmail SMTP with cURL
- * No external dependencies required - uses PHP's built-in functions
+ * Simple Email Service using PHPMailer with Gmail SMTP
+ * Uses PHPMailer for reliable email delivery
  */
+
+// Load Composer autoloader if not already loaded
+if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+    $autoloadPaths = [
+        __DIR__ . '/../vendor/autoload.php',
+        __DIR__ . '/../../vendor/autoload.php',
+        dirname(__DIR__) . '/vendor/autoload.php',
+    ];
+
+    foreach ($autoloadPaths as $autoloadPath) {
+        if (file_exists($autoloadPath)) {
+            require_once $autoloadPath;
+            break;
+        }
+    }
+}
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 class SimpleEmailService {
     private $config;
@@ -21,137 +40,77 @@ class SimpleEmailService {
                 throw new Exception("Invalid email address: $parentEmail");
             }
 
-            // Prepare email content
-            $subject = "Entrance Examination Registration - $schoolName";
-            $htmlBody = $this->getRegistrationEmailTemplate($studentName, $schoolName, $examCode, $password, $loginUrl);
-            $textBody = $this->getPlainTextVersion($studentName, $schoolName, $examCode, $password, $loginUrl);
+            // Check if PHPMailer is available
+            if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+                throw new Exception('PHPMailer not found. Please install it using: composer require phpmailer/phpmailer');
+            }
+
+            // Validate credentials
+            $username = $this->config['smtp_username'];
+            $password_smtp = $this->config['smtp_password'];
+
+            if (empty($username) || empty($password_smtp) ||
+                $username === 'your-email@gmail.com' ||
+                $password_smtp === 'your-app-password') {
+                throw new Exception("SMTP credentials not configured. Please set SMTP_USERNAME and SMTP_PASSWORD environment variables.");
+            }
+
+            // Create PHPMailer instance
+            $mail = new PHPMailer(true);
+
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host = $this->config['smtp_host'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $username;
+            $mail->Password = $password_smtp;
+            $mail->SMTPSecure = $this->config['smtp_secure'] === 'ssl' ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = $this->config['smtp_port'];
+
+            // Set timeouts to prevent hanging
+            $mail->Timeout = 10;
+            $mail->SMTPKeepAlive = false;
+
+            // Encoding
+            $mail->CharSet = 'UTF-8';
 
             // Use school's email if available, otherwise fall back to config email
             $fromEmail = !empty($schoolEmail) ? $schoolEmail : $this->config['from_email'];
             $fromName = $schoolName;
 
-            // Send email using Gmail API or fallback to PHP mail()
-            $result = $this->sendViaGmailSMTP($parentEmail, $fromEmail, $fromName, $subject, $htmlBody, $textBody);
+            // Recipients
+            $mail->setFrom($fromEmail, $fromName);
+            $mail->addAddress($parentEmail);
+            $mail->addReplyTo($fromEmail, $fromName);
+
+            // Prepare email content
+            $subject = "Entrance Examination Registration - $schoolName";
+            $htmlBody = $this->getRegistrationEmailTemplate($studentName, $schoolName, $examCode, $password, $loginUrl);
+            $textBody = $this->getPlainTextVersion($studentName, $schoolName, $examCode, $password, $loginUrl);
+
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = $subject;
+            $mail->Body = $htmlBody;
+            $mail->AltBody = $textBody;
+
+            // Send the email
+            $result = $mail->send();
+
+            // Log success
+            error_log("Email sent successfully to: $parentEmail, Subject: $subject");
 
             return $result;
 
         } catch (Exception $e) {
-            error_log("Email sending failed: " . $e->getMessage());
+            // Log the error with more details
+            error_log("Email sending failed to: $parentEmail");
+            error_log("Error: " . $e->getMessage());
+            if (isset($mail)) {
+                error_log("PHPMailer Error: " . $mail->ErrorInfo);
+            }
             throw $e;
         }
-    }
-
-    /**
-     * Send email via Gmail SMTP using fsockopen
-     */
-    private function sendViaGmailSMTP($to, $from, $fromName, $subject, $htmlBody, $textBody) {
-        $username = $this->config['smtp_username'];
-        $password = $this->config['smtp_password'];
-        $host = $this->config['smtp_host'];
-        $port = $this->config['smtp_port'];
-
-        // Validate credentials
-        if (empty($username) || empty($password) ||
-            $username === 'your-email@gmail.com' ||
-            $password === 'your-app-password') {
-            throw new Exception("SMTP credentials not configured. Please set SMTP_USERNAME and SMTP_PASSWORD environment variables.");
-        }
-
-        // Create socket connection
-        $socket = @fsockopen($host, $port, $errno, $errstr, 10);
-        if (!$socket) {
-            throw new Exception("Cannot connect to SMTP server: $errstr ($errno)");
-        }
-
-        // Set timeout
-        stream_set_timeout($socket, 10);
-
-        // Read server greeting
-        $this->readResponse($socket, 220);
-
-        // Send EHLO
-        $this->sendCommand($socket, "EHLO localhost\r\n", 250);
-
-        // Start TLS
-        $this->sendCommand($socket, "STARTTLS\r\n", 220);
-
-        if (!stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
-            throw new Exception("Failed to enable TLS encryption");
-        }
-
-        // Send EHLO again after TLS
-        $this->sendCommand($socket, "EHLO localhost\r\n", 250);
-
-        // Authenticate
-        $this->sendCommand($socket, "AUTH LOGIN\r\n", 334);
-        $this->sendCommand($socket, base64_encode($username) . "\r\n", 334);
-        $this->sendCommand($socket, base64_encode($password) . "\r\n", 235);
-
-        // Send MAIL FROM
-        $this->sendCommand($socket, "MAIL FROM: <$from>\r\n", 250);
-
-        // Send RCPT TO
-        $this->sendCommand($socket, "RCPT TO: <$to>\r\n", 250);
-
-        // Send DATA
-        $this->sendCommand($socket, "DATA\r\n", 354);
-
-        // Build email headers and body
-        $boundary = uniqid('boundary_');
-        $headers = "From: $fromName <$from>\r\n";
-        $headers .= "To: <$to>\r\n";
-        $headers .= "Subject: $subject\r\n";
-        $headers .= "MIME-Version: 1.0\r\n";
-        $headers .= "Content-Type: multipart/alternative; boundary=\"$boundary\"\r\n";
-        $headers .= "\r\n";
-
-        $body = "--$boundary\r\n";
-        $body .= "Content-Type: text/plain; charset=UTF-8\r\n\r\n";
-        $body .= $textBody . "\r\n\r\n";
-        $body .= "--$boundary\r\n";
-        $body .= "Content-Type: text/html; charset=UTF-8\r\n\r\n";
-        $body .= $htmlBody . "\r\n\r\n";
-        $body .= "--$boundary--\r\n";
-
-        // Send email content
-        fwrite($socket, $headers . $body . "\r\n.\r\n");
-        $this->readResponse($socket, 250);
-
-        // Quit
-        $this->sendCommand($socket, "QUIT\r\n", 221);
-
-        // Close connection
-        fclose($socket);
-
-        return true;
-    }
-
-    /**
-     * Send SMTP command and check response
-     */
-    private function sendCommand($socket, $command, $expectedCode) {
-        fwrite($socket, $command);
-        return $this->readResponse($socket, $expectedCode);
-    }
-
-    /**
-     * Read and validate SMTP response
-     */
-    private function readResponse($socket, $expectedCode) {
-        $response = '';
-        while ($line = fgets($socket, 515)) {
-            $response .= $line;
-            if (substr($line, 3, 1) == ' ') {
-                break;
-            }
-        }
-
-        $code = intval(substr($response, 0, 3));
-        if ($code !== $expectedCode) {
-            throw new Exception("SMTP Error: Expected $expectedCode but got $code - $response");
-        }
-
-        return $response;
     }
 
     /**
