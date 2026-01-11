@@ -203,6 +203,9 @@ try {
     // Now send email asynchronously (after response is sent)
     if ($parentEmail) {
         try {
+            // Suppress any output from email sending
+            ob_start();
+
             $emailService = new SimpleEmailService();
             $loginUrl = 'https://schoolhub.tech/external-student/login';
 
@@ -216,14 +219,30 @@ try {
                 $loginUrl
             );
 
+            // Clear any output buffer from email
+            ob_end_clean();
+
             if ($emailSent) {
                 // Log email sent activity
-                logActivity($db, $externalStudentId, $schoolId, 'email_sent', "Registration email sent to $parentEmail", $_SERVER['REMOTE_ADDR'] ?? null);
+                try {
+                    logActivity($db, $externalStudentId, $schoolId, 'email_sent', "Registration email sent to $parentEmail", $_SERVER['REMOTE_ADDR'] ?? null);
+                } catch (Exception $logError) {
+                    error_log("Failed to log email sent activity: " . $logError->getMessage());
+                }
             }
         } catch (Exception $e) {
+            // Clear any output buffer
+            if (ob_get_level() > 0) {
+                ob_end_clean();
+            }
+
             // Log email failure but don't fail the registration
             error_log("Failed to send registration email: " . $e->getMessage());
-            logActivity($db, $externalStudentId, $schoolId, 'email_failed', "Failed to send email to $parentEmail: " . $e->getMessage(), $_SERVER['REMOTE_ADDR'] ?? null);
+            try {
+                logActivity($db, $externalStudentId, $schoolId, 'email_failed', "Failed to send email to $parentEmail: " . $e->getMessage(), $_SERVER['REMOTE_ADDR'] ?? null);
+            } catch (Exception $logError) {
+                error_log("Failed to log email failure: " . $logError->getMessage());
+            }
         }
     }
 
@@ -231,11 +250,37 @@ try {
     exit;
 
 } catch (PDOException $e) {
-    error_log("External student registration error: " . $e->getMessage());
+    error_log("External student registration PDO error: " . $e->getMessage());
+    error_log("PDO error code: " . $e->getCode());
+    error_log("PDO error trace: " . $e->getTraceAsString());
     http_response_code(500);
+
+    // Include error details in development
+    $errorMessage = 'Database error occurred during registration.';
+    if (getenv('APP_ENV') === 'development' || getenv('DEBUG') === 'true') {
+        $errorMessage .= ' Error: ' . $e->getMessage();
+    }
+
     echo json_encode([
         'success' => false,
-        'message' => 'Registration failed. Please try again later.'
+        'message' => $errorMessage
+    ]);
+    exit;
+} catch (Exception $e) {
+    error_log("External student registration general error: " . $e->getMessage());
+    error_log("Error file: " . $e->getFile() . " line " . $e->getLine());
+    error_log("Error trace: " . $e->getTraceAsString());
+    http_response_code(500);
+
+    // Include error details in development
+    $errorMessage = 'Registration failed. Please try again later.';
+    if (getenv('APP_ENV') === 'development' || getenv('DEBUG') === 'true') {
+        $errorMessage .= ' Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine();
+    }
+
+    echo json_encode([
+        'success' => false,
+        'message' => $errorMessage
     ]);
     exit;
 }
